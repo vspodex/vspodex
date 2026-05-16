@@ -17,11 +17,12 @@ import {
   validate,
 } from "./modules/twitch";
 
+import { formatChannelName } from "~/common/helpers";
+
 // ─── Convert Holodex video to UnifiedStream ────────────────
 
 function holodexToUnified(video: HolodexVideo): UnifiedStream {
-  const channelName =
-    video.channel.english_name || video.channel.name || "Unknown";
+  const channelName = formatChannelName(video.channel.name, video.channel.english_name, video.channel.group);
 
   return {
     id: `holodex:${video.id}`,
@@ -41,11 +42,11 @@ function holodexToUnified(video: HolodexVideo): UnifiedStream {
 
 // ─── Convert Twitch stream to UnifiedStream ────────────────
 
-function twitchToUnified(stream: HelixStream): UnifiedStream {
+function twitchToUnified(stream: HelixStream, formattedName?: string): UnifiedStream {
   return {
     id: `twitch:${stream.id}`,
     title: stream.title,
-    channelName: stream.userName,
+    channelName: formattedName || stream.userName,
     channelAvatar: null,
     viewerCount: stream.viewerCount,
     startedAt: stream.startedAt,
@@ -134,7 +135,12 @@ async function refresh() {
           await stores.twitchStreams.set(twitchStreams);
 
           for (const stream of twitchStreams) {
-            allLive.push(twitchToUnified(stream));
+            const hc = cachedChannels.find(
+              c => c.twitch?.toLowerCase() === stream.userLogin.toLowerCase()
+                || defaultTwitchMap.get(c.id)?.toLowerCase() === stream.userLogin.toLowerCase()
+            );
+            const formattedName = hc ? formatChannelName(hc.name, hc.english_name, hc.group) : undefined;
+            allLive.push(twitchToUnified(stream, formattedName));
           }
         } else {
           await stores.twitchStreams.set([]);

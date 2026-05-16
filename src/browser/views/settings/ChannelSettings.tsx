@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import tw, { styled } from "twin.macro";
 
-import { sendRuntimeMessage } from "~/common/helpers";
+import { sendRuntimeMessage, formatChannelName } from "~/common/helpers";
 import { HolodexChannel } from "~/common/types";
 import { useFollowedChannels, useChannelCache, useHolodexApiKey } from "~/browser/hooks";
 
@@ -73,10 +73,6 @@ const ChannelInfo = styled.div`
 
 const ChannelName = styled.div`
   ${tw`font-medium truncate`}
-`;
-
-const ChannelSub = styled.div`
-  ${tw`text-xs text-neutral-500 truncate`}
 `;
 
 const FollowButton = styled.button<{ isFollowed: boolean }>`
@@ -252,11 +248,8 @@ export function Component() {
                       )}
                       <ChannelInfo>
                         <ChannelName>
-                          {channel.english_name || channel.name}
+                          {formatChannelName(channel.name, channel.english_name, channel.group)}
                         </ChannelName>
-                        <ChannelSub>
-                          {channel.english_name ? channel.name : ""}{" "}
-                        </ChannelSub>
                       </ChannelInfo>
                       <FollowButton
                         isFollowed={followedSet.has(channel.id)}

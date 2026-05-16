@@ -110,3 +110,25 @@ export function changeCase(input: any, mapper: (key: string) => string): any {
 
   return input;
 }
+
+export function formatChannelName(name: string, englishName?: string | null, group?: string | null): string {
+  const isEnglishGroup = group && (group.toLowerCase().includes("english") || group.toLowerCase().includes("en"));
+  const eng = englishName || "";
+  
+  if (isEnglishGroup) {
+    return eng || name;
+  }
+
+  const jpRegex = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/g;
+  const matches = name.match(jpRegex);
+  const jp = matches ? matches.join("") : "";
+
+  if (jp) {
+    if (eng && eng !== jp) {
+      return `${jp} ${eng}`;
+    }
+    return jp;
+  }
+  
+  return eng || name;
+}

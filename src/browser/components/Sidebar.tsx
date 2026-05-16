@@ -16,8 +16,8 @@ const Header = styled.div`
   ${tw`grid p-4 place-content-center`}
 `;
 
-const LogoText = styled.div`
-  ${tw`text-indigo-500 font-bold text-xs text-center leading-tight`}
+const LogoImg = styled.img`
+  ${tw`w-8 h-8 object-contain bg-transparent`}
 `;
 
 const Inner = styled.div`
@@ -48,11 +48,7 @@ function Sidebar() {
   return (
     <Wrapper>
       <Header>
-        <LogoText>
-          Vspo
-          <br />
-          Dex
-        </LogoText>
+        <LogoImg src="/icon-48.png" alt="VspoDex" />
       </Header>
       <Inner>
         <StyledLink to="/streams/live" title="Live Streams">
