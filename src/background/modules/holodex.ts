@@ -130,14 +130,25 @@ export async function refreshVspoChannels(): Promise<HolodexChannel[]> {
       return ch;
     });
 
-    await stores.channelCache.set(newCache);
-
-    // Filter followed channels to only include active VSPO members from the new cache
     const currentFollowed = await stores.followedChannels.get();
     const vspoIdSet = new Set(channels.map((ch) => ch.id));
+
+    // Keep custom channels in the cache (channels not belonging to VSpo)
+    const currentCache = await stores.channelCache.get();
+    for (const cachedCh of currentCache) {
+      const isVspo = cachedCh.org === "VSpo" || cachedCh.group === "VSPO";
+      if (!vspoIdSet.has(cachedCh.id) && !isVspo) {
+        newCache.push(cachedCh);
+      }
+    }
+
+    await stores.channelCache.set(newCache);
+
+    const newCacheIdSet = new Set(newCache.map((ch) => ch.id));
     
     // Only keep followed channels that are actually in the new cache
-    const newFollowed = currentFollowed.filter(id => vspoIdSet.has(id));
+    // (This automatically preserves our custom channels since we added them above)
+    const newFollowed = currentFollowed.filter(id => newCacheIdSet.has(id));
     
     // Auto-follow any new VSPO members if desired?
     // Let's just follow all VSPO members by default like before, but cleanly
@@ -179,4 +190,58 @@ export async function fetchAndCacheChannels(channelIds: string[]): Promise<Holod
   return channelIds
     .map((id) => cacheMap.get(id))
     .filter((ch): ch is HolodexChannel => ch !== undefined);
+}
+
+/**
+ * Add a custom channel by its YouTube ID.
+ * Fetches info from Holodex and adds it to the followed list.
+ * Returns true if successful, false if not found.
+ */
+export async function addCustomChannel(channelId: string): Promise<boolean> {
+  try {
+    const channel = await holodexRequest<HolodexChannel>(`channels/${channelId}`);
+    if (channel && channel.id) {
+      // Add to cache
+      const currentCache = await stores.channelCache.get();
+      const cacheMap = new Map(currentCache.map((ch) => [ch.id, ch]));
+      cacheMap.set(channel.id, channel);
+      await stores.channelCache.set(Array.from(cacheMap.values()));
+
+      // Add to followed
+      const currentFollowed = await stores.followedChannels.get();
+      if (!currentFollowed.includes(channel.id)) {
+        currentFollowed.push(channel.id);
+        await stores.followedChannels.set(currentFollowed);
+      }
+      return true;
+    }
+  } catch (error) {
+    console.error(`[VspoDex] Failed to add custom channel ${channelId}:`, error);
+  }
+  return false;
+}
+
+const HARDCODED_CUSTOM_IDS = ["UCgYCMluaLpERsyNXlPOvBtA", "UCIu-aUArYq_H84dBpCAokMA"];
+
+/**
+ * Ensures hardcoded custom channels are added to the cache and followed list
+ * if they are not already present.
+ */
+export async function ensureCustomChannels(): Promise<void> {
+  const hasMigrated = await stores.customChannelsMigrated.get();
+  if (hasMigrated) return;
+
+  const apiKey = await stores.holodexApiKey.get();
+  if (!apiKey) return;
+
+  const currentCache = await stores.channelCache.get();
+  const cacheIds = new Set(currentCache.map(c => c.id));
+  
+  for (const id of HARDCODED_CUSTOM_IDS) {
+    if (!cacheIds.has(id)) {
+      await addCustomChannel(id);
+    }
+  }
+
+  await stores.customChannelsMigrated.set(true);
 }

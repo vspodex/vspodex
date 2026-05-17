@@ -29,7 +29,7 @@ const router = createHashRouter([
 function Page() {
   return (
     <SettingsProvider>
-      <RouterProvider router={router} />
+      <RouterProvider router={router} fallbackElement={<div>Loading...</div>} />
     </SettingsProvider>
   );
 }

@@ -30,7 +30,5 @@ export const DEFAULT_VSPO_CHANNELS: Array<{ id: string; name: string; english_na
   { id: "UCMp55EbT_ZlqiMS3lCj01BQ", name: "八雲べに", english_name: "Beni Yakumo", group: "VSPO", twitch: "beniyakumo" },
   { id: "UC5LyYg6cCA4lHEYqPC7Wrqg", name: "藍沢エマ", english_name: "Ema Aizawa", group: "VSPO", twitch: "emaaizawa" },
   { id: "UCs5l2HmRlPk-8LA3dNaYJw", name: "空澄セナ", english_name: "Sena Asumi", group: "VSPO", twitch: "senaasumi" },
-  { id: "UCPkKpOHxEDcwmUAnRpIu-Ng", name: "甘城なつき", english_name: "Natsuki Amashiro", group: "VSPO", twitch: "natsukiamashiro" },
-  { id: "UChXm-xAYPfygrbyLo2yCASQ", name: "夜絆ニウ", english_name: "Niu Yozuna", group: "VSPO", twitch: "niuyozuna" },
   { id: "UCXU7YYxy_iQd3ulXyO-zC-Q", name: "如月れん", english_name: "Ren Kisaragi", group: "VSPO", twitch: "renkisaragi" },
 ];

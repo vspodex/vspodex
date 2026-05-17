@@ -141,6 +141,10 @@ export const stores = {
     })),
   }),
 
+  customChannelsMigrated: new Store<boolean>("local", "customChannelsMigrated", {
+    defaultValue: false,
+  }),
+
   liveStreams: new Store<UnifiedStream[]>("session", "liveStreams", {
     defaultValue: [],
   }),

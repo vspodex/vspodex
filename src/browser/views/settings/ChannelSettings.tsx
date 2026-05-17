@@ -95,12 +95,26 @@ const EmptyState = styled.div`
   ${tw`text-center text-neutral-500 py-8 text-sm`}
 `;
 
+const CustomAddContainer = styled.div`
+  ${tw`flex gap-2 mb-8 items-stretch`}
+`;
+
+const CustomAddInput = styled.input`
+  ${tw`flex-1 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-black dark:text-white text-sm outline-none focus:border-indigo-500`}
+`;
+
+const RemoveButton = styled.button`
+  ${tw`px-3 py-1 rounded-lg text-xs font-medium cursor-pointer transition-colors flex-none bg-neutral-200 text-neutral-600 hover:bg-red-500 hover:text-white dark:bg-neutral-700 dark:text-neutral-300 dark:hover:bg-red-600 ml-2`}
+`;
+
 export function Component() {
   const [followedChannels, followedStore] = useFollowedChannels();
-  const [channelCache] = useChannelCache();
+  const [channelCache, channelCacheStore] = useChannelCache();
   const [holodexApiKey] = useHolodexApiKey();
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [customChannelId, setCustomChannelId] = useState("");
+  const [addingCustom, setAddingCustom] = useState(false);
 
   const followedSet = useMemo(() => new Set(followedChannels), [followedChannels]);
 
@@ -147,6 +161,26 @@ export function Component() {
     setRefreshing(false);
   };
 
+  const handleAddCustomChannel = async () => {
+    const sanitizedId = customChannelId.replace(/[\s/]/g, "");
+    if (!sanitizedId) return;
+
+    setAddingCustom(true);
+    try {
+      const success = await sendRuntimeMessage("addCustomChannel", sanitizedId);
+      if (success) {
+        alert("Channel added successfully!");
+        setCustomChannelId("");
+      } else {
+        alert("Error: Channel not found on Holodex. Please check the ID.");
+      }
+    } catch (error) {
+      console.error("Failed to add custom channel:", error);
+      alert("Error: Failed to communicate with background script.");
+    }
+    setAddingCustom(false);
+  };
+
   const handleToggleFollow = async (channelId: string) => {
     if (followedSet.has(channelId)) {
       await followedStore.set(followedChannels.filter((id) => id !== channelId));
@@ -155,10 +189,19 @@ export function Component() {
     }
   };
 
+  const handleRemoveChannel = async (channelId: string) => {
+    if (followedSet.has(channelId)) {
+      await followedStore.set(followedChannels.filter((id) => id !== channelId));
+    }
+    await channelCacheStore.set(channelCache.filter((ch) => ch.id !== channelId));
+  };
+
   const groupedChannels = useMemo(() => {
     const groups: Record<string, HolodexChannel[]> = {};
     for (const channel of displayChannels) {
-      const groupName = channel.group || "VSPO"; // Fallback if missing
+      const isVspo = channel.org === "VSpo" || channel.group === "VSPO";
+      const groupName = isVspo ? (channel.group || "VSPO") : "Custom channels";
+
       if (!groups[groupName]) {
         groups[groupName] = [];
       }
@@ -166,6 +209,9 @@ export function Component() {
     }
     
     const sortedKeys = Object.keys(groups).sort((a, b) => {
+      if (a === "Custom channels") return -1;
+      if (b === "Custom channels") return 1;
+
       const aEng = a.toLowerCase().includes("english") || a.toLowerCase().includes("en");
       const bEng = b.toLowerCase().includes("english") || b.toLowerCase().includes("en");
       if (aEng && !bEng) return 1;
@@ -208,6 +254,22 @@ export function Component() {
             {refreshing ? "Refreshing..." : "🔄 Refresh VSPO Members"}
           </Button>
         </ButtonGroup>
+
+        <GroupTitle>Add Custom Channel</GroupTitle>
+        <SectionDescription>
+          Paste a YouTube Channel ID to track any VTuber (Indie, Hololive, Nijisanji, etc.)
+        </SectionDescription>
+        <CustomAddContainer>
+          <CustomAddInput
+            type="text"
+            value={customChannelId}
+            onChange={(e) => setCustomChannelId(e.target.value)}
+            placeholder="e.g. UCXU7YYxy_iQd3ulXyO-zC-Q"
+          />
+          <Button onClick={handleAddCustomChannel} disabled={addingCustom || !customChannelId}>
+            {addingCustom ? "Adding..." : "Add Channel"}
+          </Button>
+        </CustomAddContainer>
 
         <SearchInput
           type="text"
@@ -257,6 +319,11 @@ export function Component() {
                       >
                         {followedSet.has(channel.id) ? "Unfollow" : "Follow"}
                       </FollowButton>
+                      {group.name === "Custom channels" && (
+                        <RemoveButton onClick={() => handleRemoveChannel(channel.id)}>
+                          Remove
+                        </RemoveButton>
+                      )}
                     </ChannelRow>
                   ))}
                 </ChannelGrid>

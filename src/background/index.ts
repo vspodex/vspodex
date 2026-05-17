@@ -6,7 +6,7 @@ import { HolodexVideo, HelixStream, UnifiedStream } from "~/common/types";
 import { DEFAULT_VSPO_CHANNELS } from "~/common/constants";
 
 import { refreshActionBadge } from "./modules/badge";
-import { getLiveStreams, refreshVspoChannels, fetchAndCacheChannels, getChannelsByOrg } from "./modules/holodex";
+import { getLiveStreams, refreshVspoChannels, fetchAndCacheChannels, getChannelsByOrg, addCustomChannel, ensureCustomChannels } from "./modules/holodex";
 import {
   authorize,
   getCurrentUser,
@@ -83,6 +83,7 @@ async function refresh() {
     const apiKey = await stores.holodexApiKey.get();
 
     if (apiKey) {
+      await ensureCustomChannels();
       const followedChannels = await stores.followedChannels.get();
       const videos = await getLiveStreams(followedChannels);
 
@@ -224,6 +225,7 @@ const messageHandlers: Record<string, Function> = {
   fetchAndCacheChannels,
   getChannelsByOrg,
   getRedirectUrl,
+  addCustomChannel,
 };
 
 browser.runtime.onMessage.addListener((message) => {
