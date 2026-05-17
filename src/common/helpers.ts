@@ -112,7 +112,7 @@ export function changeCase(input: any, mapper: (key: string) => string): any {
 }
 
 export function formatChannelName(name: string, englishName?: string | null, group?: string | null): string {
-  const isEnglishGroup = group && (group.toLowerCase().includes("english") || group.toLowerCase().includes("en"));
+  const isEnglishGroup = group && /\b(en|english)\b/i.test(group);
   const eng = englishName || "";
   
   if (isEnglishGroup) {

@@ -212,8 +212,8 @@ export function Component() {
       if (a === "Custom channels") return -1;
       if (b === "Custom channels") return 1;
 
-      const aEng = a.toLowerCase().includes("english") || a.toLowerCase().includes("en");
-      const bEng = b.toLowerCase().includes("english") || b.toLowerCase().includes("en");
+      const aEng = /\b(en|english)\b/i.test(a);
+      const bEng = /\b(en|english)\b/i.test(b);
       if (aEng && !bEng) return 1;
       if (!aEng && bEng) return -1;
       return a.localeCompare(b);
