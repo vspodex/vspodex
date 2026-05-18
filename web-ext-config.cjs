@@ -13,8 +13,4 @@ module.exports = {
     '.babelrc',
     '.editorconfig',
   ],
-  // Signing options
-  sign: {
-    license: 'MIT',
-  },
 };

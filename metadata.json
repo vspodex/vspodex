@@ -1,0 +1,11 @@
+{
+  "categories": [
+    "social-communication"
+  ],
+  "summary": {
+    "en-US": "Track VTuber live streams via Holodex & Twitch"
+  },
+  "version": {
+    "license": "MIT"
+  }
+}
