@@ -9,6 +9,7 @@
     "build:firefox": "rspack --env platform=firefox --mode=production",
     "develop:chrome": "rspack --env platform=chrome --mode=development --watch",
     "develop:firefox": "rspack --env platform=firefox --mode=development --watch",
+    "package:chrome": "npm run build:chrome && powershell -Command \"Compress-Archive -Path dist/chrome/* -DestinationPath vspodex-chrome.zip -Force\"",
     "test": "tsc --noEmit"
   },
   "dependencies": {

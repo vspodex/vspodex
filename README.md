@@ -9,7 +9,7 @@ This extension is dedicated to the VSpo community. It provides a clean and effic
 VspoDex is fully localized and supports multiple languages. You can change your preferred language under the **Appearance** section on the settings page:
 - 🇺🇸 **English** (Default)
 - 🇯🇵 **日本語** (Japanese)
-- 🇹🇼 **繁體中文** (Traditional Chinese - Taiwanese Style)
+- 🇹🇼 **繁體中文** (Traditional Chinese)
 
 ## 🔑 Requirements
 To function correctly, VspoDex requires:

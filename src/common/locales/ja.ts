@@ -43,7 +43,7 @@ export const ja: typeof en = {
   // Settings: ApiKeySettings
   section_holodex_key: "Holodex APIキー",
   desc_holodex_key: "APIキーを取得するには、Holodexにログインし、アカウント設定からキーをコピーする必要があります。",
-  btn_holodex_login: "🔑 Holodex APIキーこちらへ",
+  btn_holodex_login: "🔑 Holodex APIキーはこちらへ",
   inst_holodex_key: "ログイン後、 アカウント設定 → APIキー に移動してAPIキーを生成し、コピーしてください。",
   placeholder_holodex_key: "Holodex APIキーを入力してください...",
   btn_save: "保存",
