@@ -4,7 +4,21 @@ import { MouseEvent } from "react";
 import { stores } from "./stores";
 import { ClickBehavior, Dictionary, FontSize } from "./types";
 
-export function getBaseFontSize(value: FontSize): string {
+export function getBaseFontSize(value: FontSize, isSettings = false): string {
+  if (isSettings) {
+    switch (value) {
+      case "smallest":
+        return "15px";
+      case "small":
+        return "17px";
+      case "large":
+        return "21px";
+      case "largest":
+        return "23px";
+    }
+    return "19px";
+  }
+
   switch (value) {
     case "smallest":
       return "12px";

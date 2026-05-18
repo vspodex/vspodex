@@ -36,8 +36,8 @@ const StyledLink = styled(NavLink)`
   }
 `;
 
-const SettingsLink = styled.a`
-  ${tw`flex items-center justify-center w-10 h-10 rounded-lg text-neutral-500 hover:text-white hover:bg-neutral-700 transition-colors cursor-pointer`}
+const SettingsLink = styled.button`
+  ${tw`flex items-center justify-center w-10 h-10 rounded-lg text-neutral-500 hover:text-white hover:bg-neutral-700 transition-colors cursor-pointer bg-transparent border-none outline-none p-0`}
 `;
 
 function Sidebar() {

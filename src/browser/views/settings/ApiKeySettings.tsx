@@ -91,18 +91,23 @@ export function Component() {
     <>
       <Section>
         <SectionTitle>Holodex API Key</SectionTitle>
-        <SectionDescription>
-          Please log in to{" "}
+        <SectionDescription css={tw`mb-3`}>
+          To get your API key, you need to log in to Holodex and copy the key from your account settings.
+        </SectionDescription>
+
+        <div css={tw`mb-5`}>
           <a
             href="https://holodex.net/login"
             target="_blank"
             rel="noopener"
-            css={tw`text-indigo-400 hover:underline`}
+            css={tw`inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer border-none outline-none no-underline`}
           >
-            holodex.net/login
+            🔑 Click here to login & obtain Holodex API Key
           </a>
-          , then navigate to <strong>Account Settings</strong> → <strong>API Key</strong> to generate and copy your API key.
-        </SectionDescription>
+          <div css={tw`text-xs text-neutral-400 dark:text-neutral-500 mt-2 leading-relaxed`}>
+            After logging in, navigate to <strong>Account Settings</strong> → <strong>API Key</strong> to generate and copy your API key.
+          </div>
+        </div>
 
         <InputGroup>
           <Input

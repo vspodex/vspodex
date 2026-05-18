@@ -27,6 +27,8 @@ const wrapper: EntryWrapper<ExoticComponent> = (Component) => {
 
     const darkMode = usePreferDarkMode();
 
+    const isSettings = typeof window === "object" && window.location.pathname.includes("settings.html");
+
     useEffect(() => {
       const force =
         settings.general.theme === "system" ? darkMode : settings.general.theme === "dark";
@@ -46,7 +48,7 @@ const wrapper: EntryWrapper<ExoticComponent> = (Component) => {
 
             html,
             body {
-              font-size: ${getBaseFontSize(settings.general.fontSize)};
+              font-size: ${getBaseFontSize(settings.general.fontSize, isSettings)};
             }
 
             html {
