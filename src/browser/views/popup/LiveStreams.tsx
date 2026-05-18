@@ -16,6 +16,10 @@ const Header = styled.div`
   ${tw`px-4 py-3 text-sm font-medium text-neutral-500 uppercase tracking-wider border-b border-neutral-200 dark:border-neutral-800`}
 `;
 
+const ActionButton = styled.button`
+  ${tw`px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-semibold rounded-lg shadow-md transition-colors cursor-pointer border-none outline-none`}
+`;
+
 function ChildComponent() {
   const [liveStreams] = useLiveStreams({ suspense: true });
   const [holodexApiKey] = useHolodexApiKey();
@@ -54,12 +58,9 @@ function ChildComponent() {
           <div css={tw`text-xs text-neutral-400 dark:text-neutral-500 mb-5 leading-relaxed`}>
             Please configure a Holodex API key or connect your Twitch account to start tracking live streams.
           </div>
-          <button
-            onClick={handleOpenSettings}
-            css={tw`px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-semibold rounded-lg shadow-md transition-colors cursor-pointer border-none outline-none`}
-          >
+          <ActionButton onClick={handleOpenSettings}>
             ⚙️ Set up API Keys
-          </button>
+          </ActionButton>
         </div>
       </Splash>
     );
