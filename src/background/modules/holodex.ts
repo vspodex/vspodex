@@ -150,11 +150,20 @@ export async function refreshVspoChannels(): Promise<HolodexChannel[]> {
     // (This automatically preserves our custom channels since we added them above)
     const newFollowed = currentFollowed.filter(id => newCacheIdSet.has(id));
     
-    // Auto-follow any new VSPO members if desired?
-    // Let's just follow all VSPO members by default like before, but cleanly
+    // Auto-follow only newly debuted VSPO members (channels that were not in the previous cache)
+    // to avoid re-following members that the user has explicitly unfollowed.
+    const isFirstInit = currentCache.length === 0;
+    const previousVspoIds = new Set(
+      currentCache
+        .filter(ch => ch.org === "VSpo" || ch.group === "VSPO")
+        .map(ch => ch.id)
+    );
+
     for (const id of vspoIdSet) {
       if (!newFollowed.includes(id)) {
-        newFollowed.push(id);
+        if (isFirstInit || !previousVspoIds.has(id)) {
+          newFollowed.push(id);
+        }
       }
     }
 
