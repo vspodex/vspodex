@@ -92,16 +92,16 @@ export function Component() {
       <Section>
         <SectionTitle>Holodex API Key</SectionTitle>
         <SectionDescription>
-          Get your API key from{" "}
+          Please log in to{" "}
           <a
-            href="https://holodex.net"
+            href="https://holodex.net/login"
             target="_blank"
             rel="noopener"
             css={tw`text-indigo-400 hover:underline`}
           >
-            holodex.net
-          </a>{" "}
-          → Account Settings → API Key
+            holodex.net/login
+          </a>
+          , then navigate to <strong>Account Settings</strong> → <strong>API Key</strong> to generate and copy your API key.
         </SectionDescription>
 
         <InputGroup>

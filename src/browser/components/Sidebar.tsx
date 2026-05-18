@@ -41,8 +41,21 @@ const SettingsLink = styled.a`
 `;
 
 function Sidebar() {
-  const openSettings = () => {
-    browser.runtime.openOptionsPage();
+  const openSettings = async () => {
+    const targetUrl = browser.runtime.getURL("settings.html#/channels");
+    try {
+      const tabs = await browser.tabs.query({ url: browser.runtime.getURL("settings.html*") });
+      if (tabs.length > 0) {
+        await browser.tabs.update(tabs[0].id!, { url: targetUrl, active: true });
+        if (tabs[0].windowId) {
+          await browser.windows.update(tabs[0].windowId, { focused: true });
+        }
+      } else {
+        await browser.tabs.create({ url: targetUrl });
+      }
+    } catch {
+      await browser.tabs.create({ url: targetUrl });
+    }
   };
 
   return (
