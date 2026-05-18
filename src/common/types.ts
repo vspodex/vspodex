@@ -21,6 +21,14 @@ export interface HolodexChannel {
   description?: string | null;
 }
 
+export interface SuggestionChannel {
+  id: string;
+  name: string;
+  english_name: string | null;
+  org: string | null;
+  photo: string | null;
+}
+
 export interface HolodexVideo {
   id: string;
   title: string;

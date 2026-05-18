@@ -7,6 +7,7 @@ const router = createHashRouter([
   },
   {
     lazy: () => import("../views/popup/Root"),
+    hydrateFallbackElement: <div>Loading...</div>,
     children: [
       {
         path: "streams",

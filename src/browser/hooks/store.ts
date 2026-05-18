@@ -10,6 +10,7 @@ import {
   UnifiedStream,
   HelixStream,
   HelixUser,
+  SuggestionChannel,
 } from "~/common/types";
 
 // ─── Store Loader (from Gumbo) ─────────────────────────────
@@ -141,6 +142,14 @@ export function useChannelCache(options?: UseStoreOptions) {
 
 export function useHolodexApiKey(options?: UseStoreOptions) {
   return useStore(stores.holodexApiKey, options);
+}
+
+export function useSearchChannelsList(options?: UseStoreOptions) {
+  return useStore(stores.searchChannelsList, options);
+}
+
+export function useSearchChannelsLastUpdated(options?: UseStoreOptions) {
+  return useStore(stores.searchChannelsLastUpdated, options);
 }
 
 export function useTwitchAccessToken(options?: UseStoreOptions) {

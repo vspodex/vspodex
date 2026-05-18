@@ -12,6 +12,7 @@ import {
   LiveStreamState,
   Settings,
   UnifiedStream,
+  SuggestionChannel,
 } from "./types";
 
 // ─── Store Implementation (from Gumbo) ──────────────────────
@@ -143,6 +144,14 @@ export const stores = {
 
   customChannelsMigrated: new Store<boolean>("local", "customChannelsMigrated", {
     defaultValue: false,
+  }),
+
+  searchChannelsList: new Store<SuggestionChannel[]>("local", "searchChannelsList", {
+    defaultValue: [],
+  }),
+
+  searchChannelsLastUpdated: new Store<number>("local", "searchChannelsLastUpdated", {
+    defaultValue: 0,
   }),
 
   liveStreams: new Store<UnifiedStream[]>("session", "liveStreams", {

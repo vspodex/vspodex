@@ -1,6 +1,6 @@
 import { DEFAULT_VSPO_CHANNELS } from "~/common/constants";
 import { stores } from "~/common/stores";
-import { HolodexChannel, HolodexVideo, Dictionary } from "~/common/types";
+import { HolodexChannel, HolodexVideo, Dictionary, SuggestionChannel } from "~/common/types";
 
 const BASE_URL = "https://holodex.net/api/v2";
 
@@ -244,4 +244,107 @@ export async function ensureCustomChannels(): Promise<void> {
   }
 
   await stores.customChannelsMigrated.set(true);
+}
+
+/**
+ * Fetch all channels for a given organization (paginated).
+ */
+async function fetchAllForOrg(orgName: string): Promise<HolodexChannel[]> {
+  let all: HolodexChannel[] = [];
+  let offset = 0;
+  const limit = 100;
+  
+  while (true) {
+    const channels = await holodexRequest<HolodexChannel[]>("channels", {
+      type: "vtuber",
+      org: orgName,
+      limit: String(limit),
+      offset: String(offset),
+    });
+
+    if (!channels || channels.length === 0) {
+      break;
+    }
+    all = all.concat(channels);
+    if (channels.length < limit) {
+      break; // Last page
+    }
+    offset += limit;
+  }
+  return all;
+}
+
+/**
+ * Fetch top independent channels sorted by subscriber count.
+ */
+async function fetchTopIndependents(count: number): Promise<HolodexChannel[]> {
+  let all: HolodexChannel[] = [];
+  let offset = 0;
+  const limit = 100;
+  
+  while (all.length < count) {
+    const fetchLimit = Math.min(limit, count - all.length);
+    const channels = await holodexRequest<HolodexChannel[]>("channels", {
+      type: "vtuber",
+      org: "Independents",
+      sort: "subscriber_count",
+      order: "desc",
+      limit: String(fetchLimit),
+      offset: String(offset),
+    });
+
+    if (!channels || channels.length === 0) {
+      break;
+    }
+    all = all.concat(channels);
+    if (channels.length < fetchLimit) {
+      break;
+    }
+    offset += fetchLimit;
+  }
+  return all;
+}
+
+/**
+ * Synchronize the suggestions search channel list from Holodex API.
+ * Fetches Hololive, Nijisanji, Neo-Porte, and the top 200 independent channels.
+ * Deduplicates them, maps them, and writes the list to stores.
+ */
+export async function refreshSearchChannelsList(): Promise<number> {
+  const apiKey = await getApiKey();
+  if (!apiKey) {
+    throw new Error("Holodex API key not set");
+  }
+
+  // Fetch all orgs in parallel to optimize speed
+  const [hololive, nijisanji, neoporte, independents] = await Promise.all([
+    fetchAllForOrg("Hololive"),
+    fetchAllForOrg("Nijisanji"),
+    fetchAllForOrg("Neo-Porte"),
+    fetchTopIndependents(200),
+  ]);
+
+  const combined = [...hololive, ...nijisanji, ...neoporte, ...independents];
+
+  // Map to simple SuggestionChannel format and deduplicate by channel id
+  const seenIds = new Set<string>();
+  const suggestionChannels: SuggestionChannel[] = [];
+
+  for (const ch of combined) {
+    if (ch && ch.id && !seenIds.has(ch.id)) {
+      seenIds.add(ch.id);
+      suggestionChannels.push({
+        id: ch.id,
+        name: ch.name,
+        english_name: ch.english_name || null,
+        org: ch.org || null,
+        photo: ch.photo || null,
+      });
+    }
+  }
+
+  await stores.searchChannelsList.set(suggestionChannels);
+  await stores.searchChannelsLastUpdated.set(Date.now());
+
+  return suggestionChannels.length;
 }

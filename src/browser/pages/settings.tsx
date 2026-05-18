@@ -9,6 +9,7 @@ const router = createHashRouter([
   },
   {
     lazy: () => import("../views/settings/Root"),
+    hydrateFallbackElement: <div>Loading...</div>,
     children: [
       {
         path: "api-keys",
@@ -29,7 +30,7 @@ const router = createHashRouter([
 function Page() {
   return (
     <SettingsProvider>
-      <RouterProvider router={router} fallbackElement={<div>Loading...</div>} />
+      <RouterProvider router={router} />
     </SettingsProvider>
   );
 }

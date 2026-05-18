@@ -6,7 +6,7 @@ import { HolodexVideo, HelixStream, UnifiedStream } from "~/common/types";
 import { DEFAULT_VSPO_CHANNELS } from "~/common/constants";
 
 import { refreshActionBadge } from "./modules/badge";
-import { getLiveStreams, refreshVspoChannels, fetchAndCacheChannels, getChannelsByOrg, addCustomChannel, ensureCustomChannels } from "./modules/holodex";
+import { getLiveStreams, refreshVspoChannels, fetchAndCacheChannels, getChannelsByOrg, addCustomChannel, ensureCustomChannels, refreshSearchChannelsList } from "./modules/holodex";
 import {
   authorize,
   getCurrentUser,
@@ -73,6 +73,24 @@ async function refresh() {
 
   if (!navigator.onLine) {
     return;
+  }
+
+  // Silent background sync check for VTuber search list (stale after 7 days)
+  try {
+    const apiKey = await stores.holodexApiKey.get();
+    if (apiKey) {
+      const list = await stores.searchChannelsList.get();
+      const lastUpdated = await stores.searchChannelsLastUpdated.get();
+      const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+      if (list.length === 0 || Date.now() - lastUpdated > oneWeekMs) {
+        console.log("[VspoDex] VTuber search list is empty or stale. Silently syncing in background...");
+        refreshSearchChannelsList().catch(err => {
+          console.error("[VspoDex] Silent background sync failed:", err);
+        });
+      }
+    }
+  } catch (err) {
+    console.error("[VspoDex] Failed checking search list status:", err);
   }
 
   const allLive: UnifiedStream[] = [];
@@ -226,6 +244,7 @@ const messageHandlers: Record<string, Function> = {
   getChannelsByOrg,
   getRedirectUrl,
   addCustomChannel,
+  refreshSearchChannelsList,
 };
 
 browser.runtime.onMessage.addListener((message) => {
