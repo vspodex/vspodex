@@ -8,15 +8,15 @@ export function getBaseFontSize(value: FontSize, isSettings = false): string {
   if (isSettings) {
     switch (value) {
       case "smallest":
-        return "15px";
+        return "13px";
       case "small":
-        return "17px";
+        return "14.5px";
       case "large":
-        return "21px";
+        return "18px";
       case "largest":
-        return "23px";
+        return "20px";
     }
-    return "19px";
+    return "16px";
   }
 
   switch (value) {
