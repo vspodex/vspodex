@@ -4,7 +4,7 @@ import tw, { styled } from "twin.macro";
 import { sendRuntimeMessage } from "~/common/helpers";
 import { useRefreshHandler } from "~/browser/contexts";
 import { isEmpty } from "~/browser/helpers";
-import { useLiveStreams, useHolodexApiKey, useTwitchAccessToken } from "~/browser/hooks";
+import { useLiveStreams, useHolodexApiKey, useTwitchAccessToken, useTranslation } from "~/browser/hooks";
 
 import StreamCard from "~/browser/components/cards/StreamCard";
 import Layout from "~/browser/components/Layout";
@@ -24,6 +24,7 @@ function ChildComponent() {
   const [liveStreams] = useLiveStreams({ suspense: true });
   const [holodexApiKey] = useHolodexApiKey();
   const [twitchAccessToken] = useTwitchAccessToken();
+  const { t } = useTranslation();
 
   useRefreshHandler(async () => {
     await sendRuntimeMessage("refresh");
@@ -53,13 +54,13 @@ function ChildComponent() {
       <Splash>
         <div css={tw`flex flex-col items-center max-w-xs mx-auto`}>
           <div css={tw`text-neutral-700 dark:text-neutral-300 font-semibold mb-2 text-base`}>
-            VspoDex Needs Setup
+            {t("splash_needs_setup_title")}
           </div>
           <div css={tw`text-xs text-neutral-400 dark:text-neutral-500 mb-5 leading-relaxed`}>
-            Please configure a Holodex API key or connect your Twitch account to start tracking live streams.
+            {t("splash_needs_setup_desc")}
           </div>
           <ActionButton onClick={handleOpenSettings}>
-            ⚙️ Set up API Keys
+            {t("btn_setup_api_keys")}
           </ActionButton>
         </div>
       </Splash>
@@ -69,9 +70,7 @@ function ChildComponent() {
   if (isEmpty(liveStreams)) {
     return (
       <Splash>
-        No live streams right now.
-        <br />
-        Check back later! 📺
+        {t("splash_no_live")}
       </Splash>
     );
   }
@@ -86,9 +85,11 @@ function ChildComponent() {
 }
 
 export function Component() {
+  const { t } = useTranslation();
+
   return (
     <Layout>
-      <Header>🔴 Live Now</Header>
+      <Header>{t("header_live_now")}</Header>
       <ChildComponent />
     </Layout>
   );

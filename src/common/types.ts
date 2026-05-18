@@ -91,6 +91,7 @@ export interface HelixResponse<T> {
 export type FontSize = "smallest" | "small" | "medium" | "large" | "largest";
 export type SortDirection = "asc" | "desc";
 export type Theme = "system" | "dark" | "light";
+export type Language = "en" | "zh" | "ja";
 
 export enum ClickAction {
   OpenChannel,
@@ -112,6 +113,7 @@ export interface GeneralSettings {
   refreshInterval: number; // minutes
   sortBy: "viewerCount" | "duration";
   sortOrder: "asc" | "desc";
+  language: Language;
 }
 
 export interface BadgeSettings {

@@ -3,7 +3,7 @@ import tw, { styled } from "twin.macro";
 
 import { sendRuntimeMessage, formatChannelName } from "~/common/helpers";
 import { HolodexChannel, SuggestionChannel } from "~/common/types";
-import { useFollowedChannels, useChannelCache, useHolodexApiKey, useSearchChannelsList, useSearchChannelsLastUpdated } from "~/browser/hooks";
+import { useFollowedChannels, useChannelCache, useHolodexApiKey, useSearchChannelsList, useSearchChannelsLastUpdated, useTranslation } from "~/browser/hooks";
 
 const Section = styled.div`
   ${tw`mb-8`}
@@ -160,6 +160,7 @@ export function Component() {
   const [refreshingSearch, setRefreshingSearch] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [showDropdown, setShowDropdown] = useState(false);
+  const { t } = useTranslation();
 
   const followedSet = useMemo(() => new Set(followedChannels), [followedChannels]);
 
@@ -257,7 +258,7 @@ export function Component() {
 
   const handleRefreshVspo = async () => {
     if (!holodexApiKey) {
-      alert("Please set your Holodex API key first!");
+      alert(t("alert_set_holodex_key"));
       return;
     }
 
@@ -266,39 +267,39 @@ export function Component() {
       await sendRuntimeMessage("refreshVspoChannels");
     } catch (error) {
       console.error("Failed to refresh:", error);
-      alert("Failed to refresh VSPO channels. Check your API key.");
+      alert(t("alert_refresh_vspo_fail"));
     }
     setRefreshing(false);
   };
 
   const handleSyncSearchList = async () => {
     if (!holodexApiKey) {
-      alert("Please set your Holodex API key first!");
+      alert(t("alert_set_holodex_key"));
       return;
     }
 
     setRefreshingSearch(true);
     try {
       const count = await sendRuntimeMessage("refreshSearchChannelsList");
-      alert(`Synchronized ${count} VTuber search channels successfully!`);
+      alert(t("alert_sync_search_success").replace("{count}", String(count)));
     } catch (error) {
       console.error("Failed to sync search channels:", error);
-      alert("Failed to sync search channels. Check your API key.");
+      alert(t("alert_sync_search_fail"));
     }
     setRefreshingSearch(false);
   };
 
   const formattedSyncTime = useMemo(() => {
-    if (!searchChannelsLastUpdated) return "Never synced";
+    if (!searchChannelsLastUpdated) return t("status_never_synced");
     const diffMs = Date.now() - searchChannelsLastUpdated;
     const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1) return t("status_just_now");
+    if (diffMins < 60) return `${diffMins}${t("status_mins_ago")}`;
     const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffHours < 24) return `${diffHours}${t("status_hours_ago")}`;
     const diffDays = Math.floor(diffHours / 24);
-    return `${diffDays}d ago`;
-  }, [searchChannelsLastUpdated]);
+    return `${diffDays}${t("status_days_ago")}`;
+  }, [searchChannelsLastUpdated, t]);
 
   const handleSelectSuggestion = async (suggestion: SuggestionChannel) => {
     try {
@@ -354,14 +355,14 @@ export function Component() {
     try {
       const success = await sendRuntimeMessage("addCustomChannel", sanitizedId);
       if (success) {
-        alert("Channel added successfully!");
+        alert(t("alert_add_custom_success"));
         setCustomChannelId("");
       } else {
-        alert("Error: Channel not found on Holodex. Please check the ID.");
+        alert(t("alert_add_custom_fail"));
       }
     } catch (error) {
       console.error("Failed to add custom channel:", error);
-      alert("Error: Failed to communicate with background script.");
+      alert(t("alert_add_custom_comm_error"));
     }
     setAddingCustom(false);
   };
@@ -426,27 +427,26 @@ export function Component() {
     <>
       <Section>
         <SectionTitle>
-          VTuber Channels
-          <CountBadge>{followedChannels.length} followed</CountBadge>
+          {t("section_vtuber_channels")}
+          <CountBadge>{followedChannels.length} {t("followed_badge")}</CountBadge>
         </SectionTitle>
         <SectionDescription>
-          Manage which VTuber channels you follow. Click "Refresh VSPO Members" to
-          update the list from Holodex.
+          {t("desc_vtuber_channels")}
         </SectionDescription>
 
         <ButtonGroup>
           <Button onClick={handleRefreshVspo} disabled={refreshing}>
-            {refreshing ? "Refreshing..." : "🔄 Refresh VSPO Members"}
+            {refreshing ? t("btn_refreshing") : t("btn_refresh_vspo")}
           </Button>
           <Button variant="outline" onClick={handleSyncSearchList} disabled={refreshingSearch}>
-            {refreshingSearch ? "Syncing..." : "🔄 Sync VTuber Search List"}
+            {refreshingSearch ? t("btn_syncing") : t("btn_sync_search")}
           </Button>
-          <SyncStatus>Last synced: {formattedSyncTime}</SyncStatus>
+          <SyncStatus>{t("status_last_synced")} {formattedSyncTime}</SyncStatus>
         </ButtonGroup>
 
-        <GroupTitle>Add Custom Channel</GroupTitle>
+        <GroupTitle>{t("section_add_custom")}</GroupTitle>
         <SectionDescription>
-          Type a VTuber's name (e.g. Gura, Kanata) or paste a YouTube Channel ID to track them.
+          {t("desc_add_custom")}
         </SectionDescription>
         <CustomAddContainer>
           <CustomInputWrapper>
@@ -463,7 +463,7 @@ export function Component() {
                 setTimeout(() => setShowDropdown(false), 200);
               }}
               onKeyDown={handleKeyDown}
-              placeholder="e.g. Gawr Gura or UCXU7YYxy_iQd3ulXyO-zC-Q"
+              placeholder={t("placeholder_add_custom")}
             />
             {showDropdown && suggestions.length > 0 && (
               <SuggestionDropdown>
@@ -494,7 +494,7 @@ export function Component() {
             )}
           </CustomInputWrapper>
           <Button onClick={handleAddCustomChannel} disabled={addingCustom || !customChannelId}>
-            {addingCustom ? "Adding..." : "Add Channel"}
+            {addingCustom ? t("btn_adding") : t("btn_add_channel")}
           </Button>
         </CustomAddContainer>
 
@@ -502,24 +502,24 @@ export function Component() {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search channels..."
+          placeholder={t("placeholder_search_channels")}
         />
 
         {displayChannels.length === 0 ? (
           <EmptyState>
             {channelCache.length === 0
-              ? 'No channels loaded yet. Click "Refresh VSPO Members" to fetch the channel list.'
-              : "No channels match your search."}
+              ? t("empty_no_channels_loaded")
+              : t("empty_no_channels_match")}
           </EmptyState>
         ) : (
           <div>
             {groupedChannels.map((group) => (
               <div key={group.name}>
                 <GroupTitle>
-                  {group.name}
+                  {group.name === "Custom channels" ? t("group_custom_channels") : group.name}
                   <GroupActionButtons>
-                    <SmallButton variant="outline" onClick={() => handleFollowGroup(group.channels)}>Follow All</SmallButton>
-                    <SmallButton variant="danger" onClick={() => handleUnfollowGroup(group.channels)}>Unfollow All</SmallButton>
+                    <SmallButton variant="outline" onClick={() => handleFollowGroup(group.channels)}>{t("btn_follow_all")}</SmallButton>
+                    <SmallButton variant="danger" onClick={() => handleUnfollowGroup(group.channels)}>{t("btn_unfollow_all")}</SmallButton>
                   </GroupActionButtons>
                 </GroupTitle>
                 <ChannelGrid>
@@ -544,11 +544,11 @@ export function Component() {
                         isFollowed={followedSet.has(channel.id)}
                         onClick={() => handleToggleFollow(channel.id)}
                       >
-                        {followedSet.has(channel.id) ? "Unfollow" : "Follow"}
+                        {followedSet.has(channel.id) ? t("btn_unfollow") : t("btn_follow")}
                       </FollowButton>
                       {group.name === "Custom channels" && (
                         <RemoveButton onClick={() => handleRemoveChannel(channel.id)}>
-                          Remove
+                          {t("btn_remove")}
                         </RemoveButton>
                       )}
                     </ChannelRow>

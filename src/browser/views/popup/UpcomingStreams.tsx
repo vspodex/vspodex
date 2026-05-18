@@ -3,7 +3,7 @@ import tw, { styled } from "twin.macro";
 import { sendRuntimeMessage } from "~/common/helpers";
 import { useRefreshHandler } from "~/browser/contexts";
 import { isEmpty } from "~/browser/helpers";
-import { useUpcomingStreams } from "~/browser/hooks";
+import { useUpcomingStreams, useTranslation } from "~/browser/hooks";
 
 import StreamCard from "~/browser/components/cards/StreamCard";
 import Layout from "~/browser/components/Layout";
@@ -17,6 +17,7 @@ const Header = styled.div`
 
 function ChildComponent() {
   const [upcomingStreams] = useUpcomingStreams({ suspense: true });
+  const { t } = useTranslation();
 
   useRefreshHandler(async () => {
     await sendRuntimeMessage("refresh");
@@ -25,9 +26,7 @@ function ChildComponent() {
   if (isEmpty(upcomingStreams)) {
     return (
       <Splash>
-        No upcoming streams scheduled.
-        <br />
-        Check back later! 📅
+        {t("splash_no_upcoming")}
       </Splash>
     );
   }
@@ -42,9 +41,11 @@ function ChildComponent() {
 }
 
 export function Component() {
+  const { t } = useTranslation();
+
   return (
     <Layout>
-      <Header>📅 Upcoming</Header>
+      <Header>{t("header_upcoming")}</Header>
       <ChildComponent />
     </Layout>
   );

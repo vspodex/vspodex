@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import tw, { styled } from "twin.macro";
 
 import { sendRuntimeMessage } from "~/common/helpers";
-import { useHolodexApiKey, useTwitchAccessToken, useTwitchUser } from "~/browser/hooks";
+import { useHolodexApiKey, useTwitchAccessToken, useTwitchUser, useTranslation } from "~/browser/hooks";
 
 const Section = styled.div`
   ${tw`mb-8`}
@@ -44,6 +44,26 @@ const TwitchUserInfo = styled.div`
   ${tw`flex items-center gap-3 p-3 bg-neutral-100 dark:bg-neutral-800 rounded-lg`}
 `;
 
+const HolodexDescription = styled(SectionDescription)`
+  ${tw`mb-6`}
+`;
+
+const HolodexButton = styled.a`
+  ${tw`px-4 py-2 rounded-lg text-sm font-medium text-white cursor-pointer transition-colors bg-indigo-600 hover:bg-indigo-700 inline-flex items-center gap-2 no-underline`}
+`;
+
+const ButtonWrapper = styled.div`
+  ${tw`mb-6`}
+`;
+
+const HolodexInstruction = styled.div`
+  ${tw`text-xs text-neutral-400 dark:text-neutral-500 leading-relaxed mb-6 mt-4`}
+`;
+
+const HolodexInputGroup = styled(InputGroup)`
+  ${tw`mt-8`}
+`;
+
 const TwitchAvatar = styled.img`
   ${tw`w-10 h-10 rounded-full`}
 `;
@@ -52,6 +72,7 @@ export function Component() {
   const [holodexApiKey, holodexStore] = useHolodexApiKey();
   const [twitchAccessToken] = useTwitchAccessToken();
   const [twitchUser] = useTwitchUser();
+  const { t } = useTranslation();
 
   const [apiKeyInput, setApiKeyInput] = useState(holodexApiKey || "");
   const [saving, setSaving] = useState(false);
@@ -90,54 +111,53 @@ export function Component() {
   return (
     <>
       <Section>
-        <SectionTitle>Holodex API Key</SectionTitle>
-        <SectionDescription css={tw`mb-5`}>
-          To get your API key, you need to log in to Holodex and copy the key from your account settings.
-        </SectionDescription>
+        <SectionTitle>{t("section_holodex_key")}</SectionTitle>
+        <HolodexDescription>
+          {t("desc_holodex_key")}
+        </HolodexDescription>
 
-        <div css={tw`mb-8`}>
-          <Button
-            as="a"
+        <ButtonWrapper>
+          <HolodexButton
             href="https://holodex.net/login"
             target="_blank"
             rel="noopener"
-            css={tw`inline-flex items-center gap-2 px-6 py-3 no-underline`}
           >
-            🔑 Click here to login & obtain Holodex API Key
-          </Button>
-          <div css={tw`text-xs text-neutral-400 dark:text-neutral-500 mt-3 leading-relaxed`}>
-            After logging in, navigate to <strong>Account Settings</strong> → <strong>API Key</strong> to generate and copy your API key.
-          </div>
-        </div>
+            {t("btn_holodex_login")}
+          </HolodexButton>
+        </ButtonWrapper>
 
-        <InputGroup css={tw`mt-6`}>
+        <HolodexInstruction>
+          {t("inst_holodex_key")}
+        </HolodexInstruction>
+
+        <HolodexInputGroup>
           <Input
             type="password"
             value={apiKeyInput}
             onChange={(e) => setApiKeyInput(e.target.value)}
-            placeholder="Enter your Holodex API key..."
+            placeholder={t("placeholder_holodex_key")}
           />
           <Button onClick={handleSaveApiKey} disabled={saving}>
-            {saving ? "Saving..." : "Save"}
+            {saving ? t("btn_saving") : t("btn_save")}
           </Button>
-        </InputGroup>
+        </HolodexInputGroup>
 
         <div css={tw`mt-2`}>
           <StatusBadge connected={!!holodexApiKey}>
-            {holodexApiKey ? "✓ Connected" : "✗ Not configured"}
+            {holodexApiKey ? t("status_connected") : t("status_not_configured")}
           </StatusBadge>
         </div>
       </Section>
 
       <Section>
-        <SectionTitle>Twitch Account</SectionTitle>
+        <SectionTitle>{t("section_twitch")}</SectionTitle>
         <SectionDescription>
-          Connect your Twitch account to see followed Twitch streams in the popup.
+          {t("desc_twitch")}
           {redirectUrl && (
             <>
               <br />
               <span css={tw`text-xs mt-1 block`}>
-                Add this redirect URL to your{" "}
+                {t("twitch_redirect_url")}{" "}
                 <a
                   href="https://dev.twitch.tv/console/apps"
                   target="_blank"
@@ -172,17 +192,17 @@ export function Component() {
               onClick={handleTwitchLogout}
               css={tw`mt-3`}
             >
-              Disconnect Twitch
+              {t("btn_twitch_disconnect")}
             </Button>
           </>
         ) : (
           <>
             <Button onClick={handleTwitchLogin}>
-              🟣 Connect Twitch Account
+              {t("btn_twitch_connect")}
             </Button>
             <div css={tw`mt-2`}>
               <StatusBadge connected={!!twitchAccessToken}>
-                {twitchAccessToken ? "✓ Connected" : "✗ Not connected"}
+                {twitchAccessToken ? t("status_connected") : t("status_not_connected")}
               </StatusBadge>
             </div>
           </>

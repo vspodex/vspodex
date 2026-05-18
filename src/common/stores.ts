@@ -186,6 +186,7 @@ export const stores = {
         refreshInterval: 1,
         sortBy: "viewerCount",
         sortOrder: "desc",
+        language: "en",
       },
       badge: {
         enabled: true,

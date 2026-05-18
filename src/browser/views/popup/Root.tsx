@@ -5,6 +5,7 @@ import tw, { styled } from "twin.macro";
 
 import { sendRuntimeMessage } from "~/common/helpers";
 import { SearchProvider } from "~/browser/contexts";
+import { useTranslation } from "~/browser/hooks";
 
 import Loader from "~/browser/components/Loader";
 import Sidebar from "~/browser/components/Sidebar";
@@ -36,6 +37,7 @@ const ContentArea = styled.div`
 
 export function Component() {
   const [refreshing, setRefreshing] = useState(false);
+  const { t } = useTranslation();
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -64,11 +66,11 @@ export function Component() {
           <Sidebar />
           <Body>
             <TopBar>
-              <RefreshButton onClick={handleRefresh} spinning={refreshing} title="Refresh streams">
+              <RefreshButton onClick={handleRefresh} spinning={refreshing} title={t("btn_refresh")}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
                 </svg>
-                {refreshing ? "Refreshing…" : "Refresh"}
+                {refreshing ? t("btn_refreshing_popup") : t("btn_refresh")}
               </RefreshButton>
             </TopBar>
             <ContentArea>

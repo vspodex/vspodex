@@ -2,6 +2,8 @@ import { IconHeart, IconCalendar, IconSettings } from "@tabler/icons-react";
 import tw, { styled } from "twin.macro";
 import { NavLink } from "react-router";
 
+import { useTranslation } from "~/browser/hooks";
+
 const Wrapper = styled.div`
   ${tw`bg-black/10 dark:bg-black/20 grid gap-8 content-between overflow-x-hidden overflow-y-scroll w-16`}
 
@@ -41,6 +43,8 @@ const SettingsLink = styled.button`
 `;
 
 function Sidebar() {
+  const { t } = useTranslation();
+
   const openSettings = async () => {
     const targetUrl = browser.runtime.getURL("settings.html#/channels");
     try {
@@ -64,15 +68,15 @@ function Sidebar() {
         <LogoImg src="/icon-48.png" alt="VspoDex" />
       </Header>
       <Inner>
-        <StyledLink to="/streams/live" title="Live Streams">
+        <StyledLink to="/streams/live" title={t("tooltip_live_streams")}>
           <IconHeart size="1.5rem" />
         </StyledLink>
-        <StyledLink to="/streams/upcoming" title="Upcoming Streams">
+        <StyledLink to="/streams/upcoming" title={t("tooltip_upcoming_streams")}>
           <IconCalendar size="1.5rem" />
         </StyledLink>
       </Inner>
       <Footer>
-        <SettingsLink onClick={openSettings} title="Settings">
+        <SettingsLink onClick={openSettings} title={t("tooltip_settings")}>
           <IconSettings size="1.5rem" />
         </SettingsLink>
       </Footer>

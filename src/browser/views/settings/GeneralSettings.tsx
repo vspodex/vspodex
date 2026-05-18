@@ -1,6 +1,7 @@
 import tw, { styled } from "twin.macro";
 
 import { useSettingsContext } from "~/browser/contexts";
+import { useTranslation } from "~/browser/hooks";
 
 const Section = styled.div`
   ${tw`mb-8`}
@@ -28,94 +29,108 @@ const HelpText = styled.p`
 
 export function Component() {
   const { register } = useSettingsContext();
+  const { t } = useTranslation();
 
   const themeProps = register("general.theme");
   const fontSizeProps = register("general.fontSize");
+  const languageProps = register("general.language");
   const clickBehaviorProps = register("general.clickBehavior");
   const refreshIntervalProps = register("general.refreshInterval");
 
   return (
     <>
       <Section>
-        <SectionTitle>Appearance</SectionTitle>
+        <SectionTitle>{t("section_appearance")}</SectionTitle>
 
         <FormGroup>
-          <Label>Theme</Label>
+          <Label>{t("setting_theme")}</Label>
           <Select
             value={themeProps.value}
             onChange={(e) => themeProps.onChange(e.target.value)}
           >
-            <option value="system">System</option>
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
+            <option value="system">{t("setting_theme_system")}</option>
+            <option value="dark">{t("setting_theme_dark")}</option>
+            <option value="light">{t("setting_theme_light")}</option>
           </Select>
         </FormGroup>
 
         <FormGroup>
-          <Label>Font Size</Label>
+          <Label>{t("setting_font_size")}</Label>
           <Select
             value={fontSizeProps.value}
             onChange={(e) => fontSizeProps.onChange(e.target.value)}
           >
-            <option value="smallest">Smallest</option>
-            <option value="small">Small</option>
-            <option value="medium">Medium</option>
-            <option value="large">Large</option>
-            <option value="largest">Largest</option>
+            <option value="smallest">{t("setting_font_size_smallest")}</option>
+            <option value="small">{t("setting_font_size_small")}</option>
+            <option value="medium">{t("setting_font_size_medium")}</option>
+            <option value="large">{t("setting_font_size_large")}</option>
+            <option value="largest">{t("setting_font_size_largest")}</option>
+          </Select>
+        </FormGroup>
+
+        <FormGroup>
+          <Label>{t("setting_language")}</Label>
+          <Select
+            value={languageProps.value}
+            onChange={(e) => languageProps.onChange(e.target.value)}
+          >
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="zh">繁體中文</option>
           </Select>
         </FormGroup>
       </Section>
 
       <Section>
-        <SectionTitle>Behavior</SectionTitle>
+        <SectionTitle>{t("section_behavior")}</SectionTitle>
 
         <FormGroup>
-          <Label>Sort Streams By</Label>
+          <Label>{t("setting_sort_by")}</Label>
           <Select
             value={register("general.sortBy").value}
             onChange={(e) => register("general.sortBy").onChange(e.target.value)}
           >
-            <option value="viewerCount">Viewer Count</option>
-            <option value="duration">Stream Duration</option>
+            <option value="viewerCount">{t("setting_sort_by_viewers")}</option>
+            <option value="duration">{t("setting_sort_by_duration")}</option>
           </Select>
         </FormGroup>
 
         <FormGroup>
-          <Label>Sort Order</Label>
+          <Label>{t("setting_sort_order")}</Label>
           <Select
             value={register("general.sortOrder").value}
             onChange={(e) => register("general.sortOrder").onChange(e.target.value)}
           >
-            <option value="desc">Descending</option>
-            <option value="asc">Ascending</option>
+            <option value="desc">{t("setting_sort_order_desc")}</option>
+            <option value="asc">{t("setting_sort_order_asc")}</option>
           </Select>
         </FormGroup>
 
         <FormGroup>
-          <Label>Click Behavior</Label>
+          <Label>{t("setting_click_behavior")}</Label>
           <Select
             value={clickBehaviorProps.value}
             onChange={(e) => clickBehaviorProps.onChange(Number(e.target.value))}
           >
-            <option value={0}>Open in new tab</option>
-            <option value={1}>Open in new window</option>
-            <option value={2}>Open in current tab</option>
+            <option value={0}>{t("setting_click_behavior_new_tab")}</option>
+            <option value={1}>{t("setting_click_behavior_new_window")}</option>
+            <option value={2}>{t("setting_click_behavior_current_tab")}</option>
           </Select>
         </FormGroup>
 
         <FormGroup>
-          <Label>Stream Update Interval</Label>
+          <Label>{t("setting_refresh_interval")}</Label>
           <Select
             value={refreshIntervalProps.value}
             onChange={(e) => refreshIntervalProps.onChange(Number(e.target.value))}
           >
-            <option value={1}>1 minute</option>
-            <option value={2}>2 minutes</option>
-            <option value={3}>3 minutes</option>
-            <option value={5}>5 minutes</option>
-            <option value={10}>10 minutes</option>
+            <option value={1}>{t("refresh_1_min")}</option>
+            <option value={2}>{t("refresh_2_min")}</option>
+            <option value={3}>{t("refresh_3_min")}</option>
+            <option value={5}>{t("refresh_5_min")}</option>
+            <option value={10}>{t("refresh_10_min")}</option>
           </Select>
-          <HelpText>How often the extension checks for new live streams in the background.</HelpText>
+          <HelpText>{t("setting_refresh_interval_desc")}</HelpText>
         </FormGroup>
       </Section>
     </>

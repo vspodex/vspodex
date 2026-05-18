@@ -12,7 +12,7 @@ module.exports = (env, argv) => {
   const commonConfig = {
     devtool: isDevelopment ? "inline-cheap-source-map" : false,
     output: {
-      path: env.platform === "firefox" ? path.resolve("dist", "firefox") : path.resolve("dist"),
+      path: path.resolve("dist", env.platform),
     },
     resolve: {
       extensions: [".tsx", ".ts", ".js", ".json", ".wasm"],
