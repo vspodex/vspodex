@@ -56,7 +56,7 @@ function ChildComponent() {
           </div>
           <button
             onClick={handleOpenSettings}
-            css={tw`px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-semibold rounded-lg shadow-md transition-colors cursor-pointer border-none outline-none`}
+            css={tw`px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-semibold rounded-lg shadow-md transition-colors cursor-pointer border-none outline-none`}
           >
             ⚙️ Set up API Keys
           </button>
