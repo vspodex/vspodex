@@ -5,6 +5,12 @@ Track **ぶいすぽっ！ (VSpo)** VTuber live streams with ease. VspoDex is a 
 ## 🚀 About
 This extension is dedicated to the VSpo community. It provides a clean and efficient way to monitor live streams, upcoming schedules, and channel information across both YouTube (via Holodex) and Twitch.
 
+## 🌐 Language Support
+VspoDex is fully localized and supports multiple languages. You can change your preferred language under the **Appearance** section on the settings page:
+- 🇺🇸 **English** (Default)
+- 🇯🇵 **日本語** (Japanese)
+- 🇹🇼 **繁體中文** (Traditional Chinese - Taiwanese Style)
+
 ## 🔑 Requirements
 To function correctly, VspoDex requires:
 - **Holodex API Key**: A free key is required to fetch stream data from YouTube.
