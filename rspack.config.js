@@ -48,6 +48,9 @@ module.exports = (env, argv) => {
         ],
       }),
     ],
+    node: {
+      global: false,
+    },
   };
 
   return [

@@ -1,6 +1,9 @@
 import { createHashRouter, Navigate, RouterProvider } from "react-router";
-
 import { SettingsProvider } from "../contexts";
+import SettingsRoot from "../views/settings/Root";
+import ApiKeySettings from "../views/settings/ApiKeySettings";
+import ChannelSettings from "../views/settings/ChannelSettings";
+import GeneralSettings from "../views/settings/GeneralSettings";
 
 const router = createHashRouter([
   {
@@ -8,20 +11,20 @@ const router = createHashRouter([
     element: <Navigate replace to="api-keys" />,
   },
   {
-    lazy: () => import("../views/settings/Root"),
+    Component: SettingsRoot,
     hydrateFallbackElement: <div>Loading...</div>,
     children: [
       {
         path: "api-keys",
-        lazy: () => import("../views/settings/ApiKeySettings"),
+        Component: ApiKeySettings,
       },
       {
         path: "channels",
-        lazy: () => import("../views/settings/ChannelSettings"),
+        Component: ChannelSettings,
       },
       {
         path: "general",
-        lazy: () => import("../views/settings/GeneralSettings"),
+        Component: GeneralSettings,
       },
     ],
   },

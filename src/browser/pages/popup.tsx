@@ -1,4 +1,7 @@
 import { createHashRouter, Navigate, RouterProvider } from "react-router";
+import PopupRoot from "../views/popup/Root";
+import LiveStreams from "../views/popup/LiveStreams";
+import UpcomingStreams from "../views/popup/UpcomingStreams";
 
 const router = createHashRouter([
   {
@@ -6,7 +9,7 @@ const router = createHashRouter([
     element: <Navigate replace to="streams/live" />,
   },
   {
-    lazy: () => import("../views/popup/Root"),
+    Component: PopupRoot,
     hydrateFallbackElement: <div>Loading...</div>,
     children: [
       {
@@ -18,11 +21,11 @@ const router = createHashRouter([
           },
           {
             path: "live",
-            lazy: () => import("../views/popup/LiveStreams"),
+            Component: LiveStreams,
           },
           {
             path: "upcoming",
-            lazy: () => import("../views/popup/UpcomingStreams"),
+            Component: UpcomingStreams,
           },
         ],
       },
