@@ -1,9 +1,27 @@
 # VspoDex 🎮
 
+English | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
+
 Track **ぶいすぽっ！ (VSpo)** VTuber live streams with ease. VspoDex is a browser extension that brings together Holodex and Twitch data to keep you updated on your favorite members' activities.
 
 ## 🚀 About
 This extension is dedicated to the VSpo community. It provides a clean and efficient way to monitor live streams, upcoming schedules, and channel information across both YouTube (via Holodex) and Twitch.
+
+> [!IMPORTANT]
+> A Holodex API key setup is required for this extension to function. Setup is easy—simply follow the step-by-step instructions provided in the extension settings.
+
+## Features
+
+- **Unified Stream Tracking**: Monitor live and upcoming streams across both YouTube (via Holodex API) and Twitch.
+- **Customizable Channels**: Follow the default VSpo roster or add any custom VTuber channel using YouTube ID.
+- **Hololive & Nijisanji Search**: Includes a built-in search and auto-complete function to easily track Hololive and Nijisanji members.
+- **Aesthetic Customizations**: Select interface themes (Dark, Light, System), font sizes, and sorting options
+- **Language Support**: Fully localized in English, Japanese (日本語), and Traditional Chinese (繁體中文).
+
+## Previews
+
+![Popup Preview](popup_preview.png)
+![Settings Preview](settings_preview.png)
 
 ## 🌐 Language Support
 VspoDex is fully localized and supports multiple languages. You can change your preferred language under the **Appearance** section on the settings page:
@@ -29,8 +47,6 @@ Getting an API key is quick and free:
 3.  Scroll down to the **API Key** section.
 4.  Click the **Generate** button to create your key.
 5.  Copy the key and paste it into the **VspoDex Settings** page.
-
-*Note: A video walkthrough for this process will be added here soon!*
 
 ## 📦 Installation & Development
 If you want to build the extension from source:
