@@ -105,6 +105,36 @@ function StreamCard(props: StreamCardProps) {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }, [stream.scheduledAt]);
 
+  // Duration formatted for past streams (e.g. "1:32:05" → "1:32")
+  const formattedDuration = useMemo(() => {
+    if (stream.status !== "past" || !stream.duration) return null;
+    const hours = Math.floor(stream.duration / 3600);
+    const minutes = Math.floor((stream.duration % 3600) / 60);
+    if (hours > 0) {
+      return `${hours}:${String(minutes).padStart(2, "0")}`;
+    }
+    return `${minutes}m`;
+  }, [stream.status, stream.duration]);
+
+  // Relative end time for past streams
+  const endedAgo = useMemo(() => {
+    if (stream.status !== "past") return null;
+    // Use startedAt + duration, or fall back to scheduledAt
+    let endDate: Date | null = null;
+    if (stream.startedAt && stream.duration) {
+      endDate = new Date(new Date(stream.startedAt).getTime() + stream.duration * 1000);
+    } else if (stream.scheduledAt) {
+      endDate = new Date(stream.scheduledAt);
+    }
+    if (!endDate) return null;
+
+    const diff = currentTime.getTime() - endDate.getTime();
+    if (diff < 60000) return "<1m";
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h`;
+    return `${Math.floor(diff / 86400000)}d`;
+  }, [stream.status, stream.startedAt, stream.duration, stream.scheduledAt, currentTime]);
+
   return (
     <Anchor to={stream.url}>
       <Wrapper
@@ -116,6 +146,9 @@ function StreamCard(props: StreamCardProps) {
             )}
             {stream.status === "upcoming" && scheduledTime && (
               <ViewerCount>🕐 {scheduledTime}</ViewerCount>
+            )}
+            {stream.status === "past" && endedAgo && (
+              <ViewerCount>📁 {endedAgo}</ViewerCount>
             )}
           </Title>
         }
@@ -138,6 +171,9 @@ function StreamCard(props: StreamCardProps) {
             {stream.status === "live" && <LiveBadge>LIVE</LiveBadge>}
             {stream.status === "live" && uptime && (
               <UptimeBadge>{uptime}</UptimeBadge>
+            )}
+            {stream.status === "past" && formattedDuration && (
+              <UptimeBadge>{formattedDuration}</UptimeBadge>
             )}
           </Thumbnail>
         }

@@ -162,6 +162,14 @@ export const stores = {
     defaultValue: [],
   }),
 
+  pastStreams: new Store<UnifiedStream[]>("session", "pastStreams", {
+    defaultValue: [],
+  }),
+
+  pastStreamsOffset: new Store<number>("session", "pastStreamsOffset", {
+    defaultValue: 0,
+  }),
+
   // Twitch
   twitchAccessToken: new Store<string | null>("local", "twitchAccessToken", {
     defaultValue: null,
@@ -184,6 +192,8 @@ export const stores = {
         fontSize: "medium",
         theme: "system",
         refreshInterval: 1,
+        pastStreamsRefreshInterval: 5,
+        showCollabStreams: false,
         sortBy: "viewerCount",
         sortOrder: "desc",
         language: "en",

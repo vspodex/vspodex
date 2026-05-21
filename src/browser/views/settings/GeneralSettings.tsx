@@ -27,6 +27,14 @@ const HelpText = styled.p`
   ${tw`text-xs text-neutral-400 mt-1`}
 `;
 
+const CheckboxLabel = styled.label`
+  ${tw`flex items-center gap-2 text-sm font-medium cursor-pointer`}
+`;
+
+const Checkbox = styled.input`
+  ${tw`w-4 h-4 rounded border-neutral-300 dark:border-neutral-600 accent-indigo-500 cursor-pointer`}
+`;
+
 export function Component() {
   const { register } = useSettingsContext();
   const { t } = useTranslation();
@@ -131,6 +139,36 @@ export function Component() {
             <option value={10}>{t("refresh_10_min")}</option>
           </Select>
           <HelpText>{t("setting_refresh_interval_desc")}</HelpText>
+        </FormGroup>
+      </Section>
+
+      <Section>
+        <SectionTitle>{t("section_past_streams")}</SectionTitle>
+
+        <FormGroup>
+          <Label>{t("setting_past_refresh_interval")}</Label>
+          <Select
+            value={register("general.pastStreamsRefreshInterval").value}
+            onChange={(e) => register("general.pastStreamsRefreshInterval").onChange(Number(e.target.value))}
+          >
+            <option value={5}>{t("refresh_5_min")}</option>
+            <option value={10}>{t("refresh_10_min")}</option>
+            <option value={15}>{t("refresh_15_min")}</option>
+            <option value={30}>{t("refresh_30_min")}</option>
+          </Select>
+          <HelpText>{t("setting_past_refresh_interval_desc")}</HelpText>
+        </FormGroup>
+
+        <FormGroup>
+          <CheckboxLabel>
+            <Checkbox
+              type="checkbox"
+              checked={register("general.showCollabStreams").value}
+              onChange={(e) => register("general.showCollabStreams").onChange(e.target.checked)}
+            />
+            {t("setting_show_collab_streams")}
+          </CheckboxLabel>
+          <HelpText>{t("setting_show_collab_streams_desc")}</HelpText>
         </FormGroup>
       </Section>
     </>

@@ -72,6 +72,28 @@ export async function getLiveStreams(channelIds: string[]): Promise<HolodexVideo
 }
 
 /**
+ * Fetch past (completed) streams for org VSpo.
+ * Uses offset/limit pagination.
+ */
+export async function getPastStreams(offset: number, limit: number): Promise<HolodexVideo[]> {
+  try {
+    const videos = await holodexRequest<HolodexVideo[]>("videos", {
+      org: "VSpo",
+      status: "past",
+      type: "stream",
+      sort: "available_at",
+      order: "desc",
+      limit: String(limit),
+      offset: String(offset),
+    });
+    return videos;
+  } catch (error) {
+    console.error("[VspoDex] Error fetching past streams:", error);
+    return [];
+  }
+}
+
+/**
  * Fetch channels for a given org (e.g., "VSpo").
  */
 export async function getChannelsByOrg(org: string): Promise<HolodexChannel[]> {

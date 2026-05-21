@@ -132,6 +132,14 @@ export function useUpcomingStreams(options?: UseStoreOptions) {
   return useStore(stores.upcomingStreams, options);
 }
 
+export function usePastStreams(options?: UseStoreOptions) {
+  return useStore(stores.pastStreams, options);
+}
+
+export function usePastStreamsOffset(options?: UseStoreOptions) {
+  return useStore(stores.pastStreamsOffset, options);
+}
+
 export function useFollowedChannels(options?: UseStoreOptions) {
   return useStore(stores.followedChannels, options);
 }

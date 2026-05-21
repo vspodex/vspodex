@@ -10,7 +10,7 @@ This extension is dedicated to the VSpo community. It provides a clean and effic
 > [!IMPORTANT]
 > A Holodex API key setup is required for this extension to function. Setup is easy—simply follow the step-by-step instructions provided in the extension settings.
 
-## Features
+## ⚙️ Features
 
 - **Unified Stream Tracking**: Monitor live and upcoming streams across both YouTube (via Holodex API) and Twitch.
 - **Customizable Channels**: Follow the default VSpo roster or add any custom VTuber channel using YouTube ID.

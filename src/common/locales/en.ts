@@ -104,4 +104,23 @@ export const en = {
   splash_no_upcoming: "No upcoming streams scheduled. Check back later! 📅",
   header_live_now: "🔴 Live Now",
   header_upcoming: "📅 Upcoming",
+
+  // Past Streams tab
+  tooltip_past_streams: "Past Streams",
+  header_past_streams: "⏪ Past Streams",
+  splash_no_past: "No past streams found. Check back later! 🎬",
+  btn_refresh_past: "Refresh",
+  btn_refreshing_past: "Refreshing…",
+  past_streams_loading_more: "Loading more…",
+  past_duration_label: "Duration",
+  past_ended_ago: "ago",
+
+  // Settings: Past Streams
+  section_past_streams: "Past Streams",
+  setting_past_refresh_interval: "Past Streams Update Interval",
+  setting_past_refresh_interval_desc: "How often the extension fetches new past stream data. Higher values reduce API usage.",
+  setting_show_collab_streams: "Show Collab Streams",
+  setting_show_collab_streams_desc: "Show streams from non-followed VTubers that appear in VSpo org results (collabs, guest appearances).",
+  refresh_15_min: "15 minutes",
+  refresh_30_min: "30 minutes",
 };

@@ -6,7 +6,7 @@ import { HolodexVideo, HelixStream, UnifiedStream } from "~/common/types";
 import { DEFAULT_VSPO_CHANNELS } from "~/common/constants";
 
 import { refreshActionBadge } from "./modules/badge";
-import { getLiveStreams, refreshVspoChannels, fetchAndCacheChannels, getChannelsByOrg, addCustomChannel, ensureCustomChannels, refreshSearchChannelsList } from "./modules/holodex";
+import { getLiveStreams, getPastStreams, refreshVspoChannels, fetchAndCacheChannels, getChannelsByOrg, addCustomChannel, ensureCustomChannels, refreshSearchChannelsList } from "./modules/holodex";
 import {
   authorize,
   getCurrentUser,
@@ -24,18 +24,22 @@ import { formatChannelName } from "~/common/helpers";
 function holodexToUnified(video: HolodexVideo): UnifiedStream {
   const channelName = formatChannelName(video.channel.name, video.channel.english_name, video.channel.group);
 
+  const status = video.status === "live" ? "live" : video.status === "past" ? "past" : "upcoming";
+
   return {
     id: `holodex:${video.id}`,
+    channelId: video.channel.id,
     title: video.title,
     channelName,
     channelAvatar: video.channel.photo,
     viewerCount: video.live_viewers ?? null,
     startedAt: video.start_actual ?? null,
     scheduledAt: video.start_scheduled ?? video.available_at,
-    status: video.status === "live" ? "live" : "upcoming",
+    status,
     source: "holodex",
     url: `https://www.youtube.com/watch?v=${video.id}`,
     thumbnailUrl: `https://i.ytimg.com/vi/${video.id}/mqdefault.jpg`,
+    duration: video.duration ?? null,
     topicId: video.topic_id,
   };
 }
@@ -45,6 +49,7 @@ function holodexToUnified(video: HolodexVideo): UnifiedStream {
 function twitchToUnified(stream: HelixStream, formattedName?: string): UnifiedStream {
   return {
     id: `twitch:${stream.id}`,
+    channelId: stream.userId,
     title: stream.title,
     channelName: formattedName || stream.userName,
     channelAvatar: null,
@@ -202,6 +207,81 @@ async function refresh() {
   refreshActionBadge(allLive.length);
 }
 
+// ─── Past Streams Refresh ─────────────────────────────────
+
+async function refreshPastStreams() {
+  const settings = await stores.settings.get();
+  const intervalMinutes = settings.general.pastStreamsRefreshInterval || 5;
+
+  browser.alarms.create("refreshPastStreams", {
+    periodInMinutes: intervalMinutes,
+  });
+
+  if (!navigator.onLine) {
+    return;
+  }
+
+  const apiKey = await stores.holodexApiKey.get();
+  if (!apiKey) return;
+
+  try {
+    const videos = await getPastStreams(0, 50);
+    const followedChannels = await stores.followedChannels.get();
+    const showCollab = settings.general.showCollabStreams || false;
+
+    const followedSet = new Set(followedChannels);
+    const filtered = showCollab
+      ? videos
+      : videos.filter((v) => followedSet.has(v.channel.id));
+
+    const pastStreams: UnifiedStream[] = filtered.map((video) => {
+      const unified = holodexToUnified(video);
+      unified.status = "past";
+      return unified;
+    });
+
+    await stores.pastStreams.set(pastStreams);
+    await stores.pastStreamsOffset.set(50);
+
+    console.log(`[VspoDex] Past streams refresh complete: ${pastStreams.length} past (interval: ${intervalMinutes}m)`);
+  } catch (error) {
+    console.error("[VspoDex] Past streams refresh error:", error);
+  }
+}
+
+async function loadMorePastStreams() {
+  const apiKey = await stores.holodexApiKey.get();
+  if (!apiKey) return;
+
+  const offset = await stores.pastStreamsOffset.get();
+  const settings = await stores.settings.get();
+
+  try {
+    const videos = await getPastStreams(offset, 50);
+    const followedChannels = await stores.followedChannels.get();
+    const showCollab = settings.general.showCollabStreams || false;
+
+    const followedSet = new Set(followedChannels);
+    const filtered = showCollab
+      ? videos
+      : videos.filter((v) => followedSet.has(v.channel.id));
+
+    const newStreams: UnifiedStream[] = filtered.map((video) => {
+      const unified = holodexToUnified(video);
+      unified.status = "past";
+      return unified;
+    });
+
+    const existing = await stores.pastStreams.get();
+    await stores.pastStreams.set([...existing, ...newStreams]);
+    await stores.pastStreamsOffset.set(offset + 50);
+
+    console.log(`[VspoDex] Loaded ${newStreams.length} more past streams (offset: ${offset + 50})`);
+  } catch (error) {
+    console.error("[VspoDex] Load more past streams error:", error);
+  }
+}
+
 // ─── Alarm Handler ─────────────────────────────────────────
 
 async function checkAlarm() {
@@ -212,8 +292,20 @@ async function checkAlarm() {
   refresh();
 }
 
-browser.alarms.onAlarm.addListener(() => {
-  refresh();
+async function checkPastAlarm() {
+  if (await browser.alarms.get("refreshPastStreams")) {
+    return;
+  }
+
+  refreshPastStreams();
+}
+
+browser.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "refreshPastStreams") {
+    refreshPastStreams();
+  } else {
+    refresh();
+  }
 });
 
 // ─── Lifecycle ─────────────────────────────────────────────
@@ -228,15 +320,21 @@ browser.runtime.onInstalled.addListener(async () => {
   } catch {} // eslint-disable-line no-empty
 
   refresh();
+  refreshPastStreams();
 });
 
-browser.runtime.onStartup.addListener(() => refresh());
+browser.runtime.onStartup.addListener(() => {
+  refresh();
+  refreshPastStreams();
+});
 
 // ─── Message Handler ───────────────────────────────────────
 
 const messageHandlers: Record<string, Function> = {
   authorize,
   refresh: () => refresh(),
+  refreshPastStreams: () => refreshPastStreams(),
+  loadMorePastStreams: () => loadMorePastStreams(),
   request,
   revoke,
   refreshVspoChannels,
@@ -265,3 +363,4 @@ stores.followedChannels.onChange(() => refresh());
 stores.settings.onChange(() => refresh());
 
 checkAlarm();
+checkPastAlarm();

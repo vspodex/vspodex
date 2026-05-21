@@ -111,6 +111,8 @@ export interface GeneralSettings {
   fontSize: FontSize;
   theme: Theme;
   refreshInterval: number; // minutes
+  pastStreamsRefreshInterval: number; // minutes (default 5)
+  showCollabStreams: boolean; // show non-followed collab streams in past tab
   sortBy: "viewerCount" | "duration";
   sortOrder: "asc" | "desc";
   language: Language;
@@ -148,16 +150,18 @@ export type StreamSource = "holodex" | "twitch";
 
 export interface UnifiedStream {
   id: string;
+  channelId: string;
   title: string;
   channelName: string;
   channelAvatar: string | null;
   viewerCount: number | null;
   startedAt: string | null;
   scheduledAt: string | null;
-  status: "live" | "upcoming";
+  status: "live" | "upcoming" | "past";
   source: StreamSource;
   url: string;
   thumbnailUrl: string | null;
+  duration?: number | null; // seconds, for past streams
   gameName?: string | null;
   topicId?: string | null;
 }

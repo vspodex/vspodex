@@ -106,4 +106,23 @@ export const zh: typeof en = {
   splash_no_upcoming: "目前沒有安排的直播。請稍後再回來看看吧！ 📅",
   header_live_now: "🔴 正在直播",
   header_upcoming: "📅 直播預告",
+
+  // Past Streams tab
+  tooltip_past_streams: "過往直播",
+  header_past_streams: "⏪ 過往直播",
+  splash_no_past: "目前沒有過往直播記錄。請稍後再回來看看吧！ 🎬",
+  btn_refresh_past: "重新整理",
+  btn_refreshing_past: "重新整理中…",
+  past_streams_loading_more: "載入更多…",
+  past_duration_label: "直播時長",
+  past_ended_ago: "前",
+
+  // Settings: Past Streams
+  section_past_streams: "過往直播",
+  setting_past_refresh_interval: "過往直播更新間隔",
+  setting_past_refresh_interval_desc: "擴充功能取得過往直播資料的頻率。較高的值可減少 API 使用量。",
+  setting_show_collab_streams: "顯示聯動直播",
+  setting_show_collab_streams_desc: "顯示在 VSpo 組織結果中出現的未追蹤 VTuber 直播（聯動、客串）。",
+  refresh_15_min: "15 分鐘",
+  refresh_30_min: "30 分鐘",
 };

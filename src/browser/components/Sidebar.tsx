@@ -1,4 +1,4 @@
-import { IconHeart, IconCalendar, IconSettings } from "@tabler/icons-react";
+import { IconHeart, IconCalendar, IconHistory, IconSettings } from "@tabler/icons-react";
 import tw, { styled } from "twin.macro";
 import { NavLink } from "react-router";
 
@@ -73,6 +73,9 @@ function Sidebar() {
         </StyledLink>
         <StyledLink to="/streams/upcoming" title={t("tooltip_upcoming_streams")}>
           <IconCalendar size="1.5rem" />
+        </StyledLink>
+        <StyledLink to="/streams/past" title={t("tooltip_past_streams")}>
+          <IconHistory size="1.5rem" />
         </StyledLink>
       </Inner>
       <Footer>

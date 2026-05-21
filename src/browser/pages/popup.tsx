@@ -2,6 +2,7 @@ import { createHashRouter, Navigate, RouterProvider } from "react-router";
 import PopupRoot from "../views/popup/Root";
 import LiveStreams from "../views/popup/LiveStreams";
 import UpcomingStreams from "../views/popup/UpcomingStreams";
+import PastStreams from "../views/popup/PastStreams";
 
 const router = createHashRouter([
   {
@@ -27,6 +28,10 @@ const router = createHashRouter([
             path: "upcoming",
             Component: UpcomingStreams,
           },
+          {
+            path: "past",
+            Component: PastStreams,
+          },
         ],
       },
     ],
@@ -38,3 +43,4 @@ function Page() {
 }
 
 export default Page;
+

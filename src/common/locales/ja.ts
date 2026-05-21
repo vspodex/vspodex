@@ -106,4 +106,23 @@ export const ja: typeof en = {
   splash_no_upcoming: "配信予定はありません。また後で確認してください！ 📅",
   header_live_now: "🔴 配信中",
   header_upcoming: "📅 配信予定",
+
+  // Past Streams tab
+  tooltip_past_streams: "過去の配信",
+  header_past_streams: "⏪ 過去の配信",
+  splash_no_past: "過去の配信が見つかりませんでした。また後で確認してください！ 🎬",
+  btn_refresh_past: "更新",
+  btn_refreshing_past: "更新中…",
+  past_streams_loading_more: "読み込み中…",
+  past_duration_label: "配信時間",
+  past_ended_ago: "前",
+
+  // Settings: Past Streams
+  section_past_streams: "過去の配信",
+  setting_past_refresh_interval: "過去の配信の更新間隔",
+  setting_past_refresh_interval_desc: "過去の配信データを取得する頻度。値が大きいほどAPI使用量を減らせます。",
+  setting_show_collab_streams: "コラボ配信を表示",
+  setting_show_collab_streams_desc: "VSpo組織の結果に含まれるフォローしていないVTuberの配信（コラボ、ゲスト出演）を表示します。",
+  refresh_15_min: "15分",
+  refresh_30_min: "30分",
 };
