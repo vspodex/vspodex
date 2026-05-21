@@ -2,7 +2,7 @@ import { camelCase, castArray, get, snakeCase, toString } from "es-toolkit/compa
 
 import { changeCase, openUrl } from "~/common/helpers";
 import { stores } from "~/common/stores";
-import { Dictionary, HelixResponse, HelixStream, HelixUser } from "~/common/types";
+import { Dictionary, HelixResponse, HelixStream, HelixUser, HelixVideo } from "~/common/types";
 
 class RequestError extends Error {
   constructor(
@@ -91,6 +91,15 @@ export async function getStreams(userLogins: string[]) {
   });
 }
 
+export async function getUserVideos(userId: string, limit: number = 100): Promise<HelixVideo[]> {
+  const res = await request<HelixVideo>("videos", {
+    userId,
+    first: limit,
+    type: "archive",
+  });
+  return res?.data ?? [];
+}
+
 // ─── Identity helpers (cross-browser via webextension-polyfill) ──
 
 function hasIdentityApi(): boolean {
@@ -105,7 +114,7 @@ export function getRedirectUrl(): string {
   }
 
   if (hasIdentityApi()) {
-    return browser.identity.getRedirectURL();
+    return browser.identity!.getRedirectURL();
   }
 
   return "";
@@ -138,9 +147,9 @@ export async function authorize() {
 
   console.log("[VspoDex] Opening Twitch auth URL:", url.href);
 
-  if (hasIdentityApi() && browser.identity.launchWebAuthFlow) {
+  if (hasIdentityApi() && typeof browser.identity!.launchWebAuthFlow === "function") {
     try {
-      const responseUrl = await browser.identity.launchWebAuthFlow({
+      const responseUrl = await browser.identity!.launchWebAuthFlow({
         url: url.href,
         interactive: true,
       });

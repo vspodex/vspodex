@@ -2,7 +2,7 @@ import { get } from "es-toolkit/compat";
 
 import { openUrl } from "~/common/helpers";
 import { stores } from "~/common/stores";
-import { HolodexVideo, HelixStream, UnifiedStream } from "~/common/types";
+import { HolodexVideo, HelixStream, UnifiedStream, HelixVideo } from "~/common/types";
 import { DEFAULT_VSPO_CHANNELS } from "~/common/constants";
 
 import { refreshActionBadge } from "./modules/badge";
@@ -15,6 +15,7 @@ import {
   request,
   revoke,
   validate,
+  getUserVideos,
 } from "./modules/twitch";
 
 import { formatChannelName } from "~/common/helpers";
@@ -209,6 +210,95 @@ async function refresh() {
 
 // ─── Past Streams Refresh ─────────────────────────────────
 
+function parseTwitchDuration(durationStr: string): number {
+  if (!durationStr) return 0;
+  let totalSeconds = 0;
+  const matches = durationStr.match(/(\d+[hms])/g);
+  if (!matches) return 0;
+  for (const part of matches) {
+    const val = parseInt(part.slice(0, -1), 10);
+    const unit = part.slice(-1);
+    if (unit === "h") totalSeconds += val * 3600;
+    else if (unit === "m") totalSeconds += val * 60;
+    else if (unit === "s") totalSeconds += val;
+  }
+  return totalSeconds;
+}
+
+function twitchVideoToUnified(video: HelixVideo, channelAvatar: string | null): UnifiedStream {
+  return {
+    id: `twitch:${video.id}`,
+    channelId: video.userId,
+    title: video.title,
+    channelName: video.userName,
+    channelAvatar: channelAvatar,
+    viewerCount: null,
+    startedAt: video.publishedAt || video.createdAt || null,
+    scheduledAt: null,
+    status: "past",
+    source: "twitch",
+    url: video.url || `https://twitch.tv/videos/${video.id}`,
+    thumbnailUrl: video.thumbnailUrl
+      ? video.thumbnailUrl
+          .replace("%{width}", "320")
+          .replace("%{height}", "180")
+          .replace("{width}", "320")
+          .replace("{height}", "180")
+      : null,
+    duration: parseTwitchDuration(video.duration),
+  };
+}
+
+const EXPERIMENTAL_TWITCH_USERS = [
+  { id: "584184005", login: "akarindao" },
+  { id: "858359149", login: "ramuneshiranami" },
+  { id: "773185713", login: "shinomiya_runa" },
+];
+
+async function refreshPastTwitchStreams() {
+  const hasToken = await stores.twitchAccessToken.get();
+  if (!hasToken) {
+    console.log("[VspoDex] Twitch Past: No access token, skipping.");
+    await stores.pastTwitchStreams.set([]);
+    return;
+  }
+
+  try {
+    const isValid = await validate();
+    if (!isValid) {
+      console.warn("[VspoDex] Twitch Past: Token invalid or expired.");
+      await stores.pastTwitchStreams.set([]);
+      return;
+    }
+
+    const allVideosPromises = EXPERIMENTAL_TWITCH_USERS.map(async (user) => {
+      try {
+        const videos = await getUserVideos(user.id);
+        return videos;
+      } catch (err) {
+        console.error(`[VspoDex] Twitch Past: Error fetching VODs for ${user.login} (${user.id}):`, err);
+        return [];
+      }
+    });
+
+    const videosResults = await Promise.all(allVideosPromises);
+    const flatVideos = videosResults.flat();
+
+    const unifiedVideos = flatVideos.map((video) => twitchVideoToUnified(video, null));
+
+    unifiedVideos.sort((a, b) => {
+      const aTime = a.startedAt ? new Date(a.startedAt).getTime() : 0;
+      const bTime = b.startedAt ? new Date(b.startedAt).getTime() : 0;
+      return bTime - aTime;
+    });
+
+    await stores.pastTwitchStreams.set(unifiedVideos);
+    console.log(`[VspoDex] Past Twitch streams refresh complete: ${unifiedVideos.length} videos fetched.`);
+  } catch (error) {
+    console.error("[VspoDex] Twitch Past streams refresh error:", error);
+  }
+}
+
 async function refreshPastStreams() {
   const settings = await stores.settings.get();
   const intervalMinutes = settings.general.pastStreamsRefreshInterval || 5;
@@ -221,31 +311,37 @@ async function refreshPastStreams() {
     return;
   }
 
+  // Refresh Holodex past streams
   const apiKey = await stores.holodexApiKey.get();
-  if (!apiKey) return;
+  if (apiKey) {
+    try {
+      const videos = await getPastStreams(0, 50);
+      const followedChannels = await stores.followedChannels.get();
+      const showCollab = settings.general.showCollabStreams || false;
 
-  try {
-    const videos = await getPastStreams(0, 50);
-    const followedChannels = await stores.followedChannels.get();
-    const showCollab = settings.general.showCollabStreams || false;
+      const followedSet = new Set(followedChannels);
+      const filtered = showCollab
+        ? videos
+        : videos.filter((v) => followedSet.has(v.channel.id));
 
-    const followedSet = new Set(followedChannels);
-    const filtered = showCollab
-      ? videos
-      : videos.filter((v) => followedSet.has(v.channel.id));
+      const pastStreams: UnifiedStream[] = filtered.map((video) => {
+        const unified = holodexToUnified(video);
+        unified.status = "past";
+        return unified;
+      });
 
-    const pastStreams: UnifiedStream[] = filtered.map((video) => {
-      const unified = holodexToUnified(video);
-      unified.status = "past";
-      return unified;
-    });
+      await stores.pastStreams.set(pastStreams);
+      await stores.pastStreamsOffset.set(50);
 
-    await stores.pastStreams.set(pastStreams);
-    await stores.pastStreamsOffset.set(50);
+      console.log(`[VspoDex] Past streams refresh complete: ${pastStreams.length} past (interval: ${intervalMinutes}m)`);
+    } catch (error) {
+      console.error("[VspoDex] Past streams refresh error:", error);
+    }
+  }
 
-    console.log(`[VspoDex] Past streams refresh complete: ${pastStreams.length} past (interval: ${intervalMinutes}m)`);
-  } catch (error) {
-    console.error("[VspoDex] Past streams refresh error:", error);
+  // Refresh Twitch past streams if enabled
+  if (settings.general.enableExperimentalTwitchPast !== false) {
+    await refreshPastTwitchStreams();
   }
 }
 
@@ -357,10 +453,22 @@ browser.runtime.onMessage.addListener((message) => {
 
 // ─── React to store changes ────────────────────────────────
 
-stores.twitchAccessToken.onChange(() => refresh());
-stores.holodexApiKey.onChange(() => refresh());
-stores.followedChannels.onChange(() => refresh());
-stores.settings.onChange(() => refresh());
+stores.twitchAccessToken.onChange(() => {
+  refresh();
+  refreshPastStreams();
+});
+stores.holodexApiKey.onChange(() => {
+  refresh();
+  refreshPastStreams();
+});
+stores.followedChannels.onChange(() => {
+  refresh();
+  refreshPastStreams();
+});
+stores.settings.onChange(() => {
+  refresh();
+  refreshPastStreams();
+});
 
 checkAlarm();
 checkPastAlarm();

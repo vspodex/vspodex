@@ -123,4 +123,9 @@ export const en = {
   setting_show_collab_streams_desc: "Show streams from non-followed VTubers that appear in VSpo org results (collabs, guest appearances).",
   refresh_15_min: "15 minutes",
   refresh_30_min: "30 minutes",
+  tab_youtube: "YouTube",
+  tab_twitch: "Twitch",
+  setting_enable_twitch_past: "Experimental: Enable Twitch Past Broadcasts",
+  setting_enable_twitch_past_desc: "Enables an experimental Twitch past broadcasts sub-tab (Yumeno Akari, Shiranami Ramune, Shinomiya Runa). Re-authenticates and syncs at the same rate as the update interval in the background.",
+  splash_no_past_twitch: "No past Twitch broadcasts found. Check back later! 🟣",
 };

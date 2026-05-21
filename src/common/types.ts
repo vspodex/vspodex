@@ -79,6 +79,26 @@ export interface HelixStream {
   isMature: boolean;
 }
 
+export interface HelixVideo {
+  id: string;
+  streamId: string | null;
+  userId: string;
+  userLogin: string;
+  userName: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  publishedAt: string;
+  url: string;
+  thumbnailUrl: string;
+  viewable: string;
+  viewCount: number;
+  language: string;
+  type: string;
+  duration: string;
+}
+
+
 export interface HelixResponse<T> {
   data: Array<T>;
   pagination: {
@@ -116,6 +136,7 @@ export interface GeneralSettings {
   sortBy: "viewerCount" | "duration";
   sortOrder: "asc" | "desc";
   language: Language;
+  enableExperimentalTwitchPast?: boolean;
 }
 
 export interface BadgeSettings {

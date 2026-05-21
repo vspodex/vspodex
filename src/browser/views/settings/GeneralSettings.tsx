@@ -170,6 +170,18 @@ export function Component() {
           </CheckboxLabel>
           <HelpText>{t("setting_show_collab_streams_desc")}</HelpText>
         </FormGroup>
+
+        <FormGroup>
+          <CheckboxLabel>
+            <Checkbox
+              type="checkbox"
+              checked={register("general.enableExperimentalTwitchPast").value}
+              onChange={(e) => register("general.enableExperimentalTwitchPast").onChange(e.target.checked)}
+            />
+            {t("setting_enable_twitch_past")}
+          </CheckboxLabel>
+          <HelpText>{t("setting_enable_twitch_past_desc")}</HelpText>
+        </FormGroup>
       </Section>
     </>
   );

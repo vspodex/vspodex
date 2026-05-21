@@ -54,3 +54,35 @@ In this session, we implemented the "Past Streams" feature, allowing users to vi
   - **Chrome Version**: Compiled (`npm run build:chrome`) and generated production zip archive at `releases/v0.1.2.7/vspodex-chrome-v0.1.2.7.zip`.
   - **Version Bump**: Incrementally bumped codebase version to `0.1.2.8` across `package.json`, `overrides/chrome/manifest.json`, and `overrides/firefox/manifest.json`.
   - **Git Operations**: Staged, committed, and pushed all source and version updates to GitHub `main` branch. Synchronized tags including `v0.1.2.6` and `v0.1.2.7`.
+
+---
+
+# Last Session Summary (2026-05-21 - Session 2)
+
+### 📋 Overview of the Session
+In this session, we implemented the experimental Twitch Past Broadcasts feature, introducing a dedicated, experimental "Twitch" sub-tab alongside the default "YouTube" tab under the "Past Streams" view, supporting automatic background updates, settings-based visibility, duration badges parsing, and strict manual refresh/infinite-scroll constraints.
+
+### 🛠️ Key Changes
+
+- **Background & API Integration (`src/background/`, `src/common/`):**
+  - **`types.ts`**: Added `enableExperimentalTwitchPast?: boolean` setting key and `HelixVideo` types for Twitch VOD endpoints.
+  - **`stores.ts`**: Declared session store `pastTwitchStreams` and default toggle `enableExperimentalTwitchPast: false`.
+  - **`store.ts`**: Created hook `usePastTwitchStreams`.
+  - **`twitch.ts`**: Implemented `getUserVideos` calling `/helix/videos` to retrieve completed streams.
+  - **`index.ts`**: 
+    - Designed robust parser `parseTwitchDuration` mapping string formats (e.g. `3h15m20s`) to seconds.
+    - Implemented `twitchVideoToUnified` normalizing VOD results to unified structures.
+    - Implemented `refreshPastTwitchStreams` calling API in parallel and caching outcomes.
+    - Wired `refreshPastTwitchStreams` inside `refreshPastStreams` conditionally behind `enableExperimentalTwitchPast`.
+    - Bound store listeners to trigger updates immediately when Settings or Twitch access tokens change.
+
+- **UI Components (`src/browser/`):**
+  - **`PastStreams.tsx`**: Constructed customizable styled `SubTabContainer` and `SubTabButton` components. Added YouTube and Twitch sub-tab switching. Conditionally bypassed the scroll-based infinite observer pagination and hid the manual update button on the Twitch sub-tab.
+  - **`GeneralSettings.tsx`**: Exposed the experimental toggle checkbox in General Settings under the Past Streams configuration block.
+
+- **Localization (`src/common/locales/`):**
+  - Configured labels for the sub-tabs, settings checkboxes, help descriptions, and splash empty messages in English (`en.ts`), Japanese (`ja.ts`), and Traditional Chinese (`zh.ts`).
+
+- **TypeScript Quality & Type-Safety:**
+  - Resolved all pre-existing TypeScript warnings regarding optional `browser.identity` globally and verified that `npm run test` type-checking and both packaging targets (`npm run build:chrome` & `npm run build:firefox`) execute successfully.
+

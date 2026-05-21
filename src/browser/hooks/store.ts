@@ -140,6 +140,10 @@ export function usePastStreamsOffset(options?: UseStoreOptions) {
   return useStore(stores.pastStreamsOffset, options);
 }
 
+export function usePastTwitchStreams(options?: UseStoreOptions) {
+  return useStore(stores.pastTwitchStreams, options);
+}
+
 export function useFollowedChannels(options?: UseStoreOptions) {
   return useStore(stores.followedChannels, options);
 }

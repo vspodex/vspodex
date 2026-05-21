@@ -125,4 +125,10 @@ export const zh: typeof en = {
   setting_show_collab_streams_desc: "顯示在 VSpo 組織結果中出現的未追蹤 VTuber 直播（聯動、客串）。",
   refresh_15_min: "15 分鐘",
   refresh_30_min: "30 分鐘",
+  tab_youtube: "YouTube",
+  tab_twitch: "Twitch",
+  setting_enable_twitch_past: "實驗性：啟用 Twitch 過往直播",
+  setting_enable_twitch_past_desc: "啟用實驗性的 Twitch 過往直播子分頁 (夢野あかり,白波らむね,紫宮るな)。會在背景自動更新。",
+  splash_no_past_twitch: "未找到任何 Twitch 過往直播。請稍後再回來看看吧！ 🟣",
 };
+

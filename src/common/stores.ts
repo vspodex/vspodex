@@ -170,6 +170,10 @@ export const stores = {
     defaultValue: 0,
   }),
 
+  pastTwitchStreams: new Store<UnifiedStream[]>("session", "pastTwitchStreams", {
+    defaultValue: [],
+  }),
+
   // Twitch
   twitchAccessToken: new Store<string | null>("local", "twitchAccessToken", {
     defaultValue: null,
@@ -197,6 +201,7 @@ export const stores = {
         sortBy: "viewerCount",
         sortOrder: "desc",
         language: "en",
+        enableExperimentalTwitchPast: true,
       },
       badge: {
         enabled: true,
