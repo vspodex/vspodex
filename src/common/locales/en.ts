@@ -126,6 +126,6 @@ export const en = {
   tab_youtube: "YouTube",
   tab_twitch: "Twitch",
   setting_enable_twitch_past: "Experimental: Enable Twitch Past Broadcasts",
-  setting_enable_twitch_past_desc: "Enables an experimental Twitch past broadcasts sub-tab (Yumeno Akari, Shiranami Ramune, Shinomiya Runa). Re-authenticates and syncs at the same rate as the update interval in the background.",
+  setting_enable_twitch_past_desc: "Enables an experimental Twitch past broadcasts sub-tab (Yumeno Akari, Shiranami Ramune, Shinomiya Runa, Kisaragi Ren). Re-authenticates and syncs at the same rate as the update interval in the background.",
   splash_no_past_twitch: "No past Twitch broadcasts found. Check back later! 🟣",
 };

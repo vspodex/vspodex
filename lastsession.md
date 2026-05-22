@@ -86,3 +86,32 @@ In this session, we implemented the experimental Twitch Past Broadcasts feature,
 - **TypeScript Quality & Type-Safety:**
   - Resolved all pre-existing TypeScript warnings regarding optional `browser.identity` globally and verified that `npm run test` type-checking and both packaging targets (`npm run build:chrome` & `npm run build:firefox`) execute successfully.
 
+---
+
+# Last Session Summary (2026-05-21 - Session 3)
+
+### 📋 Overview of the Session
+In this session, we enabled the experimental Twitch Past Broadcasts feature by default, updated and localized display names for targeted members, styled the YouTube sub-tab selection red while keeping Twitch brand-indigo, signed and packaged version `0.1.2.8` for both Chrome and Firefox targets, and pushed all updates and tags to GitHub. We also bumped the development version to `0.1.2.9`.
+
+### 🛠️ Key Changes
+
+- **Default Toggles & Compatibility (`src/common/`, `src/background/`):**
+  - **`stores.ts`**: Configured default `enableExperimentalTwitchPast: true` in the local settings store.
+  - **`PastStreams.tsx` & `index.ts`**: Implemented default-true check fallback (`!== false`) to ensure older user profiles have the Twitch sub-tab active by default.
+
+- **Localization Updates (`src/common/locales/`):**
+  - Updated English (`en.ts`), Japanese (`ja.ts`), and Traditional Chinese (`zh.ts`) localization descriptions to show friendly member names (`Yumeno Akari`, `Shiranami Ramune`, `Shinomiya Runa`) instead of raw Twitch user logins.
+
+- **UI Customization (`src/browser/`):**
+  - **`PastStreams.tsx`**: Updated `SubTabButton` to accept the custom `isYoutube` prop, styling text and borders red (`text-red-600 dark:text-red-500 border-red-600 dark:border-red-500`) when selected, while keeping the Twitch tab styled in brand-indigo.
+
+- **Firefox AMO Signing and Package Releases:**
+  - Completed validation and signed Firefox extension version `0.1.2.8` unlisted via AMO developer API, generating `vspodex-0.1.2.8.xpi`.
+  - Packaged and zipped the production Chrome extension version `0.1.2.8` (`vspodex-chrome-v0.1.2.8.zip`).
+  - Saved release builds under structured folder `releases/v0.1.2.8/`.
+  - Staged, committed, and pushed version `0.1.2.8` commits and tag `v0.1.2.8` to GitHub.
+
+- **Code Version Bump (0.1.2.9):**
+  - Incremented package version to `0.1.2.9` across `package.json`, `overrides/chrome/manifest.json`, `overrides/firefox/manifest.json`, and `CHANGELOG.md` in preparation for future releases.
+
+

@@ -128,7 +128,7 @@ export const zh: typeof en = {
   tab_youtube: "YouTube",
   tab_twitch: "Twitch",
   setting_enable_twitch_past: "實驗性：啟用 Twitch 過往直播",
-  setting_enable_twitch_past_desc: "啟用實驗性的 Twitch 過往直播子分頁 (夢野あかり,白波らむね,紫宮るな)。會在背景自動更新。",
+  setting_enable_twitch_past_desc: "啟用實驗性的 Twitch 過往直播子分頁 (夢野あかり,白波らむね,紫宮るな,如月れん)。會在背景自動更新。",
   splash_no_past_twitch: "未找到任何 Twitch 過往直播。請稍後再回來看看吧！ 🟣",
 };
 

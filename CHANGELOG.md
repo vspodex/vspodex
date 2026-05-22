@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.2.8] - 2026-05-21
+## [0.1.2.10] - 2026-05-21
 
 ### Added
 - **Experimental Twitch Past Broadcasts**:

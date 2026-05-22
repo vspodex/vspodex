@@ -253,6 +253,7 @@ const EXPERIMENTAL_TWITCH_USERS = [
   { id: "584184005", login: "akarindao" },
   { id: "858359149", login: "ramuneshiranami" },
   { id: "773185713", login: "shinomiya_runa" },
+  { id: "722162135", login: "ren_kisaragi__" },
 ];
 
 async function refreshPastTwitchStreams() {

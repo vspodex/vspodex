@@ -128,7 +128,7 @@ export const ja: typeof en = {
   tab_youtube: "YouTube",
   tab_twitch: "Twitch",
   setting_enable_twitch_past: "実験的：Twitch過去の配信を有効にする",
-  setting_enable_twitch_past_desc: "実験的なTwitch過去の配信サブタブ(夢野あかり、白波らむね、紫宮るな)を有効にします。バックグラウンドで自動的に更新します。",
+  setting_enable_twitch_past_desc: "実験的なTwitch過去の配信サブタブ(夢野あかり、白波らむね、紫宮るな、如月れん)を有効にします。バックグラウンドで自動的に更新します。",
   splash_no_past_twitch: "過去のTwitch配信が見つかりませんでした。また後で確認してください！ 🟣",
 };
 
