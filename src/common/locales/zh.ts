@@ -149,5 +149,6 @@ export const zh: typeof en = {
   group_vspo_jp: "VSPO JP",
   group_vspo_en: "VSPO EN",
   group_vspo_official: "VSPO 官方",
+  member_subscribers: "{count} 位訂閱者",
 };
 

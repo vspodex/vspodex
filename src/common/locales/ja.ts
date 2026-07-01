@@ -149,4 +149,5 @@ export const ja: typeof en = {
   group_vspo_jp: "VSPO JP",
   group_vspo_en: "VSPO EN",
   group_vspo_official: "ぶいすぽっ! 公式",
+  member_subscribers: "チャンネル登録者数 {count}",
 };

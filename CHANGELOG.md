@@ -3,22 +3,45 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.3.1] - 2026-07-01
+
+### Added
+- **Compact Favorites Grid Layout**:
+  - Render followed favorited channels in a packed 5-in-a-row layout in the Members tab, hiding names to save space.
+- **Redesigned Member Detail View**:
+  - Implemented a premium Holodex-like channel header layout showing primary Japanese/native name first in larger font (`text-lg`), secondary English name second (`text-xs`), and localized subscriber counts.
+  - Added a clean top navigation bar with an inline Back button, removing the banner overhead.
+  - Enlarged quick-link social buttons (`w-9 h-9`) filled with brand colors for YouTube (red) and Twitch (purple).
+
+### Changed
+- **Japanese Name Formatting Refinement**:
+  - Filter out leading and trailing prolonged sound mark characters ("ー") from generated Japanese channel names.
+
+---
+
 ## [0.1.3.0] - 2026-07-01
 
 ### Added
+- **New Members Tab**:
+  - Introduced a completely new tab listing VSPO members.
+  - Divided channels into distinct subgroups: VSPO JP, VSPO EN, and VSPO Official.
+  - Set default sorting in the Members tab to subscriber count descending, dynamically fetched using the Holodex API.
+  - Aligned the Members header UI styling to match the other existing tabs.
+- **Favorite Toggle Button**:
+  - Implemented a brand new favorite toggle system.
+  - Added a star icon button inside the followed channels rows (positioned directly before the follow/unfollow button) to allow marking channels as favorites.
+  - Enabled manual drag-and-drop reordering of favorited channels under settings to customize their display order in the popup.
 - **Custom Sidebar Tab Reordering**:
   - Implemented drag-and-drop tab reordering under General Settings.
   - Sidebar links render dynamically reflecting the user's custom sort order.
-- **Default Subscriber-Count Sorting and Subgroups in Members Tab**:
-  - Split VSPO followed channels into distinct sub-sections: VSPO JP, VSPO EN, and VSPO Official.
-  - Changed default sorting in the Members tab to subscriber count descending (fetched on-demand using the Holodex API).
-  - Aligned style of the Members header to match other tabs.
 - **Japanese Name Preference Formatting Rule**:
   - Configured `formatChannelName` helper to return only the Japanese/native name if it contains Japanese characters (hiragana, katakana, kanji), falling back to the English name only if no Japanese characters are present.
 
+### Changed
+- **API Key Setup Documentation**:
+  - Updated references to the Holodex API key generation button to reflect its actual UI labels across different languages (English: "GET NEW API KEY", Japanese: "新規APIキーを発行する", Traditional Chinese: "取得新API金鑰") in the store description and all README files.
+
 ### Fixed
-- **Settings Favorite Toggle Button**:
-  - Restored and reordered the favorite star button toggle inside the followed channels rows to display directly before the follow/unfollow button.
 - **Holodex API Key Connection Verification**:
   - Validates API keys against the Holodex API when saved, alerting users of invalid keys.
   - Updates the settings page to show "Not connected" if a key is invalid/unverified and prevents key-reliant requests from being made.

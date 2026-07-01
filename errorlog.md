@@ -1,4 +1,21 @@
-# TypeScript Compiler Warnings
+# Member Header & Anchor Props TypeScript Errors
+
+## Symptom
+During compilation (`npm run test`), the following TS errors occurred:
+1. `TS2345`: `t` from `useTranslation` hook expects `TranslationKey` but `formatSubscriberCount` took a generic `string` for its `localeFormatter` parameter.
+2. `TS2322`: The `SocialLink` custom components passed a `title` prop down to `Anchor` component, but `AnchorProps` did not extend standard anchor element attributes, leading to a property mismatch.
+
+## Root Cause
+1. Incompatible typing signature in the `localeFormatter` argument.
+2. `AnchorProps` lacked `AnchorHTMLAttributes` inheritance, preventing standard HTML attributes (like `title`) from being passed.
+
+## Fix
+1. Simplified `formatSubscriberCount` signature to return only the formatted count string, and moved the `t` wrapper call inside the JSX rendering logic to keep types resolved automatically.
+2. Extended `AnchorProps` from `AnchorHTMLAttributes<HTMLAnchorElement>` in `Anchor.tsx` and destructured/forwarded other props (`...rest`).
+
+---
+
+# TypeScript Compiler Warnings (Previous)
 
 ## Root Cause
 1. `browser.identity` was flagged as possibly undefined (`TS18048`) inside `src/background/modules/twitch.ts` during strict type checks.

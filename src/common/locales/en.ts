@@ -147,4 +147,5 @@ export const en = {
   group_vspo_jp: "VSPO JP",
   group_vspo_en: "VSPO EN",
   group_vspo_official: "VSPO Official",
+  member_subscribers: "{count} subscribers",
 };

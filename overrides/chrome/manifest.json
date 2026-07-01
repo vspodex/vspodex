@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "VspoDex",
   "description": "Track VTuber live streams via Holodex & Twitch",
-  "version": "0.1.3.0",
+  "version": "0.1.3.1",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoogz/hhNdiOyDiTddEo0zwOEAsZURPkp5WxBeJa0UcQPL2VQ5RuayWOzMBN2X/TRouVBYeRG9TJ6pDimj0eIvIaRG5QWQXC3Vr7A+7llOotzBFU5y8uUrf0lOvGttQ6BaD+H16ga2vRMtgIBQ21QkaTmKvWKC7HhnfZO8+hgIBiR1MS0pg7ljnqFaPWtLs1ZkIL4/Bu1eAj/jMk5meV9lAkvuHhL3TtXknQ+650rmi1Dy3NVYlQWfRSG9dTorcfnaTgjRraKhHNwY0VoC7TOEJeixOmkG8VGDW50N4u+wR3bIBkKmvVN2PqJ1ASHM+GRQNauXojc3SW5i3d0xlhtMQIDAQAB",
   "permissions": [
     "alarms",

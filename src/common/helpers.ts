@@ -135,7 +135,11 @@ export function formatChannelName(name: string, englishName?: string | null, gro
 
   const jpRegex = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]+/g;
   const matches = name.match(jpRegex);
-  const jp = matches ? matches.join("") : "";
+  let jp = matches ? matches.join("") : "";
+
+  if (jp) {
+    jp = jp.replace(/^ー+|ー+$/g, "");
+  }
 
   if (jp) {
     return jp;
@@ -143,3 +147,4 @@ export function formatChannelName(name: string, englishName?: string | null, gro
   
   return eng || name;
 }
+

@@ -48,7 +48,7 @@ Getting an API key is quick and free:
 1.  Go to [holodex.net](https://holodex.net) and log in.
 2.  Click your profile icon in the top-right corner and select **Account Settings**.
 3.  Scroll down to the **API Key** section.
-4.  Click the **Generate** button to create your key.
+4.  Click the **GET NEW API KEY** button to create your key.
 5.  Copy the key and paste it into the **VspoDex Settings** page.
 
 ## 📦 Installation & Development

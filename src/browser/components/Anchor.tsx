@@ -1,4 +1,4 @@
-import { MouseEvent, ReactNode } from "react";
+import { MouseEvent, ReactNode, AnchorHTMLAttributes } from "react";
 import tw, { styled } from "twin.macro";
 
 import { openUrl } from "~/common/helpers";
@@ -7,21 +7,22 @@ const Wrapper = styled.a`
   ${tw`block cursor-pointer no-underline text-inherit`}
 `;
 
-export interface AnchorProps {
+export interface AnchorProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   to: string;
   children?: ReactNode;
   className?: string;
 }
 
-function Anchor(props: AnchorProps) {
+function Anchor({ to, children, className, ...rest }: AnchorProps) {
   return (
     <Wrapper
-      href={props.to}
-      className={props.className}
-      onClick={(event: MouseEvent) => openUrl(props.to, event)}
-      onAuxClick={(event: MouseEvent) => openUrl(props.to, event)}
+      href={to}
+      className={className}
+      onClick={(event: MouseEvent) => openUrl(to, event)}
+      onAuxClick={(event: MouseEvent) => openUrl(to, event)}
+      {...rest}
     >
-      {props.children}
+      {children}
     </Wrapper>
   );
 }
