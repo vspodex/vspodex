@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 
-## [0.1.2.18] - 2026-07-01
+## [0.1.3.0] - 2026-07-01
 
 ### Added
 - **Custom Sidebar Tab Reordering**:
