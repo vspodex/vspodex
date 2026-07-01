@@ -12,12 +12,12 @@ This extension is dedicated to the VSpo community. It provides a clean and effic
 
 ## ⚙️ Features
 
+- **[New] Tab Reordering**: Arrange the sequence of popup sidebar tabs (Live, Members, Upcoming, Past) via drag-and-drop on the settings page.
+- **[New] Members Tab**: View all followed channels grouped into Favorites, VSPO JP, VSPO EN, and VSPO Official, sorted by subscriber count. Clicking a member shows their stream archive.
 - **Unified Stream Tracking**: Monitor live and upcoming streams across both YouTube (via Holodex API) and Twitch.
 - **Customizable Channels**: Follow the default VSpo roster or add any custom VTuber channel using YouTube ID.
 - **Hololive & Nijisanji Search**: Includes a built-in search and auto-complete function to easily track Hololive and Nijisanji members.
 - **Past Streams Archive**: View completed streams across YouTube (with infinite scrolling and collab filtering) and Twitch (featuring experimental background-synced VODs for target members, enabled by default).
-- **Members Tab**: View all followed channels grouped into Favorites, VSPO JP, VSPO EN, and VSPO Official, sorted by subscriber count. Clicking a member shows their stream archive.
-- **Tab Reordering**: Arrange the sequence of popup sidebar tabs (Live, Members, Upcoming, Past) via drag-and-drop on the settings page.
 - **Aesthetic Customizations**: Select interface themes (Dark, Light, System), font sizes, and sorting options.
 - **Language Support**: Fully localized in English, Japanese (日本語), and Traditional Chinese (繁體中文).
 
