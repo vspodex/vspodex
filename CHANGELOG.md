@@ -5,7 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [0.1.2.12] - 2026-06-30
 
 ### Fixed
-- Release build update / version bump.
+- **Firefox-Only Twitch Channel Name Mismatch**:
+  - Prevented positional merging of stored arrays in `Store.getState()` with hardcoded defaults via `defaultsDeep`. This fixes an issue where different channel objects inside arrays like `channelCache` had their data corruptly cross-merged by index on reload (e.g. Tachibana Hinano live stream showing under Asumi Sena's name).
 
 ## [0.1.2.11] - 2026-05-21
 
