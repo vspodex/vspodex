@@ -3,6 +3,7 @@ import PopupRoot from "../views/popup/Root";
 import LiveStreams from "../views/popup/LiveStreams";
 import UpcomingStreams from "../views/popup/UpcomingStreams";
 import PastStreams from "../views/popup/PastStreams";
+import MemberStreams from "../views/popup/MemberStreams";
 
 const router = createHashRouter([
   {
@@ -32,6 +33,10 @@ const router = createHashRouter([
             path: "past",
             Component: PastStreams,
           },
+          {
+            path: "members",
+            Component: MemberStreams,
+          },
         ],
       },
     ],
@@ -43,4 +48,5 @@ function Page() {
 }
 
 export default Page;
+
 

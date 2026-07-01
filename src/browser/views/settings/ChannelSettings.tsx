@@ -1,9 +1,31 @@
 import { useMemo, useState } from "react";
 import tw, { styled } from "twin.macro";
+import { IconStar, IconStarFilled, IconGripVertical } from "@tabler/icons-react";
 
 import { sendRuntimeMessage, formatChannelName } from "~/common/helpers";
 import { HolodexChannel, SuggestionChannel } from "~/common/types";
-import { useFollowedChannels, useChannelCache, useHolodexApiKey, useSearchChannelsList, useSearchChannelsLastUpdated, useTranslation } from "~/browser/hooks";
+import { useFollowedChannels, useChannelCache, useHolodexApiKey, useHolodexApiKeyVerified, useSearchChannelsList, useSearchChannelsLastUpdated, useTranslation, useFavoriteChannels } from "~/browser/hooks";
+
+const FavoriteButton = styled.button<{ isFavorite: boolean }>`
+  ${tw`p-1.5 rounded-lg cursor-pointer transition-colors flex-none ml-2 border-none outline-none`}
+  ${(props) =>
+    props.isFavorite
+      ? tw`bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20`
+      : tw`bg-neutral-200 text-neutral-500 hover:bg-neutral-300 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700`}
+`;
+
+const DraggableList = styled.div`
+  ${tw`flex flex-col gap-2 mb-6 max-w-md`}
+`;
+
+const DraggableRow = styled.div<{ isDragging: boolean }>`
+  ${tw`flex items-center gap-3 p-2.5 rounded-lg border bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 transition-all cursor-move`}
+  ${(props) => props.isDragging && tw`opacity-50 border-dashed border-indigo-500`}
+`;
+
+const GripIcon = styled.div`
+  ${tw`text-neutral-400 cursor-grab active:cursor-grabbing flex-none`}
+`;
 
 const Section = styled.div`
   ${tw`mb-8`}
@@ -150,7 +172,10 @@ const RemoveButton = styled.button`
 export function Component() {
   const [followedChannels, followedStore] = useFollowedChannels();
   const [channelCache, channelCacheStore] = useChannelCache();
+  const [favoriteChannels, favoriteStore] = useFavoriteChannels();
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [holodexApiKey] = useHolodexApiKey();
+  const [holodexApiKeyVerified] = useHolodexApiKeyVerified();
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [customChannelId, setCustomChannelId] = useState("");
@@ -163,6 +188,8 @@ export function Component() {
   const { t } = useTranslation();
 
   const followedSet = useMemo(() => new Set(followedChannels), [followedChannels]);
+  const favoriteSet = useMemo(() => new Set(favoriteChannels), [favoriteChannels]);
+  const cacheMap = useMemo(() => new Map<string, HolodexChannel>(channelCache.map((c) => [c.id, c])), [channelCache]);
 
   // Helper for subsequence fuzzy matching
   const fuzzyMatch = (target: string, query: string): boolean => {
@@ -190,7 +217,7 @@ export function Component() {
     for (const ch of searchChannelsList) {
       const eng = (ch.english_name || "").toLowerCase();
       const nat = (ch.name || "").toLowerCase();
-      
+
       if (eng === query || nat === query) {
         matches.push({ channel: ch, score: 3 });
       } else if (eng.startsWith(query) || nat.startsWith(query)) {
@@ -199,7 +226,7 @@ export function Component() {
         matches.push({ channel: ch, score: 1.5 });
       } else {
         const queryWords = query.split(/\s+/);
-        const matchesAllWords = queryWords.every(word => 
+        const matchesAllWords = queryWords.every(word =>
           eng.split(/\s+/).some(w => w.startsWith(word)) ||
           eng.includes(word) ||
           nat.includes(word)
@@ -257,7 +284,7 @@ export function Component() {
   }, [channelCache, searchQuery, followedSet]);
 
   const handleRefreshVspo = async () => {
-    if (!holodexApiKey) {
+    if (!holodexApiKey || !holodexApiKeyVerified) {
       alert(t("alert_set_holodex_key"));
       return;
     }
@@ -273,7 +300,7 @@ export function Component() {
   };
 
   const handleSyncSearchList = async () => {
-    if (!holodexApiKey) {
+    if (!holodexApiKey || !holodexApiKeyVerified) {
       alert(t("alert_set_holodex_key"));
       return;
     }
@@ -348,6 +375,11 @@ export function Component() {
   };
 
   const handleAddCustomChannel = async () => {
+    if (!holodexApiKey || !holodexApiKeyVerified) {
+      alert(t("alert_set_holodex_key"));
+      return;
+    }
+
     const sanitizedId = customChannelId.replace(/[\s/]/g, "");
     if (!sanitizedId) return;
 
@@ -370,6 +402,7 @@ export function Component() {
   const handleToggleFollow = async (channelId: string) => {
     if (followedSet.has(channelId)) {
       await followedStore.set(followedChannels.filter((id) => id !== channelId));
+      await favoriteStore.set(favoriteChannels.filter((id) => id !== channelId));
     } else {
       await followedStore.set([...followedChannels, channelId]);
     }
@@ -379,7 +412,37 @@ export function Component() {
     if (followedSet.has(channelId)) {
       await followedStore.set(followedChannels.filter((id) => id !== channelId));
     }
+    await favoriteStore.set(favoriteChannels.filter((id) => id !== channelId));
     await channelCacheStore.set(channelCache.filter((ch) => ch.id !== channelId));
+  };
+
+  const handleToggleFavorite = async (channelId: string) => {
+    if (favoriteSet.has(channelId)) {
+      await favoriteStore.set(favoriteChannels.filter((id) => id !== channelId));
+    } else {
+      await favoriteStore.set([...favoriteChannels, channelId]);
+    }
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+
+    const newList = [...favoriteChannels];
+    const draggedItem = newList[draggedIndex];
+    newList.splice(draggedIndex, 1);
+    newList.splice(index, 0, draggedItem);
+    setDraggedIndex(index);
+    favoriteStore.set(newList);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
   };
 
   const groupedChannels = useMemo(() => {
@@ -393,7 +456,7 @@ export function Component() {
       }
       groups[groupName].push(channel);
     }
-    
+
     const sortedKeys = Object.keys(groups).sort((a, b) => {
       if (a === "Custom channels") return -1;
       if (b === "Custom channels") return 1;
@@ -421,6 +484,8 @@ export function Component() {
     const idsToUnfollow = new Set(channelsToUnfollow.map(c => c.id));
     const newFollowed = followedChannels.filter(id => !idsToUnfollow.has(id));
     await followedStore.set(newFollowed);
+    const newFavorites = favoriteChannels.filter(id => !idsToUnfollow.has(id));
+    await favoriteStore.set(newFavorites);
   };
 
   return (
@@ -443,6 +508,54 @@ export function Component() {
           </Button>
           <SyncStatus>{t("status_last_synced")} {formattedSyncTime}</SyncStatus>
         </ButtonGroup>
+
+        <GroupTitle>{t("setting_favorite_order")}</GroupTitle>
+        <SectionDescription>
+          {t("desc_favorite_order")}
+        </SectionDescription>
+
+        {favoriteChannels.length === 0 ? (
+          <EmptyState style={{ padding: "1.5rem 0" }}>{t("empty_no_favorites")}</EmptyState>
+        ) : (
+          <DraggableList>
+            {favoriteChannels.map((channelId, index) => {
+              const channel = cacheMap.get(channelId);
+              if (!channel) return null;
+              const displayName = formatChannelName(channel.name, channel.english_name, channel.group);
+
+              return (
+                <DraggableRow
+                  key={channel.id}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragEnd={handleDragEnd}
+                  isDragging={draggedIndex === index}
+                >
+                  <GripIcon>
+                    <IconGripVertical size="1.25rem" />
+                  </GripIcon>
+                  {channel.photo ? (
+                    <ChannelAvatar src={channel.photo} alt="" style={{ width: "2rem", height: "2rem" }} />
+                  ) : (
+                    <AvatarPlaceholder style={{ width: "2rem", height: "2rem", fontSize: "0.875rem" }}>
+                      {(channel.english_name || channel.name).charAt(0)}
+                    </AvatarPlaceholder>
+                  )}
+                  <ChannelInfo>
+                    <ChannelName style={{ fontSize: "0.875rem" }}>{displayName}</ChannelName>
+                  </ChannelInfo>
+                  <FavoriteButton
+                    isFavorite={true}
+                    onClick={() => handleToggleFavorite(channel.id)}
+                  >
+                    <IconStarFilled size="1.25rem" />
+                  </FavoriteButton>
+                </DraggableRow>
+              );
+            })}
+          </DraggableList>
+        )}
 
         <GroupTitle>{t("section_add_custom")}</GroupTitle>
         <SectionDescription>
@@ -540,6 +653,19 @@ export function Component() {
                           {formatChannelName(channel.name, channel.english_name, channel.group)}
                         </ChannelName>
                       </ChannelInfo>
+                      {followedSet.has(channel.id) && (
+                        <FavoriteButton
+                          isFavorite={favoriteSet.has(channel.id)}
+                          onClick={() => handleToggleFavorite(channel.id)}
+                          title="Favorite"
+                        >
+                          {favoriteSet.has(channel.id) ? (
+                            <IconStarFilled size="1.25rem" />
+                          ) : (
+                            <IconStar size="1.25rem" />
+                          )}
+                        </FavoriteButton>
+                      )}
                       <FollowButton
                         isFollowed={followedSet.has(channel.id)}
                         onClick={() => handleToggleFollow(channel.id)}

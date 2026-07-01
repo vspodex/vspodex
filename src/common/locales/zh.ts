@@ -77,6 +77,8 @@ export const zh: typeof en = {
   alert_add_custom_success: "頻道新增成功！",
   alert_add_custom_fail: "錯誤：在 Holodex 上未找到該頻道。請檢查 ID 是否正確。",
   alert_add_custom_comm_error: "錯誤：無法與背景程式通訊。",
+  alert_invalid_holodex_key: "無效的 Holodex API 金鑰。請檢查金鑰並重試。",
+  alert_validation_error: "無法驗證 API 金鑰。請檢查您的網路連線。",
   section_add_custom: "新增自訂頻道",
   desc_add_custom: "輸入 VTuber 的名字（僅支援英文名搜尋，如 Gura、Kanata）或貼上 YouTube 頻道 ID 進行追蹤。",
   placeholder_add_custom: "例如：Gawr Gura（僅限英文名搜尋）或 UCXU7YYxy_iQd3ulXyO-zC-Q",
@@ -130,5 +132,22 @@ export const zh: typeof en = {
   setting_enable_twitch_past: "實驗性：啟用 Twitch 過往直播",
   setting_enable_twitch_past_desc: "啟用實驗性的 Twitch 過往直播子分頁 (夢野あかり,白波らむね,紫宮るな,如月れん)。會在背景自動更新。",
   splash_no_past_twitch: "未找到任何 Twitch 過往直播。請稍後再回來看看吧！ 🟣",
+
+  // Members tab
+  tooltip_members: "成員",
+  header_members: "👤 成員",
+  header_member_streams: "⏪ {name}",
+  splash_no_member_streams: "找不到此成員的過往直播。",
+  members_loading: "正在載入直播…",
+  members_back: "← 返回",
+  setting_favorite_order: "最愛成員顯示順序",
+  desc_favorite_order: "拖曳以變更最愛成員在快顯視窗分頁中的顯示順序。",
+  empty_no_favorites: "尚未加入最愛成員。請點擊下方已追隨頻道旁的星號按鈕以新增。",
+  group_favorites: "⭐ 最愛",
+  section_tab_order: "側邊欄分頁順序",
+  desc_tab_order: "拖曳以變更快顯視窗側邊欄中的分頁順序。",
+  group_vspo_jp: "VSPO JP",
+  group_vspo_en: "VSPO EN",
+  group_vspo_official: "VSPO 官方",
 };
 

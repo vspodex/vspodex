@@ -32,3 +32,19 @@ export const DEFAULT_VSPO_CHANNELS: Array<{ id: string; name: string; english_na
   { id: "UCF_U2GCKHvDz52jWdizppIA", name: "空澄セナ", english_name: "Sena Asumi", group: "VSPO", twitch: "asumisena" },
   { id: "UCGWa1dMU_sDCaRQjdabsVgg", name: "如月れん", english_name: "Ren Kisaragi", group: "VSPO", twitch: "ren_kisaragi__" },
 ];
+
+export const VSPO_DEBUT_ORDER = [
+  "UCiMG6VdScBabPhJ1ZtaVmbw", // Nazuna Kaga
+  "UCyLGcqYs7RsBb3L0SJfzGYA", // Sumire Kaga
+  "UCgTzsBI0DIRopMylJEDqnog", // Toto Kogara
+  "UC5LyYg6cCA4yHEYvtUsir3g", // Uruha Ichinose
+  "UCIcAj6WkJ8vZ7DeJVgmeqKw", // Noa Kurumi
+  "UCMp55EbT_ZlqiMS3lCj01BQ", // Kyupi Kaminari
+  "UCF_U2GCKHvDz52jWdizppIA", // Sena Asumi
+  "UCvUc0m317LWTTPZoBQV479A", // Hinano Tachibana
+  "UCurEA8YoqFwimJcAuSHU0MQ", // Lisa Hanabusa
+  "UCGWa1dMU_sDCaRQjdabsVgg", // Ren Kisaragi
+  "UCjXBuHmWkieBApgBhDuJMMQ", // Beni Yakumo
+  "UCPkKpOHxEDcwmUAnRpIu-Ng", // Ema Aizawa
+  "UCD5W21JqNMv_tV9nfjvF9sw", // Runa Shinomiya
+];

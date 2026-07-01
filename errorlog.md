@@ -33,3 +33,21 @@ Because of this shift, when the background service worker fetched channels from 
 1. Corrected all 13 core member mappings (YouTube channel IDs and Twitch handles) in `DEFAULT_VSPO_CHANNELS` (`src/common/constants.ts`).
 2. Updated the service worker `onInstalled` update migration block (`src/background/index.ts`) to translate all old/incorrect IDs to the correct IDs in both `followedChannels` and `channelCache`, and update incorrect Twitch handles.
 
+---
+
+# Invalid Holodex API Key Connection Status Issue
+
+## Symptom
+When an invalid Holodex API key was inserted or changed to in the settings page, the connection status still showed "Connected" with a check mark.
+
+## Root Cause
+The connection status of the Holodex API was determined solely by the presence of a key string in the `holodexApiKey` store. No validation checks were executed or stored to ensure the key's authenticity. If requests failed with `401 Unauthorized` or `403 Forbidden` due to an invalid key, the errors were caught and swallowed, leading the extension to silently return empty results while leaving the UI state unchanged as "Connected".
+
+## Action Taken
+1. Added a `holodexApiKeyVerified` store to track the verification status of the key.
+2. Implemented a `validateHolodexApiKey` endpoint/message in the background script to test a key with a request.
+3. Updated the `handleSaveApiKey` workflow in `ApiKeySettings.tsx` to validate a newly input key against the API first. It alerts the user if the validation fails and marks the verified status as false.
+4. Updated `holodexRequest` in the background script to dynamically set `holodexApiKeyVerified` to false on receiving 400/401/403 errors and to true on successful calls.
+5. Adjusted UI pages (`ApiKeySettings.tsx`, `ChannelSettings.tsx`, and `LiveStreams.tsx`) to check the verified status. If the key is present but not verified, it renders "Not connected" and restricts actions requiring a valid key.
+
+

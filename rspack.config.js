@@ -31,6 +31,7 @@ module.exports = (env, argv) => {
       new rspack.EnvironmentPlugin({
         TWITCH_CLIENT_ID: "",
         TWITCH_REDIRECT_URI: "",
+        HOLODEX_API_KEY: "",
       }),
       new rspack.ProvidePlugin({
         browser: "webextension-polyfill",

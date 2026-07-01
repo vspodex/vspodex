@@ -126,6 +126,10 @@ export const stores = {
     defaultValue: null,
   }),
 
+  holodexApiKeyVerified: new Store<boolean>("local", "holodexApiKeyVerified", {
+    defaultValue: false,
+  }),
+
   followedChannels: new Store<string[]>("local", "followedChannels", {
     defaultValue: DEFAULT_VSPO_CHANNELS.map(c => c.id),
   }),
@@ -215,6 +219,14 @@ export const stores = {
       sortField: "viewerCount",
       sortDirection: "desc",
     },
+  }),
+
+  favoriteChannels: new Store<string[]>("local", "favoriteChannels", {
+    defaultValue: [],
+  }),
+
+  sidebarTabOrder: new Store<string[]>("local", "sidebarTabOrder", {
+    defaultValue: ["live", "members", "upcoming", "past"],
   }),
 };
 

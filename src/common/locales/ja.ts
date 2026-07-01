@@ -77,6 +77,8 @@ export const ja: typeof en = {
   alert_add_custom_success: "チャンネルが正常に追加されました！",
   alert_add_custom_fail: "エラー: Holodex上でチャンネルが見つかりませんでした。IDを確認してください。",
   alert_add_custom_comm_error: "エラー: バックグラウンドスクリプトとの通信に失敗しました。",
+  alert_invalid_holodex_key: "無効な Holodex API キーです。キーを確認してもう一度お試しください。",
+  alert_validation_error: "APIキーの検証に失敗しました。ネットワーク接続を確認してください。",
   section_add_custom: "カスタムチャンネルの追加",
   desc_add_custom: "VTuberの名前（英語名での検索のみ、例：Gura、Kanata）を入力するか、YouTubeのチャンネルIDを貼り付けて追跡します。",
   placeholder_add_custom: "例：Gawr Gura（英語名での検索のみ）または UCXU7YYxy_iQd3ulXyO-zC-Q",
@@ -130,5 +132,21 @@ export const ja: typeof en = {
   setting_enable_twitch_past: "実験的：Twitch過去の配信を有効にする",
   setting_enable_twitch_past_desc: "実験的なTwitch過去の配信サブタブ(夢野あかり、白波らむね、紫宮るな、如月れん)を有効にします。バックグラウンドで自動的に更新します。",
   splash_no_past_twitch: "過去のTwitch配信が見つかりませんでした。また後で確認してください！ 🟣",
-};
 
+  // Members tab
+  tooltip_members: "メンバー",
+  header_members: "👤 メンバー",
+  header_member_streams: "⏪ {name}",
+  splash_no_member_streams: "このメンバーの過去の配信が見つかりませんでした。",
+  members_loading: "配信を読み込み中…",
+  members_back: "← 戻る",
+  setting_favorite_order: "お気に入りメンバーの表示順",
+  desc_favorite_order: "ドラッグ＆ドロップでお気に入りメンバーのポップアップ内での表示順を変更できます。",
+  empty_no_favorites: "お気に入りメンバーが登録されていません。下のメンバー一覧の星マークをクリックして追加してください。",
+  group_favorites: "⭐ お気に入り",
+  section_tab_order: "サイドバータブの順序",
+  desc_tab_order: "ドラッグ＆ドロップでポップアップのサイドバーのタブ順を変更できます。",
+  group_vspo_jp: "VSPO JP",
+  group_vspo_en: "VSPO EN",
+  group_vspo_official: "ぶいすぽっ! 公式",
+};

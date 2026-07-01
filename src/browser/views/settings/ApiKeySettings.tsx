@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import tw, { styled } from "twin.macro";
 
 import { sendRuntimeMessage } from "~/common/helpers";
-import { useHolodexApiKey, useTwitchAccessToken, useTwitchUser, useTranslation } from "~/browser/hooks";
+import { useHolodexApiKey, useHolodexApiKeyVerified, useTwitchAccessToken, useTwitchUser, useTranslation } from "~/browser/hooks";
 
 const Section = styled.div`
   ${tw`mb-8`}
@@ -70,6 +70,7 @@ const TwitchAvatar = styled.img`
 
 export function Component() {
   const [holodexApiKey, holodexStore] = useHolodexApiKey();
+  const [holodexApiKeyVerified, holodexApiKeyVerifiedStore] = useHolodexApiKeyVerified();
   const [twitchAccessToken] = useTwitchAccessToken();
   const [twitchUser] = useTwitchUser();
   const { t } = useTranslation();
@@ -86,18 +87,36 @@ export function Component() {
 
   const handleSaveApiKey = async () => {
     setSaving(true);
-    await holodexStore.set(apiKeyInput || null);
 
-    // Try to refresh VSPO channels with the new key
-    if (apiKeyInput) {
-      try {
-        await sendRuntimeMessage("refreshVspoChannels");
-      } catch (error) {
-        console.error("Failed to refresh channels:", error);
-      }
+    if (!apiKeyInput) {
+      await holodexStore.set(null);
+      await holodexApiKeyVerifiedStore.set(false);
+      setSaving(false);
+      return;
     }
 
-    setSaving(false);
+    try {
+      const isValid = await sendRuntimeMessage("validateHolodexApiKey", apiKeyInput);
+      if (!isValid) {
+        alert(t("alert_invalid_holodex_key"));
+        await holodexStore.set(apiKeyInput);
+        await holodexApiKeyVerifiedStore.set(false);
+      } else {
+        await holodexStore.set(apiKeyInput);
+        await holodexApiKeyVerifiedStore.set(true);
+        // Try to refresh VSPO channels with the new key
+        try {
+          await sendRuntimeMessage("refreshVspoChannels");
+        } catch (error) {
+          console.error("Failed to refresh channels:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to validate API key:", error);
+      alert(t("alert_validation_error"));
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleTwitchLogin = () => {
@@ -143,8 +162,12 @@ export function Component() {
         </HolodexInputGroup>
 
         <div css={tw`mt-2`}>
-          <StatusBadge connected={!!holodexApiKey}>
-            {holodexApiKey ? t("status_connected") : t("status_not_configured")}
+          <StatusBadge connected={!!holodexApiKey && holodexApiKeyVerified}>
+            {!!holodexApiKey && holodexApiKeyVerified
+              ? t("status_connected")
+              : holodexApiKey
+              ? t("status_not_connected")
+              : t("status_not_configured")}
           </StatusBadge>
         </div>
       </Section>

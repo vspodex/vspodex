@@ -138,9 +138,6 @@ export function formatChannelName(name: string, englishName?: string | null, gro
   const jp = matches ? matches.join("") : "";
 
   if (jp) {
-    if (eng && eng !== jp) {
-      return `${jp} ${eng}`;
-    }
     return jp;
   }
   

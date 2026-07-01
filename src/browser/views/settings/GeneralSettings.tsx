@@ -1,7 +1,30 @@
+import { useState } from "react";
 import tw, { styled } from "twin.macro";
+import { IconGripVertical } from "@tabler/icons-react";
 
 import { useSettingsContext } from "~/browser/contexts";
-import { useTranslation } from "~/browser/hooks";
+import { useTranslation, useSidebarTabOrder } from "~/browser/hooks";
+
+const DraggableList = styled.div`
+  ${tw`flex flex-col gap-2 mb-6 max-w-md`}
+`;
+
+const DraggableRow = styled.div<{ isDragging: boolean }>`
+  ${tw`flex items-center gap-3 p-2.5 rounded-lg border bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 transition-all cursor-move`}
+  ${(props) => props.isDragging && tw`opacity-50 border-dashed border-indigo-500`}
+`;
+
+const GripIcon = styled.div`
+  ${tw`text-neutral-400 cursor-grab active:cursor-grabbing flex-none`}
+`;
+
+const TabInfo = styled.div`
+  ${tw`flex-1 overflow-hidden`}
+`;
+
+const TabName = styled.div`
+  ${tw`font-medium text-sm text-neutral-800 dark:text-neutral-200`}
+`;
 
 const Section = styled.div`
   ${tw`mb-8`}
@@ -38,12 +61,42 @@ const Checkbox = styled.input`
 export function Component() {
   const { register } = useSettingsContext();
   const { t } = useTranslation();
+  const [sidebarTabOrder, sidebarTabOrderStore] = useSidebarTabOrder({ suspense: true });
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const themeProps = register("general.theme");
   const fontSizeProps = register("general.fontSize");
   const languageProps = register("general.language");
   const clickBehaviorProps = register("general.clickBehavior");
   const refreshIntervalProps = register("general.refreshInterval");
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+
+    const newList = [...sidebarTabOrder];
+    const draggedItem = newList[draggedIndex];
+    newList.splice(draggedIndex, 1);
+    newList.splice(index, 0, draggedItem);
+    setDraggedIndex(index);
+    sidebarTabOrderStore.set(newList);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
+
+  const tabNames = {
+    live: t("tooltip_live_streams"),
+    members: t("tooltip_members"),
+    upcoming: t("tooltip_upcoming_streams"),
+    past: t("tooltip_past_streams"),
+  };
 
   return (
     <>
@@ -87,6 +140,30 @@ export function Component() {
             <option value="zh">繁體中文</option>
           </Select>
         </FormGroup>
+      </Section>
+
+      <Section>
+        <SectionTitle>{t("section_tab_order")}</SectionTitle>
+        <HelpText style={{ marginBottom: "1rem" }}>{t("desc_tab_order")}</HelpText>
+        <DraggableList>
+          {sidebarTabOrder.map((tabKey, index) => (
+            <DraggableRow
+              key={tabKey}
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragEnd={handleDragEnd}
+              isDragging={draggedIndex === index}
+            >
+              <GripIcon>
+                <IconGripVertical size="1.25rem" />
+              </GripIcon>
+              <TabInfo>
+                <TabName>{tabNames[tabKey as keyof typeof tabNames] || tabKey}</TabName>
+              </TabInfo>
+            </DraggableRow>
+          ))}
+        </DraggableList>
       </Section>
 
       <Section>

@@ -5,7 +5,13 @@ import { HolodexChannel, HolodexVideo, Dictionary, SuggestionChannel } from "~/c
 const BASE_URL = "https://holodex.net/api/v2";
 
 async function getApiKey(): Promise<string | null> {
-  return stores.holodexApiKey.get();
+  const key = await stores.holodexApiKey.get();
+  if (key) return key;
+
+  if (typeof process === "object" && process.env && process.env.HOLODEX_API_KEY) {
+    return process.env.HOLODEX_API_KEY;
+  }
+  return null;
 }
 
 async function holodexRequest<T>(path: string, params?: Dictionary<string>): Promise<T> {
@@ -32,8 +38,13 @@ async function holodexRequest<T>(path: string, params?: Dictionary<string>): Pro
   });
 
   if (!response.ok) {
+    if (response.status === 400 || response.status === 401 || response.status === 403) {
+      await stores.holodexApiKeyVerified.set(false);
+    }
     throw new Error(`Holodex API error: ${response.status} ${response.statusText}`);
   }
+
+  await stores.holodexApiKeyVerified.set(true);
 
   return response.json();
 }
@@ -89,6 +100,27 @@ export async function getPastStreams(offset: number, limit: number): Promise<Hol
     return videos;
   } catch (error) {
     console.error("[VspoDex] Error fetching past streams:", error);
+    return [];
+  }
+}
+
+/**
+ * Fetch past (completed) streams for a specific channel ID.
+ * Used for on-demand per-member past stream browsing.
+ */
+export async function getChannelPastVideos(channelId: string, limit: number = 50): Promise<HolodexVideo[]> {
+  try {
+    const videos = await holodexRequest<HolodexVideo[]>("videos", {
+      channel_id: channelId,
+      status: "past",
+      type: "stream",
+      sort: "available_at",
+      order: "desc",
+      limit: String(limit),
+    });
+    return videos;
+  } catch (error) {
+    console.error(`[VspoDex] Error fetching past streams for channel ${channelId}:`, error);
     return [];
   }
 }
@@ -382,3 +414,34 @@ export async function refreshSearchChannelsList(): Promise<number> {
 
   return suggestionChannels.length;
 }
+
+/**
+ * Validate a Holodex API key by making a test request.
+ */
+export async function validateHolodexApiKey(key: string): Promise<boolean> {
+  if (!key) return false;
+  try {
+    const url = new URL(`${BASE_URL}/channels`);
+    url.searchParams.set("limit", "1");
+    url.searchParams.set("type", "vtuber");
+    const response = await fetch(url.toString(), {
+      headers: {
+        "X-APIKEY": key,
+      },
+    });
+
+    if (response.ok) {
+      await stores.holodexApiKeyVerified.set(true);
+      return true;
+    }
+
+    if (response.status === 400 || response.status === 401 || response.status === 403) {
+      await stores.holodexApiKeyVerified.set(false);
+    }
+    return false;
+  } catch (error) {
+    console.error("[VspoDex] Error validating Holodex API key:", error);
+    throw error;
+  }
+}
+

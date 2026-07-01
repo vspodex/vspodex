@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.2.18] - 2026-07-01
+
+### Added
+- **Custom Sidebar Tab Reordering**:
+  - Implemented drag-and-drop tab reordering under General Settings.
+  - Sidebar links render dynamically reflecting the user's custom sort order.
+- **Default Subscriber-Count Sorting and Subgroups in Members Tab**:
+  - Split VSPO followed channels into distinct sub-sections: VSPO JP, VSPO EN, and VSPO Official.
+  - Changed default sorting in the Members tab to subscriber count descending (fetched on-demand using the Holodex API).
+  - Aligned style of the Members header to match other tabs.
+- **Japanese Name Preference Formatting Rule**:
+  - Configured `formatChannelName` helper to return only the Japanese/native name if it contains Japanese characters (hiragana, katakana, kanji), falling back to the English name only if no Japanese characters are present.
+
+### Fixed
+- **Settings Favorite Toggle Button**:
+  - Restored and reordered the favorite star button toggle inside the followed channels rows to display directly before the follow/unfollow button.
+- **Holodex API Key Connection Verification**:
+  - Validates API keys against the Holodex API when saved, alerting users of invalid keys.
+  - Updates the settings page to show "Not connected" if a key is invalid/unverified and prevents key-reliant requests from being made.
+
 ## [0.1.2.17] - 2026-07-01
 
 ### Fixed

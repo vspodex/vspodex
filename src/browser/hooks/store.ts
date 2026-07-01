@@ -156,6 +156,10 @@ export function useHolodexApiKey(options?: UseStoreOptions) {
   return useStore(stores.holodexApiKey, options);
 }
 
+export function useHolodexApiKeyVerified(options?: UseStoreOptions) {
+  return useStore(stores.holodexApiKeyVerified, options);
+}
+
 export function useSearchChannelsList(options?: UseStoreOptions) {
   return useStore(stores.searchChannelsList, options);
 }
@@ -194,4 +198,12 @@ export function useLiveStreamState(options?: UseStoreOptions): UseLiveStreamStat
       setSortField: (value) => store.set((state) => ({ ...state, sortField: value })),
     },
   ];
+}
+
+export function useFavoriteChannels(options?: UseStoreOptions) {
+  return useStore(stores.favoriteChannels, options);
+}
+
+export function useSidebarTabOrder(options?: UseStoreOptions) {
+  return useStore(stores.sidebarTabOrder, options);
 }

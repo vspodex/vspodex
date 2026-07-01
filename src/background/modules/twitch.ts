@@ -100,6 +100,17 @@ export async function getUserVideos(userId: string, limit: number = 100): Promis
   return res?.data ?? [];
 }
 
+export async function getUserByLogin(login: string): Promise<HelixUser | null> {
+  const res = await request<HelixUser>("users", { login });
+  return res?.data?.[0] ?? null;
+}
+
+export async function getUserVideosByLogin(login: string, limit: number = 50): Promise<HelixVideo[]> {
+  const user = await getUserByLogin(login);
+  if (!user) return [];
+  return getUserVideos(user.id, limit);
+}
+
 // ─── Identity helpers (cross-browser via webextension-polyfill) ──
 
 function hasIdentityApi(): boolean {

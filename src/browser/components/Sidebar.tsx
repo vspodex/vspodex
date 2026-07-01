@@ -1,8 +1,8 @@
-import { IconHeart, IconCalendar, IconHistory, IconSettings } from "@tabler/icons-react";
+import { IconHeart, IconCalendar, IconHistory, IconUsers, IconSettings } from "@tabler/icons-react";
 import tw, { styled } from "twin.macro";
 import { NavLink } from "react-router";
 
-import { useTranslation } from "~/browser/hooks";
+import { useTranslation, useSidebarTabOrder } from "~/browser/hooks";
 
 const Wrapper = styled.div`
   ${tw`bg-black/10 dark:bg-black/20 grid gap-8 content-between overflow-x-hidden overflow-y-scroll w-16`}
@@ -44,6 +44,7 @@ const SettingsLink = styled.button`
 
 function Sidebar() {
   const { t } = useTranslation();
+  const [sidebarTabOrder] = useSidebarTabOrder({ suspense: true });
 
   const openSettings = async () => {
     const targetUrl = browser.runtime.getURL("settings.html#/channels");
@@ -62,21 +63,36 @@ function Sidebar() {
     }
   };
 
+  const tabMap = {
+    live: (
+      <StyledLink key="live" to="/streams/live" title={t("tooltip_live_streams")}>
+        <IconHeart size="1.5rem" />
+      </StyledLink>
+    ),
+    upcoming: (
+      <StyledLink key="upcoming" to="/streams/upcoming" title={t("tooltip_upcoming_streams")}>
+        <IconCalendar size="1.5rem" />
+      </StyledLink>
+    ),
+    past: (
+      <StyledLink key="past" to="/streams/past" title={t("tooltip_past_streams")}>
+        <IconHistory size="1.5rem" />
+      </StyledLink>
+    ),
+    members: (
+      <StyledLink key="members" to="/streams/members" title={t("tooltip_members")}>
+        <IconUsers size="1.5rem" />
+      </StyledLink>
+    ),
+  };
+
   return (
     <Wrapper>
       <Header>
         <LogoImg src="/icon-48.png" alt="VspoDex" />
       </Header>
       <Inner>
-        <StyledLink to="/streams/live" title={t("tooltip_live_streams")}>
-          <IconHeart size="1.5rem" />
-        </StyledLink>
-        <StyledLink to="/streams/upcoming" title={t("tooltip_upcoming_streams")}>
-          <IconCalendar size="1.5rem" />
-        </StyledLink>
-        <StyledLink to="/streams/past" title={t("tooltip_past_streams")}>
-          <IconHistory size="1.5rem" />
-        </StyledLink>
+        {sidebarTabOrder.map((tabKey) => tabMap[tabKey as keyof typeof tabMap])}
       </Inner>
       <Footer>
         <SettingsLink onClick={openSettings} title={t("tooltip_settings")}>

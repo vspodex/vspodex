@@ -1,3 +1,32 @@
+# Last Session Summary (2026-07-01)
+
+### Overview
+Implemented a new **Members tab** in the popup extension. Displays followed VSPO members and custom channels as circular avatar icons. Clicking a member fetches their past YouTube and Twitch streams on demand and displays them in a merged newest-first list.
+
+### Key Changes
+
+- **`src/background/modules/holodex.ts`**: Added `getChannelPastVideos(channelId, limit)` — fetches past streams for a single channel via Holodex `/videos?channel_id=`.
+- **`src/background/modules/twitch.ts`**: Added `getUserByLogin(login)` and `getUserVideosByLogin(login, limit)` — resolves Twitch login → user ID → fetches VODs.
+- **`src/background/index.ts`**: Added `getChannelPastStreams` and `getChannelPastTwitchStreams` message handlers. Registered both in `messageHandlers`. These convert API responses to `UnifiedStream[]`.
+- **`src/browser/views/popup/MemberStreams.tsx`** [NEW]: Two-state view component:
+  - Grid view: circular avatars of followed members grouped by VSPO / Custom.
+  - Stream list view: parallel YouTube + Twitch fetch on click, merged by `startedAt` descending, rendered with existing `StreamCard`. Has back button, loading spinner, empty splash.
+- **`src/browser/pages/popup.tsx`**: Added `path: "members"` route under `streams` children.
+- **`src/browser/components/Sidebar.tsx`**: Added `IconUsers` as 4th sidebar nav link between Past Streams and Settings. Routes to `/streams/members`.
+- **Locales (en.ts, ja.ts, zh.ts)**: Added keys: `tooltip_members`, `header_members`, `header_member_streams`, `splash_no_member_streams`, `members_loading`, `members_back`.
+
+### Architecture Notes
+- No new stores — stream data is fetched on demand and held in component state only.
+- No background polling — fetches fire only on member click.
+- Reuses existing `StreamCard`, `UnifiedStream`, `holodexToUnified`, `twitchVideoToUnified`.
+
+### Build Status
+- `tsc --noEmit`: ✅ Pass
+- `build:chrome`: ✅ Pass
+- `build:firefox`: ✅ Pass
+
+---
+
 # Last Session Summary (2026-05-19)
 
 ### 📋 Overview of the Session
@@ -170,3 +199,40 @@ In this session, we diagnosed and resolved a critical cross-browser name mismatc
 - **Git & Deployment Operations:**
   - Staged, committed, and pushed main branch changes to GitHub.
   - Created and pushed Git tag `v0.1.2.17` to remote.
+
+---
+
+# Last Session Summary (2026-07-01 - Session 2)
+
+### 📋 Overview of the Session
+In this session, we implemented dynamic sidebar tab reordering, default-to-subscriber-count sorting on the Members tab categorized by sub-groups (JP, EN, Official), Japanese-only name filtering fallbacks, settings layout tweaks (restoring and reordering the favorite star toggle before the follow button), and localized tab reordering helpers. All changes were compiled and validated across Chrome and Firefox targets.
+
+### 🛠️ Key Changes
+
+- **Custom Sidebar Tab Reordering:**
+  - **`src/common/stores.ts`**: Added persistent store `sidebarTabOrder` defaulting to `["live", "members", "upcoming", "past"]` (Live -> Members -> Upcoming -> Past).
+  - **`src/browser/hooks/store.ts`**: Added `useSidebarTabOrder` hook.
+  - **`src/browser/components/Sidebar.tsx`**: Updated navigation links rendering to sort dynamically based on the state in `sidebarTabOrder`.
+  - **`src/browser/views/settings/GeneralSettings.tsx`**: Added a drag-and-drop tab ordering list section using native HTML5 drag handlers (`draggable`, `onDragStart`, `onDragOver`, `onDragEnd`) with a grip handle.
+
+- **Members Tab Sub-groups & Subscriber Sorting:**
+  - **`.env`**: Configured `HOLODEX_API_KEY=699724ae-9b6c-4424-b347-6a8f6d9df86a`.
+  - **`rspack.config.js`**: Inlined `HOLODEX_API_KEY` environment variable in the EnvironmentPlugin.
+  - **`src/background/modules/holodex.ts`**: Modified `getApiKey()` to fallback to `process.env.HOLODEX_API_KEY`.
+  - **`src/browser/views/popup/MemberStreams.tsx`**:
+    - Grouped non-favorited followed channels into separate **VSPO JP Members**, **VSPO EN Members** (group `"English"`), and **VSPO Official Channels** (group `"Official"`).
+    - Sorted members descending by their subscriber count fetched from the Holodex API (falling back to alphabetical sorting).
+    - Updated typography of the Member tab title header to match other tabs (`text-sm font-medium text-neutral-500`) and restored the emoji icon (`👤 Members`).
+
+- **Japanese-Only Name Format Fallback:**
+  - **`src/common/helpers.ts` (`formatChannelName`)**: Changed formatting behavior to return only the Japanese/native name if it contains Japanese characters (hiragana, katakana, kanji), falling back to the English name only if no Japanese characters are present.
+
+- **Settings Channels Star Toggle Layout:**
+  - **`src/browser/views/settings/ChannelSettings.tsx`**: Restored the `<FavoriteButton>` toggle inside the followed channels grid rows, placing it immediately before the `<FollowButton>`.
+
+- **Localization (`src/common/locales/`):**
+  - Added new group labels (`group_vspo_jp`, `group_vspo_en`, `group_vspo_official`, `section_tab_order`, `desc_tab_order`) in English (`en.ts`), Japanese (`ja.ts`), and Traditional Chinese (`zh.ts`).
+
+- **Verification:**
+  - Completed type-checking (`npm run test`) and successfully compiled Chrome and Firefox production extensions (`npm run build:chrome` & `npm run build:firefox`).
+

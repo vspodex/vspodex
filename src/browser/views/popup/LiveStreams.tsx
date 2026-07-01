@@ -4,7 +4,7 @@ import tw, { styled } from "twin.macro";
 import { sendRuntimeMessage } from "~/common/helpers";
 import { useRefreshHandler } from "~/browser/contexts";
 import { isEmpty } from "~/browser/helpers";
-import { useLiveStreams, useHolodexApiKey, useTwitchAccessToken, useTranslation } from "~/browser/hooks";
+import { useLiveStreams, useHolodexApiKey, useHolodexApiKeyVerified, useTwitchAccessToken, useTranslation } from "~/browser/hooks";
 
 import StreamCard from "~/browser/components/cards/StreamCard";
 import Layout from "~/browser/components/Layout";
@@ -32,6 +32,7 @@ const ActionButton = styled.button`
 function ChildComponent() {
   const [liveStreams] = useLiveStreams({ suspense: true });
   const [holodexApiKey] = useHolodexApiKey();
+  const [holodexApiKeyVerified] = useHolodexApiKeyVerified();
   const [twitchAccessToken] = useTwitchAccessToken();
   const [refreshing, setRefreshing] = useState(false);
   const { t } = useTranslation();
@@ -67,7 +68,7 @@ function ChildComponent() {
     }
   };
 
-  const isNotSetup = !holodexApiKey && !twitchAccessToken;
+  const isNotSetup = (!holodexApiKey || !holodexApiKeyVerified) && !twitchAccessToken;
 
   if (isNotSetup) {
     return (

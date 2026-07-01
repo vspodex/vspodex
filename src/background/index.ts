@@ -6,7 +6,7 @@ import { HolodexVideo, HelixStream, UnifiedStream, HelixVideo } from "~/common/t
 import { DEFAULT_VSPO_CHANNELS } from "~/common/constants";
 
 import { refreshActionBadge } from "./modules/badge";
-import { getLiveStreams, getPastStreams, refreshVspoChannels, fetchAndCacheChannels, getChannelsByOrg, addCustomChannel, ensureCustomChannels, refreshSearchChannelsList } from "./modules/holodex";
+import { getLiveStreams, getPastStreams, getChannelPastVideos, refreshVspoChannels, fetchAndCacheChannels, getChannelsByOrg, addCustomChannel, ensureCustomChannels, refreshSearchChannelsList, validateHolodexApiKey } from "./modules/holodex";
 import {
   authorize,
   getCurrentUser,
@@ -16,6 +16,7 @@ import {
   revoke,
   validate,
   getUserVideos,
+  getUserVideosByLogin,
 } from "./modules/twitch";
 
 import { formatChannelName } from "~/common/helpers";
@@ -300,6 +301,33 @@ async function refreshPastTwitchStreams() {
   }
 }
 
+// ─── Per-Channel Past Stream Handlers ──────────────────────
+
+async function getChannelPastStreams(channelId: string): Promise<UnifiedStream[]> {
+  const videos = await getChannelPastVideos(channelId);
+  return videos.map((video) => {
+    const unified = holodexToUnified(video);
+    unified.status = "past";
+    return unified;
+  });
+}
+
+async function getChannelPastTwitchStreams(twitchLogin: string): Promise<UnifiedStream[]> {
+  const hasToken = await stores.twitchAccessToken.get();
+  if (!hasToken) return [];
+
+  const isValid = await validate();
+  if (!isValid) return [];
+
+  try {
+    const videos = await getUserVideosByLogin(twitchLogin);
+    return videos.map((video) => twitchVideoToUnified(video, null));
+  } catch (error) {
+    console.error(`[VspoDex] Error fetching Twitch past streams for ${twitchLogin}:`, error);
+    return [];
+  }
+}
+
 async function refreshPastStreams() {
   const settings = await stores.settings.get();
   const intervalMinutes = settings.general.pastStreamsRefreshInterval || 5;
@@ -504,6 +532,9 @@ const messageHandlers: Record<string, Function> = {
   getRedirectUrl,
   addCustomChannel,
   refreshSearchChannelsList,
+  getChannelPastStreams,
+  getChannelPastTwitchStreams,
+  validateHolodexApiKey,
 };
 
 browser.runtime.onMessage.addListener((message) => {
