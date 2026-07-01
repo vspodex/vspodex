@@ -408,15 +408,67 @@ browser.alarms.onAlarm.addListener((alarm) => {
 // ─── Lifecycle ─────────────────────────────────────────────
 
 browser.runtime.onInstalled.addListener(async (details) => {
-  // Migration for the defaultsDeep array corruption bug:
-  // Existing installs may have a channelCache corrupted by positional index-merging.
-  // Reset it to the clean default so it gets repopulated correctly from the API.
   if (details.reason === "update") {
     try {
-      await stores.channelCache.reset();
-      console.log("[VspoDex] Migration: channelCache reset to flush pre-fix corruption.");
+      const ID_MIGRATION_MAP: Record<string, string> = {
+        "UCuI5XaO-6grGrTTLw8sF_Fg": "UCyLGcqYs7RsBb3L0SJfzGYA", // Sumire Kaga
+        "UCyLGcqYs7RsBb3L0SJfzGYA": "UCiMG6VdScBabPhJ1ZtaVmbw", // Nazuna Kaga
+        "UCvUc0m317LWTTPZoBQV479A": "UCgTzsBI0DIRopMylJEDqnog", // Toto Kogara
+        "UC61OwuYOVuKkpKnid-43Twg": "UC5LyYg6cCA4yHEYvtUsir3g", // Uruha Ichinose
+        "UCgTzsBI0DIRopMylJEDqnog": "UCIcAj6WkJ8vZ7DeJVgmeqKw", // Noa Kurumi
+        "UCF_U2GCKHvDz52jWdizppIA": "UCvUc0m317LWTTPZoBQV479A", // Hinano Tachibana
+        "UCIjdfjcSaEgdjwbgjlC3-Pg": "UCD5W21JqNMv_tV9nfjvF9sw", // Runa Shinomiya
+        "UCD5W21JqNMv_tV9nfjvF9sw": "UCurEA8YoqFwimJcAuSHU0MQ", // Lisa Hanabusa
+        "UCurEA8YoqFwimJcAuSHU0MQ": "UCMp55EbT_ZlqiMS3lCj01BQ", // Kyupi Kaminari
+        "UCMp55EbT_ZlqiMS3lCj01BQ": "UCjXBuHmWkieBApgBhDuJMMQ", // Beni Yakumo
+        "UC5LyYg6cCA4lHEYqPC7Wrqg": "UCPkKpOHxEDcwmUAnRpIu-Ng", // Ema Aizawa
+        "UCs5l2HmRlPk-8LA3dNaYJw": "UCF_U2GCKHvDz52jWdizppIA", // Sena Asumi
+        "UCXU7YYxy_iQd3ulXyO-zC-Q": "UCGWa1dMU_sDCaRQjdabsVgg", // Ren Kisaragi
+      };
+
+      // 1. Migrate followedChannels IDs
+      const followed = await stores.followedChannels.get();
+      let followedPatched = false;
+      const newFollowed = followed.map(id => {
+        if (ID_MIGRATION_MAP[id]) {
+          followedPatched = true;
+          return ID_MIGRATION_MAP[id];
+        }
+        return id;
+      });
+      const uniqueFollowed = Array.from(new Set(newFollowed));
+      if (followedPatched || uniqueFollowed.length !== followed.length) {
+        await stores.followedChannels.set(uniqueFollowed);
+        console.log("[VspoDex] Migration: patched followedChannels IDs.");
+      }
+
+      // 2. Migrate channelCache IDs and twitch logins
+      const cached = await stores.channelCache.get();
+      let cachePatched = false;
+      const defaultTwitchMap = new Map(DEFAULT_VSPO_CHANNELS.map(c => [c.id, c.twitch]));
+
+      const newCache = cached.map(ch => {
+        let updatedCh = { ...ch };
+        if (ID_MIGRATION_MAP[ch.id]) {
+          updatedCh.id = ID_MIGRATION_MAP[ch.id];
+          cachePatched = true;
+        }
+        if (defaultTwitchMap.has(updatedCh.id)) {
+          const correctTwitch = defaultTwitchMap.get(updatedCh.id);
+          if (updatedCh.twitch !== correctTwitch) {
+            updatedCh.twitch = correctTwitch;
+            cachePatched = true;
+          }
+        }
+        return updatedCh;
+      });
+
+      if (cachePatched) {
+        await stores.channelCache.set(newCache);
+        console.log("[VspoDex] Migration: patched channelCache IDs and twitch logins.");
+      }
     } catch (e) {
-      console.error("[VspoDex] Migration: Failed to reset channelCache:", e);
+      console.error("[VspoDex] Migration: failed to patch channels and cache:", e);
     }
   }
 

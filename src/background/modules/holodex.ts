@@ -143,10 +143,13 @@ export async function refreshVspoChannels(): Promise<HolodexChannel[]> {
   if (channels.length > 0) {
     const defaultTwitchMap = new Map(DEFAULT_VSPO_CHANNELS.map(c => [c.id, c.twitch]));
 
-    // Replace the cache entirely with the fresh VSPO channels
-    // preserving twitch logins from our defaults if they are missing
+    // Replace the cache entirely with the fresh VSPO channels,
+    // always applying our hardcoded twitch logins (Holodex data is not authoritative here)
     const newCache = channels.map(ch => {
-      if (!ch.twitch && defaultTwitchMap.has(ch.id)) {
+      // Always override twitch with our hardcoded defaults for known VSPO channels.
+      // Holodex's twitch field is unreliable and can contain wrong or swapped logins.
+      // DEFAULT_VSPO_CHANNELS is the authoritative source.
+      if (defaultTwitchMap.has(ch.id)) {
         ch.twitch = defaultTwitchMap.get(ch.id);
       }
       return ch;

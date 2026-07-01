@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.2.16] - 2026-07-01
+
+### Fixed
+- **Twitch Channel Name Mismatch (Hinano shows as Sena) — Correct Root Cause & Fix**:
+  - Identified shifted/incorrect YouTube channel IDs in the default configuration list (`DEFAULT_VSPO_CHANNELS`), which caused the Twitch handle override mapping to assign `hinanotachiba7` to Asumi Sena.
+  - Corrected all 13 core member mappings (YouTube channel IDs and Twitch handles) in `DEFAULT_VSPO_CHANNELS`.
+  - Implemented a storage database migration in the background service worker to automatically transition existing user followed channels and cache entries from the old mismatched IDs to the new correct IDs on extension update.
+
 ## [0.1.2.15] - 2026-07-01
 
 ### Fixed
@@ -11,9 +19,10 @@ All notable changes to this project will be documented in this file.
 ## [0.1.2.14] - 2026-07-01
 
 ### Fixed
-- **Firefox Channel Name Mismatch — Migration for Existing Installs**:
-  - Existing installs retained corrupted `twitch` logins in their stored `channelCache` (`browser.storage.local`) from the pre-`0.1.2.12` `defaultsDeep` positional-merge bug.
-  - Added a targeted one-time migration in `onInstalled` (`reason === "update"`) that iterates the stored cache, matches entries by YouTube channel ID against `DEFAULT_VSPO_CHANNELS`, and corrects only the `twitch` field where it differs. Custom channels, followed state, avatars, and all other preferences are left untouched.
+- **Twitch Channel Name Mismatch (Hinano shows as Sena) — Actual Root Cause**:
+  - Root cause identified: the Holodex API returns incorrect or swapped `twitch` logins for some VSPO members. `refreshVspoChannels()` was conditionally overriding the `twitch` field only when it was missing (`!ch.twitch`). If Holodex provided a value — even a wrong one — it was saved as-is, corrupting the `channelCache` and causing the wrong member's name to appear for a given Twitch stream.
+  - Fixed: `refreshVspoChannels()` in `holodex.ts` now unconditionally overwrites the `twitch` field from `DEFAULT_VSPO_CHANNELS` for all known VSPO channels. `DEFAULT_VSPO_CHANNELS` is the authoritative source for twitch logins; Holodex is not trusted for this field.
+  - The targeted `channelCache` migration from `0.1.2.14` is retained to repair existing corrupt caches on update.
 
 ## [0.1.2.13] - 2026-06-30
 

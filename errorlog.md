@@ -11,28 +11,25 @@
 
 ---
 
-# Firefox-Only Twitch Channel Name Mismatch (Hinano shows as Sena)
+# Twitch Channel Name Mismatch (Hinano shows as Sena) — Cross-Browser
 
 ## Symptom
-When Tachibana Hinano (`hinanotachiba7`) is live on Twitch, Firefox shows Asumi Sena's name on the stream card (though the URL correctly points to Hinano's stream). This does not occur in Chrome.
+When Tachibana Hinano (`hinanotachiba7`) is live on Twitch, the extension shows Asumi Sena's name on the stream card, though the URL correctly points to Hinano's stream. Affects both Chrome and Firefox.
 
-## Root Cause
-`Store.getState()` in `src/common/stores.ts` applies `defaultsDeep(item.value, this.options.defaultValue)` to all stored objects. `defaultsDeep` from es-toolkit treats arrays as positional (merges by index). The `channelCache` store is an array of `HolodexChannel` objects. After `refreshVspoChannels()` writes Holodex API data to `channelCache`, the API-returned channel order differs from the hardcoded `DEFAULT_VSPO_CHANNELS` order. On subsequent `getState()` reads, `defaultsDeep` merges each stored channel entry at index N with the default entry at index N — corrupting channel-to-twitch-login mappings (e.g., Hinano's entry gets patched with Sena's default fields).
+## Incorrect Initial Diagnosis (0.1.2.12)
+Attributed to `defaultsDeep` positional array merging in `Store.getState()` — assumed Holodex channel order differed from `DEFAULT_VSPO_CHANNELS` and merged `twitch` fields by index, corrupting the cache. This was wrong: `defaultsDeep` only fills MISSING fields; it does not overwrite existing values. The `stores.ts` fix is valid as a defensive measure but was not the root cause.
 
-Firefox is exclusively affected because its persistent background page reads `channelCache` from `local` storage on every refresh cycle, hitting this merge corruption repeatedly. Chrome's ephemeral service worker doesn't accumulate the same state.
+## Actual Root Cause
+The core mappings in `DEFAULT_VSPO_CHANNELS` (`src/common/constants.ts`) had shifted and mismatched YouTube channel IDs.
+Specifically:
+- Asumi Sena's correct YouTube ID (`UCF_U2GCKHvDz52jWdizppIA`) was mapped to Tachibana Hinano.
+- Tachibana Hinano's correct YouTube ID (`UCvUc0m317LWTTPZoBQV479A`) was mapped to Toto Kogara.
+- Toto Kogara's correct YouTube ID (`UCgTzsBI0DIRopMylJEDqnog`) was mapped to Kurumi Noah.
+- Kurumi Noah's correct YouTube ID (`UCIcAj6WkJ8vZ7DeJVgmeqKw`) was not mapped, etc.
+
+Because of this shift, when the background service worker fetched channels from Holodex, the unconditional override logic in `refreshVspoChannels()` mapped the correct ID `UCF_U2GCKHvDz52jWdizppIA` (belonging to Asumi Sena) to the Twitch handle of Tachibana Hinano (`hinanotachiba7`). Thus, the channel cache record for Asumi Sena was associated with Twitch login `"hinanotachiba7"`. When Tachibana Hinano streamed live on Twitch, the lookup matched the first cached channel with `twitch: "hinanotachiba7"`, which resolved to Asumi Sena.
 
 ## Fix
-`src/common/stores.ts` — `Store.getState()`, line 79:
-Changed condition to skip `defaultsDeep` when `item.value` is an array. Arrays are now returned as-is from storage without positional merging against the default value.
+1. Corrected all 13 core member mappings (YouTube channel IDs and Twitch handles) in `DEFAULT_VSPO_CHANNELS` (`src/common/constants.ts`).
+2. Updated the service worker `onInstalled` update migration block (`src/background/index.ts`) to translate all old/incorrect IDs to the correct IDs in both `followedChannels` and `channelCache`, and update incorrect Twitch handles.
 
-```diff
--state.value = isObject(item.value)
--  ? defaultsDeep(item.value, this.options.defaultValue)
--  : item.value;
-+state.value = Array.isArray(item.value) || !isObject(item.value)
-+  ? item.value
-+  : defaultsDeep(item.value, this.options.defaultValue);
-```
-
-## Follow-up: Migration for Existing Installs
-The `defaultsDeep` fix only prevents future corruption. Existing installs have a corrupted `channelCache` already persisted in `browser.storage.local`. Added a one-time migration in `src/background/index.ts` inside `onInstalled` with `details.reason === "update"`: calls `stores.channelCache.reset()` to flush the corrupted array back to the clean `DEFAULT_VSPO_CHANNELS` default, then immediately re-runs `refreshVspoChannels()` to repopulate from the Holodex API. The `reason === "update"` guard ensures this only fires on updates, not fresh installs.
