@@ -3,13 +3,18 @@
 All notable changes to this project will be documented in this file.
 
 
-## [0.1.2.16] - 2026-07-01
+## [0.1.2.17] - 2026-07-01
 
 ### Fixed
 - **Twitch Channel Name Mismatch (Hinano shows as Sena) — Correct Root Cause & Fix**:
   - Identified shifted/incorrect YouTube channel IDs in the default configuration list (`DEFAULT_VSPO_CHANNELS`), which caused the Twitch handle override mapping to assign `hinanotachiba7` to Asumi Sena.
   - Corrected all 13 core member mappings (YouTube channel IDs and Twitch handles) in `DEFAULT_VSPO_CHANNELS`.
   - Implemented a storage database migration in the background service worker to automatically transition existing user followed channels and cache entries from the old mismatched IDs to the new correct IDs on extension update.
+
+## [0.1.2.16] - 2026-07-01
+
+### Fixed
+- Unlisted Firefox release.
 
 ## [0.1.2.15] - 2026-07-01
 
