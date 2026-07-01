@@ -34,3 +34,5 @@ Changed condition to skip `defaultsDeep` when `item.value` is an array. Arrays a
 +  : defaultsDeep(item.value, this.options.defaultValue);
 ```
 
+## Follow-up: Migration for Existing Installs
+The `defaultsDeep` fix only prevents future corruption. Existing installs have a corrupted `channelCache` already persisted in `browser.storage.local`. Added a one-time migration in `src/background/index.ts` inside `onInstalled` with `details.reason === "update"`: calls `stores.channelCache.reset()` to flush the corrupted array back to the clean `DEFAULT_VSPO_CHANNELS` default, then immediately re-runs `refreshVspoChannels()` to repopulate from the Holodex API. The `reason === "update"` guard ensures this only fires on updates, not fresh installs.

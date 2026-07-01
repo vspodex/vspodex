@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2.14] - 2026-07-01
+
+### Fixed
+- **Firefox Channel Name Mismatch — Migration for Existing Installs**:
+  - Existing installs retained a corrupted `channelCache` in `browser.storage.local` from before the `0.1.2.12` fix. The `defaultsDeep` positional-merge corruption persisted across the update, so the wrong member name (e.g. Asumi Sena) continued appearing on Tachibana Hinano's Twitch stream card.
+  - Added a one-time migration in `onInstalled` (`reason === "update"`) that resets `channelCache` to the clean `DEFAULT_VSPO_CHANNELS` default, then immediately re-fetches from the Holodex API via `refreshVspoChannels()`. This flushes the corrupted stored array and repopulates it correctly on the first run after updating.
+
+## [0.1.2.13] - 2026-06-30
+
+### Fixed
+- Listed Firefox version release.
+
 ## [0.1.2.12] - 2026-06-30
 
 ### Fixed

@@ -407,8 +407,20 @@ browser.alarms.onAlarm.addListener((alarm) => {
 
 // ─── Lifecycle ─────────────────────────────────────────────
 
-browser.runtime.onInstalled.addListener(async () => {
-  // On first install, try to refresh the VSPO channel list
+browser.runtime.onInstalled.addListener(async (details) => {
+  // Migration for the defaultsDeep array corruption bug:
+  // Existing installs may have a channelCache corrupted by positional index-merging.
+  // Reset it to the clean default so it gets repopulated correctly from the API.
+  if (details.reason === "update") {
+    try {
+      await stores.channelCache.reset();
+      console.log("[VspoDex] Migration: channelCache reset to flush pre-fix corruption.");
+    } catch (e) {
+      console.error("[VspoDex] Migration: Failed to reset channelCache:", e);
+    }
+  }
+
+  // On first install or update, try to refresh the VSPO channel list
   try {
     const apiKey = await stores.holodexApiKey.get();
     if (apiKey) {
