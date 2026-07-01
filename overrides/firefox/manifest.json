@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "VspoDex",
   "description": "Track VTuber live streams via Holodex & Twitch",
-  "version": "0.1.2.10",
+  "version": "0.1.2.12",
   "permissions": ["alarms", "storage", "identity"],
   "host_permissions": [
     "https://holodex.net/*",

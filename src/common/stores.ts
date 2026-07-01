@@ -77,9 +77,9 @@ export class Store<T> {
       const { [this.name]: item } = await this.areaStorage.get(this.name);
 
       if (item) {
-        state.value = isObject(item.value)
-          ? defaultsDeep(item.value, this.options.defaultValue)
-          : item.value;
+        state.value = Array.isArray(item.value) || !isObject(item.value)
+          ? item.value
+          : defaultsDeep(item.value, this.options.defaultValue);
       }
     } catch {} // eslint-disable-line no-empty
 
