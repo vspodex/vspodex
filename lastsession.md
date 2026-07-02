@@ -1,3 +1,20 @@
+# Last Session Summary (2026-07-01 - Session 4)
+
+### 📋 Overview of the Session
+In this session, we resolved a bug where past Twitch streams were sorted ahead of past YouTube streams on member channel pages. We corrected the video mapping logic to fallback from `start_actual` to `published_at` and `available_at` timestamps for YouTube streams, ensuring all videos have valid dates for chronological sorting. We then bumped the version to `0.1.3.2`, updated the changelog and error log, built and signed the Firefox extension as listed on AMO, packaged the Chrome extension, and pushed all commits and git tag `v0.1.3.2` to GitHub.
+
+### 🛠️ Key Changes
+- **Time-Order Sorting Fix (`src/background/index.ts`):**
+  - Updated `holodexToUnified` to assign `video.start_actual ?? video.published_at ?? video.available_at ?? null` to `startedAt`, ensuring past streams have valid chronological dates.
+- **Version Bump (`package.json`, `overrides/chrome/manifest.json`, `overrides/firefox/manifest.json`):**
+  - Incrementally bumped the extension version to `0.1.3.2`.
+- **Logs and Releases:**
+  - Documented the bug details in [errorlog.md](file:///h:/vspodex/vspodex/errorlog.md) and [CHANGELOG.md](file:///h:/vspodex/vspodex/CHANGELOG.md).
+  - Executed listed signing (`npx web-ext sign`) for Firefox (`vspodex-0.1.3.2.xpi`) and packaged Chrome zip (`vspodex-chrome-v0.1.3.2.zip`) in `releases/v0.1.3.2/`.
+  - Pushed main branch updates and git tag `v0.1.3.2` to GitHub.
+
+---
+
 # Last Session Summary (2026-07-01 - Session 3)
 
 ### 📋 Overview of the Session
