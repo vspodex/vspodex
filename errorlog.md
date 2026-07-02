@@ -67,4 +67,17 @@ The connection status of the Holodex API was determined solely by the presence o
 4. Updated `holodexRequest` in the background script to dynamically set `holodexApiKeyVerified` to false on receiving 400/401/403 errors and to true on successful calls.
 5. Adjusted UI pages (`ApiKeySettings.tsx`, `ChannelSettings.tsx`, and `LiveStreams.tsx`) to check the verified status. If the key is present but not verified, it renders "Not connected" and restricts actions requiring a valid key.
 
+---
 
+# Channel Pages Stream Sorting Bug (YouTube streams sorted below Twitch streams)
+
+## Symptom
+When viewing a followed channel's stream list page under the Members tab, past Twitch streams were consistently displayed ahead of past YouTube streams, regardless of chronological order.
+
+## Root Cause
+`ytStreams` from the Holodex API populated their `startedAt` property from `video.start_actual`. For many past streams, `video.start_actual` was not returned or was null. This resulted in `a.startedAt` being null, which evaluates to timestamp 0 during chronological comparison sorting in `MemberStreams.tsx`. Consequently, past Twitch streams (which always had valid timestamps) were prioritized ahead of all past YouTube streams in descending order.
+
+## Action Taken
+Updated `holodexToUnified` in [index.ts](file:///h:/vspodex/vspodex/src/background/index.ts) to fallback to `video.published_at` and `video.available_at` if `video.start_actual` is null:
+`startedAt: video.start_actual ?? video.published_at ?? video.available_at ?? null`
+This ensures all past YouTube streams have valid ISO 8601 timestamps and sort correctly chronologically.

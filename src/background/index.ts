@@ -35,7 +35,7 @@ function holodexToUnified(video: HolodexVideo): UnifiedStream {
     channelName,
     channelAvatar: video.channel.photo,
     viewerCount: video.live_viewers ?? null,
-    startedAt: video.start_actual ?? null,
+    startedAt: video.start_actual ?? video.published_at ?? video.available_at ?? null,
     scheduledAt: video.start_scheduled ?? video.available_at,
     status,
     source: "holodex",

@@ -3,11 +3,17 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.3.2] - 2026-07-01
+
+### Fixed
+- **Channel Pages Stream Sorting**:
+  - Resolved an issue where past Twitch streams were displayed ahead of YouTube streams on member channel pages. Added a fallback to `published_at` and `available_at` in `holodexToUnified` to ensure all past YouTube videos have a valid timestamp for chronological sorting.
+
 ## [0.1.3.1] - 2026-07-01
 
 ### Added
 - **Compact Favorites Grid Layout**:
-  - Render followed favorited channels in a packed 5-in-a-row layout in the Members tab, hiding names to save space.
+  - Render followed favorite channels in a packed 5-in-a-row layout in the Members tab, hiding names to save space.
 - **Redesigned Member Detail View**:
   - Implemented a premium Holodex-like channel header layout showing primary Japanese/native name first in larger font (`text-lg`), secondary English name second (`text-xs`), and localized subscriber counts.
   - Added a clean top navigation bar with an inline Back button, removing the banner overhead.
