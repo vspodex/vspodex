@@ -16,3 +16,5 @@ Generate a ready-to-go chrome extension zip file. Also copy that into releases/<
 Bumped the version number only if there's a conflict and repeat the sign command.
 
 Make a git push. And make a git release with the zip and xpi file of the version. Log the changes. Proceed without asking for permission.
+
+Bumped the version number at the end.
