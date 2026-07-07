@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.3.3] - 2026-07-07
+
+### Added
+- **Keyboard Shortcuts for Tab Navigation**:
+  - Added commands to open the Live, Members, and Past streams tabs without default key shortcuts, allowing users to customize bindings via browser extension settings.
+  - Implemented a background command listener that triggers popup opening and a frontend router state sync mechanism that redirects to the requested tab route.
+  - Resolved a Chrome-specific constraint requiring synchronous execution of `openPopup` in the keyboard shortcut event stack to preserve user gesture context.
+
+### Fixed
+- **Past Stream Display Date**:
+  - Resolved an issue where past YouTube streams on member channel pages and the Past Streams tab displayed incorrect ended relative times (e.g. "<1m" or incorrect days/hours). Corrected the fallback logic to use `available_at` directly instead of `published_at` when `start_actual` is null, preventing incorrect stream end time calculations.
+
 ## [0.1.3.2] - 2026-07-01
 
 ### Fixed

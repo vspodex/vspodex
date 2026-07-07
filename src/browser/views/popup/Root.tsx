@@ -1,8 +1,10 @@
 import { css, Global } from "@emotion/react";
-import { Outlet } from "react-router";
+import { useEffect } from "react";
+import { Outlet, useNavigate } from "react-router";
 import tw, { styled } from "twin.macro";
 
 import { SearchProvider } from "~/browser/contexts";
+import { useTargetTab } from "~/browser/hooks";
 
 import Loader from "~/browser/components/Loader";
 import Sidebar from "~/browser/components/Sidebar";
@@ -20,6 +22,16 @@ const ContentArea = styled.div`
 `;
 
 export function Component() {
+  const navigate = useNavigate();
+  const [targetTab, targetTabStore] = useTargetTab();
+
+  useEffect(() => {
+    if (targetTab) {
+      navigate(targetTab);
+      targetTabStore.set(null);
+    }
+  }, [targetTab, navigate, targetTabStore]);
+
   return (
     <SearchProvider>
       <Global

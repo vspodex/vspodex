@@ -207,3 +207,7 @@ export function useFavoriteChannels(options?: UseStoreOptions) {
 export function useSidebarTabOrder(options?: UseStoreOptions) {
   return useStore(stores.sidebarTabOrder, options);
 }
+
+export function useTargetTab(options?: UseStoreOptions) {
+  return useStore(stores.targetTab, options);
+}

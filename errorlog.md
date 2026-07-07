@@ -81,3 +81,30 @@ When viewing a followed channel's stream list page under the Members tab, past T
 Updated `holodexToUnified` in [index.ts](file:///h:/vspodex/vspodex/src/background/index.ts) to fallback to `video.published_at` and `video.available_at` if `video.start_actual` is null:
 `startedAt: video.start_actual ?? video.published_at ?? video.available_at ?? null`
 This ensures all past YouTube streams have valid ISO 8601 timestamps and sort correctly chronologically.
+
+---
+
+# Keyboard Shortcut tab switching fails in Chrome
+
+## Symptom
+Keyboard shortcuts to switch to a specific tab work correctly in Firefox but fail to open the popup or switch tabs in Chrome.
+
+## Root Cause
+In Chrome, `chrome.action.openPopup()` requires a valid user gesture context to execute. In our initial implementation, we performed an asynchronous write to the storage using `await stores.targetTab.set(path);` before calling `browser.action.openPopup()`. By the time the asynchronous write completed, the synchronous user gesture context from the keyboard shortcut was lost/expired, causing Chrome to reject the `openPopup` call. Firefox has a more relaxed duration or constraint on the user gesture token, so it worked there.
+
+## Action Taken
+Modified the command listener in [index.ts](file:///h:/vspodex/vspodex/src/background/index.ts) to execute `browser.action.openPopup()` synchronously in the initial event handler call stack before waiting for the storage write (`stores.targetTab.set`) to complete. This preserves the user gesture token for Chrome.
+
+---
+
+# Past Stream Display Date Incorrect
+
+## Symptom
+The display date (ended relative time) for past YouTube streams on member channel pages and the Past Streams tab displayed incorrect dates (such as "<1m" or dates too far in the past/future) even though the actual chronological order was correct.
+
+## Root Cause
+In `holodexToUnified` (`src/background/index.ts`), `startedAt` fell back to `video.published_at` before `video.available_at` when `video.start_actual` was null. On YouTube, `published_at` for a live stream can represent the date the stream reservation/metadata was created (which can be days or weeks before the stream actually aired). Since the ended relative time (`endedAgo` in `StreamCard.tsx`) is calculated as `startedAt + duration`, setting `startedAt` to the reservation date caused the calculated end time to be way in the past or future, rendering the relative end time text incorrect.
+
+## Action Taken
+Modified `holodexToUnified` in [index.ts](file:///h:/vspodex/vspodex/src/background/index.ts) to fallback directly to `video.available_at` when `video.start_actual` is null, bypassing `video.published_at`. Since `available_at` corresponds to the actual start time or scheduled start time when the stream went live, this ensures the calculated stream end time is accurate.
+

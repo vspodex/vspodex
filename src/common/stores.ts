@@ -228,6 +228,10 @@ export const stores = {
   sidebarTabOrder: new Store<string[]>("local", "sidebarTabOrder", {
     defaultValue: ["live", "members", "upcoming", "past"],
   }),
+
+  targetTab: new Store<string | null>("local", "targetTab", {
+    defaultValue: null,
+  }),
 };
 
 browser.storage.onChanged.addListener((changes, areaName) => {

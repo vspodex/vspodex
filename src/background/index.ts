@@ -35,7 +35,7 @@ function holodexToUnified(video: HolodexVideo): UnifiedStream {
     channelName,
     channelAvatar: video.channel.photo,
     viewerCount: video.live_viewers ?? null,
-    startedAt: video.start_actual ?? video.published_at ?? video.available_at ?? null,
+    startedAt: video.start_actual ?? video.available_at ?? null,
     scheduledAt: video.start_scheduled ?? video.available_at,
     status,
     source: "holodex",
@@ -515,6 +515,34 @@ browser.runtime.onInstalled.addListener(async (details) => {
 browser.runtime.onStartup.addListener(() => {
   refresh();
   refreshPastStreams();
+});
+
+// ─── Commands Handler ──────────────────────────────────────
+
+browser.commands.onCommand.addListener(async (command) => {
+  let path = "";
+  if (command === "open_live_tab") {
+    path = "/streams/live";
+  } else if (command === "open_member_tab") {
+    path = "/streams/members";
+  } else if (command === "open_past_tab") {
+    path = "/streams/past";
+  }
+
+  if (path) {
+    // Initiate popup opening synchronously within the gesture-triggered call stack to preserve gesture token in Chrome
+    const openPromise = (browser.action && typeof browser.action.openPopup === "function")
+      ? browser.action.openPopup()
+      : Promise.resolve();
+
+    await stores.targetTab.set(path);
+
+    try {
+      await openPromise;
+    } catch (err) {
+      console.error("[VspoDex] Failed to open popup:", err);
+    }
+  }
 });
 
 // ─── Message Handler ───────────────────────────────────────
