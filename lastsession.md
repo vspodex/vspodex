@@ -1,3 +1,27 @@
+# Last Session Summary (2026-07-08 - Session 9)
+
+### 📋 Overview of the Session
+In this session, we built and finalized version `0.1.3.7` by implementing a "Max Stream Streak" option and correcting stream launch and navigability bugs. We added a General Settings dropdown menu allowing users to select the maximum number of streams to auto-open in a single viewing streak sequence (1, 2, 3, 5, 10, or Unlimited), default to 3. We integrated streak count tracking in the background script to stop re-arming once the limit is reached. We resolved a card click override issue, ensuring that manually opening a live stream (either by clicking the card body or the card bolt icon) respects the user's general click behavior settings. We also fixed a bug that rendered live cards completely unclickable when the experimental auto-rearm setting was disabled. Finally, we rebuilt, signed the Firefox extension (`vspodex-0.1.3.7.xpi`), packaged the Chrome extension (`vspodex-0.1.3.7.zip`), organized release files under `releases/0.1.3.7/`, and pushed the release commits and tag `v0.1.3.7` to GitHub.
+
+### 🛠️ Key Changes
+- **Max Stream Streak Option (`src/common/types.ts`, `src/common/stores.ts`, `src/browser/hooks/store.ts`, `src/browser/views/settings/GeneralSettings.tsx`, Locales):**
+  - Added `maxStreak` setting (default 3) and `streakCount` session store.
+  - Added custom select dropdown under settings.
+  - Added translations for label, description, and select options in English, Japanese, and Traditional Chinese.
+  - Reset `streakCount` in `Sidebar.tsx` when manually arming streak mode toggle.
+- **Background Streak Logic (`src/background/index.ts`):**
+  - Incremented `streakCount` when starting a manual streak (`toggleStreak`), auto-opening a live stream, or launching a watchlisted stream in streak mode.
+  - Terminated active streak tracking in `cycleToNextFavorite` if the count reaches the `maxStreak` limit.
+- **Card Clicks & Click Behavior (`src/browser/components/cards/StreamCard.tsx`, `src/background/index.ts`):**
+  - Restored navigability on live cards when auto-rearm is disabled by falling back to calling `openUrl` directly in the overridden card click handler.
+  - Integrated `skipOpen` parameter in background `toggleStreak` to register the streak in background without opening duplicate tabs, delegating tab creation to frontend `openUrl` for card body and bolt button manual clicks.
+- **Release Signing & Version Bump:**
+  - Bumped version to `0.1.3.7` in `package.json`, Chrome/Firefox manifests, and `CHANGELOG.md`.
+  - Built and signed Firefox extension as unlisted (`vspodex-0.1.3.7.xpi`) and bundled Chrome extension (`vspodex-0.1.3.7.zip`) under `releases/0.1.3.7/`.
+  - Pushed release commits and tag `v0.1.3.7` to GitHub.
+
+---
+
 # Last Session Summary (2026-07-08 - Session 8)
 
 ### 📋 Overview of the Session
