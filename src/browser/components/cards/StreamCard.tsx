@@ -122,8 +122,7 @@ function StreamCard(props: StreamCardProps) {
     e.preventDefault();
     e.stopPropagation();
     try {
-      const isManualOpenStreak = settings.general.streakModeForManualOpen === true;
-      if (isManualOpenStreak && !isCurrentStreak) {
+      if (!isCurrentStreak) {
         await sendRuntimeMessage("toggleStreak", stream, true);
         await openUrl(stream.url, e);
       } else {
