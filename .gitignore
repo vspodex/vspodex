@@ -40,3 +40,5 @@ coverage/
 # Internal documentation (not synced)
 TECHNICAL_SUMMARY.md
 errorlog.md
+lastsession.md
+store_description.txt
