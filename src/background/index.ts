@@ -2,7 +2,7 @@ import { get } from "es-toolkit/compat";
 
 import { openUrl } from "~/common/helpers";
 import { stores } from "~/common/stores";
-import { HolodexVideo, HelixStream, UnifiedStream, HelixVideo } from "~/common/types";
+import { HolodexVideo, HelixStream, UnifiedStream, HelixVideo, WatchlistItem, AutoOpenedStream } from "~/common/types";
 import { DEFAULT_VSPO_CHANNELS } from "~/common/constants";
 
 import { refreshActionBadge } from "./modules/badge";
@@ -48,10 +48,10 @@ function holodexToUnified(video: HolodexVideo): UnifiedStream {
 
 // ─── Convert Twitch stream to UnifiedStream ────────────────
 
-function twitchToUnified(stream: HelixStream, formattedName?: string): UnifiedStream {
+function twitchToUnified(stream: HelixStream, channelId: string, formattedName?: string): UnifiedStream {
   return {
     id: `twitch:${stream.id}`,
-    channelId: stream.userId,
+    channelId: channelId,
     title: stream.title,
     channelName: formattedName || stream.userName,
     channelAvatar: null,
@@ -73,6 +73,9 @@ function twitchToUnified(stream: HelixStream, formattedName?: string): UnifiedSt
 async function refresh() {
   const settings = await stores.settings.get();
   const intervalMinutes = settings.general.refreshInterval || 1;
+  const previousLive = await stores.liveStreams.get();
+  const previousLiveIds = new Set(previousLive.map(s => s.id));
+  const isFirstRefresh = await stores.isFirstRefresh.get();
 
   browser.alarms.create("refresh", {
     periodInMinutes: intervalMinutes,
@@ -166,7 +169,8 @@ async function refresh() {
                 || defaultTwitchMap.get(c.id)?.toLowerCase() === stream.userLogin.toLowerCase()
             );
             const formattedName = hc ? formatChannelName(hc.name, hc.english_name, hc.group) : undefined;
-            allLive.push(twitchToUnified(stream, formattedName));
+            const channelId = hc ? hc.id : stream.userId;
+            allLive.push(twitchToUnified(stream, channelId, formattedName));
           }
         } else {
           await stores.twitchStreams.set([]);
@@ -207,6 +211,114 @@ async function refresh() {
   await stores.upcomingStreams.set(allUpcoming);
 
   refreshActionBadge(allLive.length);
+
+  if (!isFirstRefresh) {
+    const favoriteChannels = await stores.favoriteChannels.get();
+    const autoOpenArmed = await stores.autoOpenFavoritesArmed.get();
+    
+    if (autoOpenArmed !== "disarmed") {
+      const newlyLive = allLive.filter(s => !previousLiveIds.has(s.id));
+      const liveFavorites = newlyLive.filter(s => favoriteChannels.includes(s.channelId));
+      
+      if (liveFavorites.length > 0) {
+        const behavior = settings.general.autoOpenFavoritesBehavior || "background";
+        const active = behavior === "active";
+        
+        const gracePeriodMs = (intervalMinutes + 2) * 60 * 1000;
+        const now = Date.now();
+        const validLiveFavorites = liveFavorites.filter(s => {
+          if (!s.startedAt) return true;
+          const startTime = new Date(s.startedAt).getTime();
+          return (now - startTime) <= gracePeriodMs;
+        });
+
+        if (validLiveFavorites.length > 0) {
+          const openedList = await stores.autoOpenedStreams.get();
+          const newOpened = [...openedList];
+          
+          for (const stream of validLiveFavorites) {
+            browser.tabs.create({ url: stream.url, active }).catch(err => {
+              console.error("[VspoDex] Auto-open tab failed:", err);
+            });
+            newOpened.push({
+              streamId: stream.id,
+              channelId: stream.channelId,
+              mode: autoOpenArmed === "streak" ? "streak" : "armed"
+            });
+          }
+          
+          await stores.autoOpenedStreams.set(newOpened);
+          await stores.autoOpenFavoritesArmed.set("disarmed");
+        }
+      }
+    }
+
+    const watchlist = await stores.watchlistStreams.get();
+    if (watchlist.length > 0) {
+      const behavior = settings.general.autoOpenFavoritesBehavior || "background";
+      const active = behavior === "active";
+      
+      let updatedWatchlist = [...watchlist];
+      let watchlistChanged = false;
+      
+      for (const watchItem of watchlist) {
+        const isLive = allLive.some(s => s.id === watchItem.id);
+        if (isLive) {
+          browser.tabs.create({ url: watchItem.url, active }).catch(err => {
+            console.error("[VspoDex] Watchlist auto-open tab failed:", err);
+          });
+          
+          const favoriteChannels = await stores.favoriteChannels.get();
+          if (favoriteChannels.includes(watchItem.channelId)) {
+            const armedState = await stores.autoOpenFavoritesArmed.get();
+            if (armedState !== "disarmed") {
+              const disarm = settings.general.disarmOnWatchlistLaunch !== false;
+              if (disarm) {
+                await stores.autoOpenFavoritesArmed.set("disarmed");
+                console.log(`[VspoDex] Watchlist: Disarmed auto-open trigger since favorite ${watchItem.channelName} was opened by live transition.`);
+              }
+              
+              const openedList = await stores.autoOpenedStreams.get();
+              await stores.autoOpenedStreams.set([
+                ...openedList,
+                { streamId: watchItem.id, channelId: watchItem.channelId, mode: armedState === "streak" ? "streak" : "armed" }
+              ]);
+            }
+          }
+
+          browser.alarms.clear(watchItem.id).catch(() => {});
+          updatedWatchlist = updatedWatchlist.filter(item => item.id !== watchItem.id);
+          watchlistChanged = true;
+        }
+      }
+      
+      if (watchlistChanged) {
+        await stores.watchlistStreams.set(updatedWatchlist);
+      }
+    }
+
+    const autoOpened = await stores.autoOpenedStreams.get();
+    if (autoOpened.length > 0 && settings.general.autoRearmFavorites) {
+      let updatedAutoOpened = [...autoOpened];
+      let changed = false;
+      
+      for (const item of autoOpened) {
+        const isStillLive = allLive.some(s => s.id === item.streamId);
+        if (!isStillLive) {
+          console.log(`[VspoDex] Auto-rearm: Stream ${item.streamId} went offline. Triggering cycle/re-arm...`);
+          await cycleToNextFavorite(item.streamId, item.mode);
+          updatedAutoOpened = updatedAutoOpened.filter(x => x.streamId !== item.streamId);
+          changed = true;
+        }
+      }
+      
+      if (changed) {
+        await stores.autoOpenedStreams.set(updatedAutoOpened);
+      }
+    }
+  }
+
+  await stores.isFirstRefresh.set(false);
 }
 
 // ─── Past Streams Refresh ─────────────────────────────────
@@ -226,10 +338,10 @@ function parseTwitchDuration(durationStr: string): number {
   return totalSeconds;
 }
 
-function twitchVideoToUnified(video: HelixVideo, channelAvatar: string | null): UnifiedStream {
+function twitchVideoToUnified(video: HelixVideo, channelId: string, channelAvatar: string | null): UnifiedStream {
   return {
     id: `twitch:${video.id}`,
-    channelId: video.userId,
+    channelId: channelId,
     title: video.title,
     channelName: video.userName,
     channelAvatar: channelAvatar,
@@ -286,7 +398,17 @@ async function refreshPastTwitchStreams() {
     const videosResults = await Promise.all(allVideosPromises);
     const flatVideos = videosResults.flat();
 
-    const unifiedVideos = flatVideos.map((video) => twitchVideoToUnified(video, null));
+    const cachedChannels = await stores.channelCache.get();
+    const defaultTwitchMap = new Map(DEFAULT_VSPO_CHANNELS.map(c => [c.twitch?.toLowerCase(), c.id]));
+
+    const unifiedVideos = flatVideos.map((video) => {
+      const hc = cachedChannels.find(
+        c => c.twitch?.toLowerCase() === video.userLogin.toLowerCase()
+          || defaultTwitchMap.get(video.userLogin.toLowerCase()) === c.id
+      );
+      const channelId = hc ? hc.id : video.userId;
+      return twitchVideoToUnified(video, channelId, null);
+    });
 
     unifiedVideos.sort((a, b) => {
       const aTime = a.startedAt ? new Date(a.startedAt).getTime() : 0;
@@ -321,7 +443,16 @@ async function getChannelPastTwitchStreams(twitchLogin: string): Promise<Unified
 
   try {
     const videos = await getUserVideosByLogin(twitchLogin);
-    return videos.map((video) => twitchVideoToUnified(video, null));
+    const cachedChannels = await stores.channelCache.get();
+    const defaultTwitchMap = new Map(DEFAULT_VSPO_CHANNELS.map(c => [c.twitch?.toLowerCase(), c.id]));
+    
+    const hc = cachedChannels.find(
+      c => c.twitch?.toLowerCase() === twitchLogin.toLowerCase()
+        || defaultTwitchMap.get(twitchLogin.toLowerCase()) === c.id
+    );
+    const channelId = hc ? hc.id : (videos[0]?.userId || "");
+
+    return videos.map((video) => twitchVideoToUnified(video, channelId, null));
   } catch (error) {
     console.error(`[VspoDex] Error fetching Twitch past streams for ${twitchLogin}:`, error);
     return [];
@@ -409,6 +540,159 @@ async function loadMorePastStreams() {
 
 // ─── Alarm Handler ─────────────────────────────────────────
 
+async function handleWatchlistAlarm(alarmName: string) {
+  const list = await stores.watchlistStreams.get();
+  const item = list.find(x => x.id === alarmName);
+  if (!item) {
+    return;
+  }
+  
+  const settings = await stores.settings.get();
+  const behavior = settings.general.autoOpenFavoritesBehavior || "background";
+  const active = behavior === "active";
+  
+  browser.tabs.create({ url: item.url, active }).catch(err => {
+    console.error("[VspoDex] Watchlist alarm auto-open failed:", err);
+  });
+  
+  const favoriteChannels = await stores.favoriteChannels.get();
+  if (favoriteChannels.includes(item.channelId)) {
+    const armedState = await stores.autoOpenFavoritesArmed.get();
+    if (armedState !== "disarmed") {
+      const disarm = settings.general.disarmOnWatchlistLaunch !== false;
+      if (disarm) {
+        await stores.autoOpenFavoritesArmed.set("disarmed");
+        console.log(`[VspoDex] Watchlist: Disarmed auto-open trigger since favorite ${item.channelName} was opened by alarm.`);
+      }
+      
+      const openedList = await stores.autoOpenedStreams.get();
+      await stores.autoOpenedStreams.set([
+        ...openedList,
+        { streamId: item.id, channelId: item.channelId, mode: armedState === "streak" ? "streak" : "armed" }
+      ]);
+    }
+  }
+  
+  const updatedList = list.filter(x => x.id !== alarmName);
+  await stores.watchlistStreams.set(updatedList);
+}
+
+async function restoreWatchlistAlarms() {
+  const list = await stores.watchlistStreams.get();
+  const now = Date.now();
+  for (const item of list) {
+    const scheduledTime = new Date(item.scheduledAt).getTime();
+    if (scheduledTime > now) {
+      await browser.alarms.create(item.id, { when: scheduledTime });
+      console.log(`[VspoDex] Restored alarm for ${item.id} at ${new Date(scheduledTime).toLocaleString()}`);
+    } else {
+      console.log(`[VspoDex] Watchlist stream ${item.id} scheduled time already passed, cleaning up.`);
+      const currentList = await stores.watchlistStreams.get();
+      await stores.watchlistStreams.set(currentList.filter(x => x.id !== item.id));
+    }
+  }
+}
+
+async function toggleWatchlist(stream: UnifiedStream) {
+  const list = await stores.watchlistStreams.get();
+  const exists = list.some(item => item.id === stream.id);
+  let updatedList = [...list];
+  
+  if (exists) {
+    updatedList = list.filter(item => item.id !== stream.id);
+    await browser.alarms.clear(stream.id);
+    console.log(`[VspoDex] Watchlist: Removed ${stream.id} and cleared alarm.`);
+  } else {
+    const scheduledTime = stream.scheduledAt ? new Date(stream.scheduledAt).getTime() : Date.now();
+    const watchItem: WatchlistItem = {
+      id: stream.id,
+      channelId: stream.channelId,
+      title: stream.title,
+      channelName: stream.channelName,
+      url: stream.url,
+      scheduledAt: stream.scheduledAt || new Date().toISOString(),
+    };
+    updatedList.push(watchItem);
+    await browser.alarms.create(stream.id, { when: scheduledTime });
+    console.log(`[VspoDex] Watchlist: Added ${stream.id} and set alarm for ${new Date(scheduledTime).toLocaleString()}.`);
+  }
+  await stores.watchlistStreams.set(updatedList);
+}
+
+async function toggleStreak(stream: UnifiedStream) {
+  const settings = await stores.settings.get();
+  const list = await stores.autoOpenedStreams.get();
+  const exists = list.some(item => item.streamId === stream.id && item.mode === "streak");
+  
+  if (exists) {
+    const updated = list.filter(item => item.streamId !== stream.id);
+    await stores.autoOpenedStreams.set(updated);
+    console.log(`[VspoDex] Streak: Removed ${stream.id} from streak tracking.`);
+  } else {
+    const behavior = settings.general.autoOpenFavoritesBehavior || "background";
+    const active = behavior === "active";
+    
+    browser.tabs.create({ url: stream.url, active }).catch(err => {
+      console.error("[VspoDex] Streak click failed to open tab:", err);
+    });
+    
+    await stores.autoOpenedStreams.set([
+      { streamId: stream.id, channelId: stream.channelId, mode: "streak" }
+    ]);
+    
+    await stores.autoOpenFavoritesArmed.set("disarmed");
+    console.log(`[VspoDex] Streak: Overrode tracking with ${stream.id} and opened stream.`);
+  }
+}
+
+async function cancelStreakTracking() {
+  await stores.autoOpenedStreams.set([]);
+  await stores.autoOpenFavoritesArmed.set("disarmed");
+  console.log("[VspoDex] Streak: Cancelled all active streak tracking.");
+}
+
+async function cycleToNextFavorite(endedStreamId: string, endedStreamMode: "armed" | "streak") {
+  if (endedStreamMode !== "streak") {
+    return;
+  }
+
+  await stores.autoOpenFavoritesArmed.set("streak");
+  console.log("[VspoDex] Auto-rearm: Re-armed favorites auto-open trigger to streak mode.");
+
+  const settings = await stores.settings.get();
+  if (!settings.general.autoRearmFavorites) {
+    return;
+  }
+
+  const allLive = await stores.liveStreams.get();
+  const favoriteChannels = await stores.favoriteChannels.get();
+  const autoOpened = await stores.autoOpenedStreams.get();
+  const activeOpenedIds = new Set(autoOpened.map(x => x.streamId));
+
+  const candidates = allLive.filter(s => 
+    favoriteChannels.includes(s.channelId) && 
+    s.id !== endedStreamId && 
+    !activeOpenedIds.has(s.id)
+  );
+
+  if (candidates.length > 0) {
+    const nextStream = candidates[0];
+    const behavior = settings.general.autoOpenFavoritesBehavior || "background";
+    const active = behavior === "active";
+
+    console.log(`[VspoDex] Auto-rearm: Cycling to next live favorite stream ${nextStream.id} (${nextStream.channelName})`);
+    browser.tabs.create({ url: nextStream.url, active }).catch(err => {
+      console.error("[VspoDex] Auto-rearm cycle failed to open tab:", err);
+    });
+    
+    await stores.autoOpenedStreams.set([
+      ...autoOpened,
+      { streamId: nextStream.id, channelId: nextStream.channelId, mode: "streak" }
+    ]);
+    await stores.autoOpenFavoritesArmed.set("disarmed");
+  }
+}
+
 async function checkAlarm() {
   if (await browser.alarms.get("refresh")) {
     return;
@@ -428,14 +712,29 @@ async function checkPastAlarm() {
 browser.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "refreshPastStreams") {
     refreshPastStreams();
-  } else {
+  } else if (alarm.name === "refresh") {
     refresh();
+  } else {
+    handleWatchlistAlarm(alarm.name);
   }
 });
 
 // ─── Lifecycle ─────────────────────────────────────────────
 
 browser.runtime.onInstalled.addListener(async (details) => {
+  try {
+    const rawArmed = await browser.storage.local.get("autoOpenFavoritesArmed");
+    const val = rawArmed.autoOpenFavoritesArmed;
+    if (typeof val === "boolean") {
+      await browser.storage.local.set({
+        autoOpenFavoritesArmed: val ? "armed" : "disarmed"
+      });
+      console.log(`[VspoDex] Migration: Converted autoOpenFavoritesArmed from boolean ${val} to string.`);
+    }
+  } catch (err) {
+    console.error("[VspoDex] Migration: failed to convert autoOpenFavoritesArmed:", err);
+  }
+
   if (details.reason === "update") {
     try {
       const ID_MIGRATION_MAP: Record<string, string> = {
@@ -510,11 +809,13 @@ browser.runtime.onInstalled.addListener(async (details) => {
 
   refresh();
   refreshPastStreams();
+  restoreWatchlistAlarms().catch(err => console.error("[VspoDex] Restore watchlist alarms failed:", err));
 });
 
 browser.runtime.onStartup.addListener(() => {
   refresh();
   refreshPastStreams();
+  restoreWatchlistAlarms().catch(err => console.error("[VspoDex] Restore watchlist alarms failed:", err));
 });
 
 // ─── Commands Handler ──────────────────────────────────────
@@ -545,6 +846,8 @@ browser.commands.onCommand.addListener(async (command) => {
   }
 });
 
+// ─── Tab Removal Listener (Removed) ────────────────────────
+
 // ─── Message Handler ───────────────────────────────────────
 
 const messageHandlers: Record<string, Function> = {
@@ -563,6 +866,9 @@ const messageHandlers: Record<string, Function> = {
   getChannelPastStreams,
   getChannelPastTwitchStreams,
   validateHolodexApiKey,
+  toggleWatchlist,
+  toggleStreak,
+  cancelStreakTracking,
 };
 
 browser.runtime.onMessage.addListener((message) => {

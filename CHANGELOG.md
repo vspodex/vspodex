@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.3.5] - 2026-07-08
+
+### Added
+- **Three-State Favorites Trigger**:
+  - Implemented a three-state lightning bolt toggle button in the sidebar footer: Disarmed (grey slashed), Armed (yellow transparent outline), and Streak Mode (solid pulsing yellow).
+  - Synchronized the sidebar bolt's visual state to glow in Streak Mode when a manual or auto-opened stream is actively being tracked.
+  - Added a `"cancelStreakTracking"` listener to cleanly disarm active streak sessions via the sidebar toggle.
+- **Manual Streak Tracking**:
+  - Added a manual streak bolt button on live stream cards (only visible when the experimental auto-rearm feature is enabled) to open a stream and register it as the active streak target.
+  - Added a sub-option configuration in General Settings to automatically open all manually clicked live cards in streak mode.
+  - Refined layout padding to ensure card dimensions return to their original layout size when the live card bolt button is disabled in Settings.
+- **Sleep & Suspend Grace Guard**:
+  - Implemented a start-time grace period check (verifying `startedAt` is within `refreshInterval + 2` minutes of current time) to suppress tab openings for old streams after computer sleep/suspension or offline state recovery.
+- **Watchlist Scheduled Streams**:
+  - Implemented an alarm toggle button on upcoming stream cards (solid sky blue background when toggled) to open the scheduled stream when its start time is reached.
+  - Alarms are registered via the browser alarms API and persist across browser/service worker restarts.
+- **Auto-Rearm & Cycle Favorites (Experimental)**:
+  - Added an experimental setting to automatically re-arm the auto-open favorites trigger when an auto-opened stream goes offline, cycling automatically to another live favorite if online.
+  - Conditionally disarms the auto-open trigger on launch of a watchlist scheduled stream if configured.
+
+### Fixed
+- **Service Worker Suspension (Manifest V3)**:
+  - Fixed first-run initialization checks by storing the safety flag in session storage rather than an in-memory variable, ensuring correct live transition detection after service worker restarts.
+- **Twitch Channel ID Mapping**:
+  - Unified Twitch live and past streams to map to their corresponding YouTube channel IDs, correcting favoritism filtering for Twitch channels.
+
 ## [0.1.3.4] - 2026-07-08
 
 ### Added

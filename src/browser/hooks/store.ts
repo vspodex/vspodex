@@ -11,6 +11,7 @@ import {
   HelixStream,
   HelixUser,
   SuggestionChannel,
+  WatchlistItem,
 } from "~/common/types";
 
 // ─── Store Loader (from Gumbo) ─────────────────────────────
@@ -210,4 +211,16 @@ export function useSidebarTabOrder(options?: UseStoreOptions) {
 
 export function useTargetTab(options?: UseStoreOptions) {
   return useStore(stores.targetTab, options);
+}
+
+export function useAutoOpenFavoritesArmed(options?: UseStoreOptions) {
+  return useStore(stores.autoOpenFavoritesArmed, options);
+}
+
+export function useWatchlistStreams(options?: UseStoreOptions) {
+  return useStore(stores.watchlistStreams, options);
+}
+
+export function useAutoOpenedStreams(options?: UseStoreOptions) {
+  return useStore(stores.autoOpenedStreams, options);
 }

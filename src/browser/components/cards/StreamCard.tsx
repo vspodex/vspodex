@@ -1,9 +1,11 @@
 import { useMemo } from "react";
 import tw, { styled } from "twin.macro";
+import { IconClock, IconAlarm, IconBolt } from "@tabler/icons-react";
 
 import { UnifiedStream } from "~/common/types";
-import { useNow } from "~/browser/hooks";
+import { useNow, useWatchlistStreams, useTranslation, useAutoOpenedStreams, useSettings } from "~/browser/hooks";
 import { formatTime } from "~/browser/helpers";
+import { sendRuntimeMessage } from "~/common/helpers";
 
 import Anchor from "../Anchor";
 import Card from "../Card";
@@ -59,12 +61,29 @@ const SourceBadge = styled.span<{ source: string }>`
       : tw`bg-red-600/20 text-red-400`}
 `;
 
-const Wrapper = styled(Card)`
+const Wrapper = styled(Card)<{ isUpcoming?: boolean; isLive?: boolean }>`
   ${tw`py-2 relative`}
+  ${(props) => (props.isUpcoming || props.isLive) && tw`pe-10`}
 
   :hover {
     ${tw`opacity-100`}
   }
+`;
+
+const WatchlistButton = styled.button<{ active: boolean }>`
+  ${tw`absolute top-2 flex items-center justify-center w-7 h-7 rounded-full border border-neutral-200 dark:border-neutral-700 transition-all hover:scale-105 active:scale-95 cursor-pointer outline-none z-10`}
+  right: 0.625rem;
+  ${(props) => props.active 
+    ? tw`bg-sky-500 border-transparent text-white hover:bg-sky-600 hover:text-white` 
+    : tw`bg-white/80 dark:bg-neutral-800/80 text-neutral-400 hover:text-indigo-500`}
+`;
+
+const StreakButton = styled.button<{ active: boolean }>`
+  ${tw`absolute top-2 flex items-center justify-center w-7 h-7 rounded-full border border-neutral-200 dark:border-neutral-700 transition-all hover:scale-105 active:scale-95 cursor-pointer outline-none z-10`}
+  right: 0.625rem;
+  ${(props) => props.active 
+    ? tw`bg-amber-500 border-transparent text-white hover:bg-amber-600 hover:text-white` 
+    : tw`bg-white/80 dark:bg-neutral-800/80 text-neutral-400 hover:text-amber-500`}
 `;
 
 // ─── Component ─────────────────────────────────────────────
@@ -76,6 +95,54 @@ export interface StreamCardProps {
 function StreamCard(props: StreamCardProps) {
   const { stream } = props;
   const currentTime = useNow(60_000);
+  const [watchlist] = useWatchlistStreams();
+  const [autoOpened] = useAutoOpenedStreams();
+  const [settings] = useSettings();
+  const { t } = useTranslation();
+
+  const inWatchlist = useMemo(() => {
+    return watchlist?.some((item) => item.id === stream.id) ?? false;
+  }, [watchlist, stream.id]);
+
+  const isCurrentStreak = useMemo(() => {
+    return autoOpened?.some((item) => item.streamId === stream.id && item.mode === "streak") ?? false;
+  }, [autoOpened, stream.id]);
+
+  const handleWatchlistClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await sendRuntimeMessage("toggleWatchlist", stream);
+    } catch (err) {
+      console.error("[VspoDex] Failed to toggle watchlist:", err);
+    }
+  };
+
+  const handleStreakClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await sendRuntimeMessage("toggleStreak", stream);
+    } catch (err) {
+      console.error("[VspoDex] Failed to toggle streak mode:", err);
+    }
+  };
+
+  const handleCardClick = async (e: React.MouseEvent) => {
+    if (
+      stream.status === "live" &&
+      settings.general.autoRearmFavorites &&
+      settings.general.streakModeForManualOpen
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        await sendRuntimeMessage("toggleStreak", stream);
+      } catch (err) {
+        console.error("[VspoDex] Failed to toggle streak mode on card click:", err);
+      }
+    }
+  };
 
   const uptime = useMemo(() => {
     if (!stream.startedAt) return null;
@@ -136,8 +203,14 @@ function StreamCard(props: StreamCardProps) {
   }, [stream.status, stream.startedAt, stream.duration, stream.scheduledAt, currentTime]);
 
   return (
-    <Anchor to={stream.url}>
+    <Anchor
+      to={stream.url}
+      onClick={handleCardClick}
+      onAuxClick={handleCardClick}
+    >
       <Wrapper
+        isUpcoming={stream.status === "upcoming"}
+        isLive={stream.status === "live" && settings.general.autoRearmFavorites === true}
         title={
           <Title>
             <ChannelName>{stream.channelName}</ChannelName>
@@ -186,6 +259,26 @@ function StreamCard(props: StreamCardProps) {
         )}
         {stream.topicId && !stream.gameName && (
           <span> · {stream.topicId}</span>
+        )}
+
+        {stream.status === "upcoming" && (
+          <WatchlistButton
+            active={inWatchlist}
+            onClick={handleWatchlistClick}
+            title={inWatchlist ? t("tooltip_watchlist_remove") : t("tooltip_watchlist_add")}
+          >
+            {inWatchlist ? <IconAlarm size="1.1rem" /> : <IconClock size="1.1rem" />}
+          </WatchlistButton>
+        )}
+
+        {stream.status === "live" && settings.general.autoRearmFavorites && (
+          <StreakButton
+            active={isCurrentStreak}
+            onClick={handleStreakClick}
+            title={isCurrentStreak ? t("tooltip_streak_remove") : t("tooltip_streak_add")}
+          >
+            <IconBolt size="1.1rem" fill={isCurrentStreak ? "currentColor" : "none"} />
+          </StreakButton>
         )}
       </Wrapper>
     </Anchor>

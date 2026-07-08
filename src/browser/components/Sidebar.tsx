@@ -1,8 +1,9 @@
-import { IconHeart, IconCalendar, IconHistory, IconUsers, IconSettings } from "@tabler/icons-react";
+import { IconHeart, IconCalendar, IconHistory, IconUsers, IconSettings, IconBolt, IconBoltOff } from "@tabler/icons-react";
 import tw, { styled } from "twin.macro";
 import { NavLink } from "react-router";
 
-import { useTranslation, useSidebarTabOrder } from "~/browser/hooks";
+import { useTranslation, useSidebarTabOrder, useAutoOpenFavoritesArmed, useSettings, useAutoOpenedStreams } from "~/browser/hooks";
+import { sendRuntimeMessage } from "~/common/helpers";
 
 const Wrapper = styled.div`
   ${tw`bg-black/10 dark:bg-black/20 grid gap-8 content-between overflow-x-hidden overflow-y-scroll w-16`}
@@ -27,7 +28,7 @@ const Inner = styled.div`
 `;
 
 const Footer = styled.div`
-  ${tw`grid p-3 place-content-center`}
+  ${tw`grid p-3 place-content-center gap-3`}
 `;
 
 const StyledLink = styled(NavLink)`
@@ -42,9 +43,28 @@ const SettingsLink = styled.button`
   ${tw`flex items-center justify-center w-10 h-10 rounded-lg text-neutral-500 hover:text-white hover:bg-neutral-700 transition-colors cursor-pointer bg-transparent border-none outline-none p-0`}
 `;
 
+const ArmedToggleLink = styled.button<{ mode: "disarmed" | "armed" | "streak" }>`
+  ${tw`flex items-center justify-center w-10 h-10 rounded-lg transition-all cursor-pointer bg-transparent border-none outline-none p-0`}
+  ${(props) => {
+    if (props.mode === "streak") {
+      return tw`text-amber-400 bg-amber-500/25 shadow-[0_0_8px_rgba(245,158,11,0.5)]`;
+    }
+    if (props.mode === "armed") {
+      return tw`text-amber-400 bg-amber-500/10`;
+    }
+    return tw`text-neutral-500 hover:text-white hover:bg-neutral-700`;
+  }}
+`;
+
 function Sidebar() {
   const { t } = useTranslation();
   const [sidebarTabOrder] = useSidebarTabOrder({ suspense: true });
+  const [armed, armedStore] = useAutoOpenFavoritesArmed({ suspense: true });
+  const [autoOpened] = useAutoOpenedStreams({ suspense: true });
+  const [settings] = useSettings({ suspense: true });
+
+  const hasActiveStreak = autoOpened?.some(x => x.mode === "streak") ?? false;
+  const displayMode = hasActiveStreak ? "streak" : armed;
 
   const openSettings = async () => {
     const targetUrl = browser.runtime.getURL("settings.html#/channels");
@@ -95,6 +115,39 @@ function Sidebar() {
         {sidebarTabOrder.map((tabKey) => tabMap[tabKey as keyof typeof tabMap])}
       </Inner>
       <Footer>
+        <ArmedToggleLink
+          onClick={async () => {
+            const isExperimentalOn = settings.general.autoRearmFavorites === true;
+            if (displayMode === "streak") {
+              await sendRuntimeMessage("cancelStreakTracking");
+              await armedStore.set("disarmed");
+            } else if (displayMode === "armed") {
+              if (isExperimentalOn) {
+                await armedStore.set("streak");
+              } else {
+                await armedStore.set("disarmed");
+              }
+            } else {
+              await armedStore.set("armed");
+            }
+          }}
+          mode={displayMode}
+          title={
+            displayMode === "streak"
+              ? t("tooltip_auto_open_streak")
+              : displayMode === "armed"
+              ? t("tooltip_auto_open_armed")
+              : t("tooltip_auto_open_disarmed")
+          }
+        >
+          {displayMode === "disarmed" ? (
+            <IconBoltOff size="1.5rem" />
+          ) : displayMode === "armed" ? (
+            <IconBolt size="1.5rem" fill="none" />
+          ) : (
+            <IconBolt size="1.5rem" fill="currentColor" className="animate-pulse" />
+          )}
+        </ArmedToggleLink>
         <SettingsLink onClick={openSettings} title={t("tooltip_settings")}>
           <IconSettings size="1.5rem" />
         </SettingsLink>

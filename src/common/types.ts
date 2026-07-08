@@ -162,6 +162,10 @@ export interface GeneralSettings {
   sortOrder: "asc" | "desc";
   language: Language;
   enableExperimentalTwitchPast?: boolean;
+  autoOpenFavoritesBehavior?: "active" | "background";
+  disarmOnWatchlistLaunch?: boolean;
+  autoRearmFavorites?: boolean;
+  streakModeForManualOpen?: boolean;
 }
 
 export interface BadgeSettings {
@@ -210,4 +214,21 @@ export interface UnifiedStream {
   duration?: number | null; // seconds, for past streams
   gameName?: string | null;
   topicId?: string | null;
+}
+
+export interface WatchlistItem {
+  id: string;
+  channelId: string;
+  title: string;
+  channelName: string;
+  url: string;
+  scheduledAt: string;
+}
+
+export type AutoOpenFavoritesMode = "disarmed" | "armed" | "streak";
+
+export interface AutoOpenedStream {
+  streamId: string;
+  channelId: string;
+  mode: "armed" | "streak";
 }

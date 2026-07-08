@@ -13,6 +13,9 @@ import {
   Settings,
   UnifiedStream,
   SuggestionChannel,
+  WatchlistItem,
+  AutoOpenedStream,
+  AutoOpenFavoritesMode,
 } from "./types";
 
 // ─── Store Implementation (from Gumbo) ──────────────────────
@@ -178,6 +181,10 @@ export const stores = {
     defaultValue: [],
   }),
 
+  isFirstRefresh: new Store<boolean>("session", "isFirstRefresh", {
+    defaultValue: true,
+  }),
+
   // Twitch
   twitchAccessToken: new Store<string | null>("local", "twitchAccessToken", {
     defaultValue: null,
@@ -206,6 +213,10 @@ export const stores = {
         sortOrder: "desc",
         language: "en",
         enableExperimentalTwitchPast: true,
+        autoOpenFavoritesBehavior: "background",
+        disarmOnWatchlistLaunch: true,
+        autoRearmFavorites: false,
+        streakModeForManualOpen: false,
       },
       badge: {
         enabled: true,
@@ -231,6 +242,19 @@ export const stores = {
 
   targetTab: new Store<string | null>("local", "targetTab", {
     defaultValue: null,
+  }),
+  
+  // Alarms & Watchlist
+  autoOpenFavoritesArmed: new Store<AutoOpenFavoritesMode>("local", "autoOpenFavoritesArmed", {
+    defaultValue: "disarmed",
+  }),
+
+  watchlistStreams: new Store<WatchlistItem[]>("local", "watchlistStreams", {
+    defaultValue: [],
+  }),
+
+  autoOpenedStreams: new Store<AutoOpenedStream[]>("session", "autoOpenedStreams", {
+    defaultValue: [],
   }),
 };
 

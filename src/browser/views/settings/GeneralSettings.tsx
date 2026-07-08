@@ -228,6 +228,61 @@ export function Component() {
         </FormGroup>
 
         <FormGroup>
+          <Label>{t("setting_auto_open_behavior")}</Label>
+          <Select
+            value={register("general.autoOpenFavoritesBehavior").value}
+            onChange={(e) => register("general.autoOpenFavoritesBehavior").onChange(e.target.value)}
+          >
+            <option value="background">{t("setting_auto_open_behavior_background")}</option>
+            <option value="active">{t("setting_auto_open_behavior_active")}</option>
+          </Select>
+        </FormGroup>
+
+        <FormGroup>
+          <CheckboxLabel>
+            <Checkbox
+              type="checkbox"
+              checked={register("general.disarmOnWatchlistLaunch").value}
+              onChange={(e) => register("general.disarmOnWatchlistLaunch").onChange(e.target.checked)}
+            />
+            {t("setting_disarm_on_watchlist_launch")}
+          </CheckboxLabel>
+          <HelpText>{t("setting_disarm_on_watchlist_launch_desc")}</HelpText>
+        </FormGroup>
+
+        <FormGroup>
+          <CheckboxLabel>
+            <Checkbox
+              type="checkbox"
+              checked={register("general.autoRearmFavorites").value}
+              onChange={(e) => {
+                const val = e.target.checked;
+                register("general.autoRearmFavorites").onChange(val);
+                if (!val) {
+                  register("general.streakModeForManualOpen").onChange(false);
+                }
+              }}
+            />
+            {t("setting_auto_rearm_favorites")}
+          </CheckboxLabel>
+          <HelpText>{t("setting_auto_rearm_favorites_desc")}</HelpText>
+        </FormGroup>
+
+        {register("general.autoRearmFavorites").value && (
+          <FormGroup style={{ marginLeft: "1.5rem" }}>
+            <CheckboxLabel>
+              <Checkbox
+                type="checkbox"
+                checked={register("general.streakModeForManualOpen").value}
+                onChange={(e) => register("general.streakModeForManualOpen").onChange(e.target.checked)}
+              />
+              {t("setting_streak_mode_for_manual_open")}
+            </CheckboxLabel>
+            <HelpText>{t("setting_streak_mode_for_manual_open_desc")}</HelpText>
+          </FormGroup>
+        )}
+
+        <FormGroup>
           <Label>{t("setting_refresh_interval")}</Label>
           <Select
             value={refreshIntervalProps.value}
