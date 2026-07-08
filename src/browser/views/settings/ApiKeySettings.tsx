@@ -162,7 +162,7 @@ export function Component() {
         </HolodexInputGroup>
 
         <div css={tw`mt-2`}>
-          <StatusBadge connected={!!holodexApiKey && holodexApiKeyVerified}>
+          <StatusBadge connected={!!holodexApiKey && holodexApiKeyVerified} className="settings-status-badge">
             {!!holodexApiKey && holodexApiKeyVerified
               ? t("status_connected")
               : holodexApiKey
@@ -224,7 +224,7 @@ export function Component() {
               {t("btn_twitch_connect")}
             </Button>
             <div css={tw`mt-2`}>
-              <StatusBadge connected={!!twitchAccessToken}>
+              <StatusBadge connected={!!twitchAccessToken} className="settings-status-badge">
                 {twitchAccessToken ? t("status_connected") : t("status_not_connected")}
               </StatusBadge>
             </div>

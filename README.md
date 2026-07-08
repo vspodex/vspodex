@@ -12,6 +12,7 @@ This extension is dedicated to the VSpo community. It provides a clean and effic
 
 ## ⚙️ Features
 
+- **[New] VSPO! Member Themes**: Personalize the extension's entire UI with dedicated color themes modeled after the official VSPO! GEAR mechanical keyboard designs of 15 members (supporting light/dark modes and polka dot corner accents).
 - **[New] Tab Reordering**: Arrange the sequence of popup sidebar tabs (Live, Members, Upcoming, Past) via drag-and-drop on the settings page.
 - **[New] Members Tab**: View all followed channels grouped into Favorites, VSPO JP, VSPO EN, and VSPO Official, sorted by subscriber count. Clicking a member shows their stream archive.
 - **Unified Stream Tracking**: Monitor live and upcoming streams across both YouTube (via Holodex API) and Twitch.

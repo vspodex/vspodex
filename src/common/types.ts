@@ -110,7 +110,32 @@ export interface HelixResponse<T> {
 
 export type FontSize = "smallest" | "small" | "medium" | "large" | "largest";
 export type SortDirection = "asc" | "desc";
-export type Theme = "system" | "dark" | "light";
+export type Theme =
+  | "system"
+  | "dark"
+  | "light"
+  | "hinano"
+  | "lisa"
+  | "runa"
+  | "yuuhi"
+  | "moka"
+  | "ramune"
+  | "sumire"
+  | "nazuna"
+  | "toto"
+  | "uruha"
+  | "noa"
+  | "kyupi"
+  | "beni"
+  | "ema"
+  | "sena"
+  | "ren"
+  | "mimi"
+  | "tsuna"
+  | "met"
+  | "akari"
+  | "kuromu"
+  | "kokage";
 export type Language = "en" | "zh" | "ja";
 
 export enum ClickAction {

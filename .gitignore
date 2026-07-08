@@ -36,3 +36,6 @@ Thumbs.db
 # Misc
 .cache/
 coverage/
+
+# Internal documentation (not synced)
+TECHNICAL_SUMMARY.md

@@ -87,7 +87,7 @@ function Sidebar() {
   };
 
   return (
-    <Wrapper>
+    <Wrapper className="sidebar-nav">
       <Header>
         <LogoImg src="/icon-48.png" alt="VspoDex" />
       </Header>

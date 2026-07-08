@@ -112,6 +112,30 @@ export function Component() {
             <option value="system">{t("setting_theme_system")}</option>
             <option value="dark">{t("setting_theme_dark")}</option>
             <option value="light">{t("setting_theme_light")}</option>
+            <optgroup label={t("setting_theme_member_group")}>
+              <option value="hinano">{t("setting_theme_hinano")}</option>
+              <option value="lisa">{t("setting_theme_lisa")}</option>
+              <option value="runa">{t("setting_theme_runa")}</option>
+              <option value="yuuhi">{t("setting_theme_yuuhi")}</option>
+              <option value="moka">{t("setting_theme_moka")}</option>
+              <option value="ramune">{t("setting_theme_ramune")}</option>
+              <option value="sumire">{t("setting_theme_sumire")}</option>
+              <option value="nazuna">{t("setting_theme_nazuna")}</option>
+              <option value="toto">{t("setting_theme_toto")}</option>
+              <option value="uruha">{t("setting_theme_uruha")}</option>
+              <option value="noa">{t("setting_theme_noa")}</option>
+              <option value="kyupi">{t("setting_theme_kyupi")}</option>
+              <option value="beni">{t("setting_theme_beni")}</option>
+              <option value="ema">{t("setting_theme_ema")}</option>
+              <option value="sena">{t("setting_theme_sena")}</option>
+              <option value="ren">{t("setting_theme_ren")}</option>
+              <option value="mimi">{t("setting_theme_mimi")}</option>
+              <option value="tsuna">{t("setting_theme_tsuna")}</option>
+              <option value="met">{t("setting_theme_met")}</option>
+              <option value="akari">{t("setting_theme_akari")}</option>
+              <option value="kuromu">{t("setting_theme_kuromu")}</option>
+              <option value="kokage">{t("setting_theme_kokage")}</option>
+            </optgroup>
           </Select>
         </FormGroup>
 

@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.3.4] - 2026-07-08
+
+### Added
+- **VSPO! Member Color Themes**:
+  - Added themes for Kaga Sumire, Kaga Nazuna, Kogara Toto, Ichinose Uruha, Kurumi Noa, Kaminari Kyupi, Yakumo Beni, Aizawa Ema, Asumi Sena, Tosaki Mimi, Nekota Tsuna, Komori Met, Yumeno Akari, Yano Kuromu, and Tsumugi Kokage.
+  - Implemented selection under General Settings and custom visual style overrides.
+- **Komori Met Theme Customization**:
+  - Customized the sidebar navigation background color for Komori Met's theme to a dark ash grey (`#3e3a39`) matching her hair color, ensuring navigation links and icons remain highly readable.
+
+### Fixed
+- **Sub-Tab Buttons Background**:
+  - Resolved an issue where the YouTube/Twitch sub-tab container on the Past Streams tab retained a white background by mapping `.bg-neutral-50` to the theme-specific sidebar background color.
+
 ## [0.1.3.3] - 2026-07-07
 
 ### Added

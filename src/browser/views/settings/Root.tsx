@@ -44,8 +44,8 @@ export function Component() {
       />
 
       <Wrapper>
-        <SideNav>
-          <Logo>VspoDex</Logo>
+        <SideNav className="settings-sidenav">
+          <Logo className="settings-logo">VspoDex</Logo>
           <NavItem to="api-keys">{t("nav_api_keys")}</NavItem>
           <NavItem to="channels">{t("nav_channels")}</NavItem>
           <NavItem to="general">{t("nav_general")}</NavItem>

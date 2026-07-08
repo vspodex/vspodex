@@ -108,3 +108,21 @@ In `holodexToUnified` (`src/background/index.ts`), `startedAt` fell back to `vid
 ## Action Taken
 Modified `holodexToUnified` in [index.ts](file:///h:/vspodex/vspodex/src/background/index.ts) to fallback directly to `video.available_at` when `video.start_actual` is null, bypassing `video.published_at`. Since `available_at` corresponds to the actual start time or scheduled start time when the stream went live, this ensures the calculated stream end time is accurate.
 
+---
+
+# VSPO! Member Themes Integration - Visual & Layout Overrides
+
+## Symptom
+1. The "VspoDex" settings logo text color did not render in hot pink (`#ff91c8`) under member themes. It instead fell back to the active member theme's accent color (e.g. olive green).
+2. Twitch account connection status badges ("Connected" / "Not Connected") rendered white text on an extremely light green/red background, making the fonts completely invisible.
+3. Under Ren's dark member theme, drag-and-drop tab order rows, favorite channel list cards, and Twitch account wrapper boxes rendered with light theme backgrounds (white/light-grey) and bright light-grey borders.
+
+## Root Cause
+1. Logo element `.text-indigo-500` color rules in global active theme overrides had equivalent specificity to `.settings-logo` and were defined later in the stylesheet, overriding it.
+2. `StatusBadge` uses `text-green-400` / `text-red-400` classes on a `span` tag. The global stylesheet was overriding all generic `span` text elements to `var(--text-app)` (which is white under Ren's theme, or dark teal under Toto's theme) because `.text-green-400` and `.text-red-400` were missing from the `:not()` exclusions list.
+3. The `"dark"` class was programmatically removed from the root document whenever any member theme was active. This prevented Tailwind's native dark-mode selectors (`dark:bg-neutral-800`, `dark:border-neutral-700`) from executing. Additionally, `.bg-neutral-800`/`.border-neutral-700` were not bound to the theme variables.
+
+## Fix
+1. Nested the `.settings-logo` style override rules inside the `#app-root` selector block in `entry-template.tsx` to increase selector specificity (ID + classes).
+2. Added `.text-green-400` and `.text-red-400` to the exclusions list in `entry-template.tsx`. Assigned `className="settings-status-badge"` to the badges in `ApiKeySettings.tsx` and custom-mapped them to specific high-contrast theme variables (`--badge-green-bg`, `--badge-green-text`, etc.), using solid high-contrast green/red tones in light themes and neon-translucent styling in dark themes.
+3. Updated the document initialization hook in `entry-template.tsx` to check and toggle `"dark"` class to `true` when a custom dark member theme (e.g. `"ren"`) is active. Expanded background/border overrides to cover all dark-neutral classes, binding them to `--bg-card` (`#2a1b20`) and `--border-color` (`#3d2830`) respectively.
