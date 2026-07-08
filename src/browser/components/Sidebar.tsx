@@ -2,7 +2,7 @@ import { IconHeart, IconCalendar, IconHistory, IconUsers, IconSettings, IconBolt
 import tw, { styled } from "twin.macro";
 import { NavLink } from "react-router";
 
-import { useTranslation, useSidebarTabOrder, useAutoOpenFavoritesArmed, useSettings, useAutoOpenedStreams } from "~/browser/hooks";
+import { useTranslation, useSidebarTabOrder, useAutoOpenFavoritesArmed, useSettings, useAutoOpenedStreams, useStreakCount } from "~/browser/hooks";
 import { sendRuntimeMessage } from "~/common/helpers";
 
 const Wrapper = styled.div`
@@ -62,6 +62,7 @@ function Sidebar() {
   const [armed, armedStore] = useAutoOpenFavoritesArmed({ suspense: true });
   const [autoOpened] = useAutoOpenedStreams({ suspense: true });
   const [settings] = useSettings({ suspense: true });
+  const [, streakCountStore] = useStreakCount({ suspense: true });
 
   const hasActiveStreak = autoOpened?.some(x => x.mode === "streak") ?? false;
   const displayMode = hasActiveStreak ? "streak" : armed;
@@ -124,6 +125,7 @@ function Sidebar() {
             } else if (displayMode === "armed") {
               if (isExperimentalOn) {
                 await armedStore.set("streak");
+                await streakCountStore.set(0);
               } else {
                 await armedStore.set("disarmed");
               }

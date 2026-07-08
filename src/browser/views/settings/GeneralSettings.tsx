@@ -269,17 +269,35 @@ export function Component() {
         </FormGroup>
 
         {register("general.autoRearmFavorites").value && (
-          <FormGroup style={{ marginLeft: "1.5rem" }}>
-            <CheckboxLabel>
-              <Checkbox
-                type="checkbox"
-                checked={register("general.streakModeForManualOpen").value}
-                onChange={(e) => register("general.streakModeForManualOpen").onChange(e.target.checked)}
-              />
-              {t("setting_streak_mode_for_manual_open")}
-            </CheckboxLabel>
-            <HelpText>{t("setting_streak_mode_for_manual_open_desc")}</HelpText>
-          </FormGroup>
+          <>
+            <FormGroup style={{ marginLeft: "1.5rem" }}>
+              <CheckboxLabel>
+                <Checkbox
+                  type="checkbox"
+                  checked={register("general.streakModeForManualOpen").value}
+                  onChange={(e) => register("general.streakModeForManualOpen").onChange(e.target.checked)}
+                />
+                {t("setting_streak_mode_for_manual_open")}
+              </CheckboxLabel>
+              <HelpText>{t("setting_streak_mode_for_manual_open_desc")}</HelpText>
+            </FormGroup>
+
+            <FormGroup style={{ marginLeft: "1.5rem" }}>
+              <Label>{t("setting_max_streak")}</Label>
+              <Select
+                value={register("general.maxStreak").value ?? 3}
+                onChange={(e) => register("general.maxStreak").onChange(Number(e.target.value))}
+              >
+                <option value={1}>{t("setting_max_streak_1")}</option>
+                <option value={2}>{t("setting_max_streak_2")}</option>
+                <option value={3}>{t("setting_max_streak_3")}</option>
+                <option value={5}>{t("setting_max_streak_5")}</option>
+                <option value={10}>{t("setting_max_streak_10")}</option>
+                <option value={0}>{t("setting_max_streak_unlimited")}</option>
+              </Select>
+              <HelpText>{t("setting_max_streak_desc")}</HelpText>
+            </FormGroup>
+          </>
         )}
 
         <FormGroup>

@@ -189,4 +189,12 @@ export const ja: typeof en = {
   tooltip_streak_remove: "配信の追跡を停止",
   setting_streak_mode_for_manual_open: "手動で開いた配信をストリークモードにする",
   setting_streak_mode_for_manual_open_desc: "ポップアップから配信カードをクリックして手動で配信を開いた際、自動的にストリークモードとして追跡し、配信終了時にトリガーを再有効化します。",
+  setting_max_streak: "最大ストリームストリーク数",
+  setting_max_streak_desc: "1回の表示ストリークで自動的に開くストリームの最大数です。",
+  setting_max_streak_1: "1 配信",
+  setting_max_streak_2: "2 配信",
+  setting_max_streak_3: "3 配信",
+  setting_max_streak_5: "5 配信",
+  setting_max_streak_10: "10 配信",
+  setting_max_streak_unlimited: "無制限",
 };

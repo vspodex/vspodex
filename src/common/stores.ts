@@ -217,6 +217,7 @@ export const stores = {
         disarmOnWatchlistLaunch: true,
         autoRearmFavorites: false,
         streakModeForManualOpen: false,
+        maxStreak: 3,
       },
       badge: {
         enabled: true,
@@ -255,6 +256,10 @@ export const stores = {
 
   autoOpenedStreams: new Store<AutoOpenedStream[]>("session", "autoOpenedStreams", {
     defaultValue: [],
+  }),
+
+  streakCount: new Store<number>("session", "streakCount", {
+    defaultValue: 0,
   }),
 };
 

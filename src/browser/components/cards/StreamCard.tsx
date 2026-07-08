@@ -5,7 +5,7 @@ import { IconClock, IconAlarm, IconBolt } from "@tabler/icons-react";
 import { UnifiedStream } from "~/common/types";
 import { useNow, useWatchlistStreams, useTranslation, useAutoOpenedStreams, useSettings } from "~/browser/hooks";
 import { formatTime } from "~/browser/helpers";
-import { sendRuntimeMessage } from "~/common/helpers";
+import { sendRuntimeMessage, openUrl } from "~/common/helpers";
 
 import Anchor from "../Anchor";
 import Card from "../Card";
@@ -122,26 +122,34 @@ function StreamCard(props: StreamCardProps) {
     e.preventDefault();
     e.stopPropagation();
     try {
-      await sendRuntimeMessage("toggleStreak", stream);
+      const isManualOpenStreak = settings.general.streakModeForManualOpen === true;
+      if (isManualOpenStreak && !isCurrentStreak) {
+        await sendRuntimeMessage("toggleStreak", stream, true);
+        await openUrl(stream.url, e);
+      } else {
+        await sendRuntimeMessage("toggleStreak", stream);
+      }
     } catch (err) {
       console.error("[VspoDex] Failed to toggle streak mode:", err);
     }
   };
 
   const handleCardClick = async (e: React.MouseEvent) => {
-    if (
+    e.preventDefault();
+    e.stopPropagation();
+    const isStreakTriggered =
       stream.status === "live" &&
       settings.general.autoRearmFavorites &&
-      settings.general.streakModeForManualOpen
-    ) {
-      e.preventDefault();
-      e.stopPropagation();
+      settings.general.streakModeForManualOpen;
+
+    if (isStreakTriggered) {
       try {
-        await sendRuntimeMessage("toggleStreak", stream);
+        await sendRuntimeMessage("toggleStreak", stream, true);
       } catch (err) {
         console.error("[VspoDex] Failed to toggle streak mode on card click:", err);
       }
     }
+    await openUrl(stream.url, e);
   };
 
   const uptime = useMemo(() => {

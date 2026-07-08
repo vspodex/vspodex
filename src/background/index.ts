@@ -236,6 +236,7 @@ async function refresh() {
           const openedList = await stores.autoOpenedStreams.get();
           const newOpened = [...openedList];
           
+          let streakAddedCount = 0;
           for (const stream of validLiveFavorites) {
             browser.tabs.create({ url: stream.url, active }).catch(err => {
               console.error("[VspoDex] Auto-open tab failed:", err);
@@ -245,10 +246,18 @@ async function refresh() {
               channelId: stream.channelId,
               mode: autoOpenArmed === "streak" ? "streak" : "armed"
             });
+            if (autoOpenArmed === "streak") {
+              streakAddedCount++;
+            }
           }
           
           await stores.autoOpenedStreams.set(newOpened);
           await stores.autoOpenFavoritesArmed.set("disarmed");
+
+          if (streakAddedCount > 0) {
+            const currentCount = await stores.streakCount.get();
+            await stores.streakCount.set(currentCount + streakAddedCount);
+          }
         }
       }
     }
@@ -283,6 +292,11 @@ async function refresh() {
                 ...openedList,
                 { streamId: watchItem.id, channelId: watchItem.channelId, mode: armedState === "streak" ? "streak" : "armed" }
               ]);
+
+              if (armedState === "streak") {
+                const currentCount = await stores.streakCount.get();
+                await stores.streakCount.set(currentCount + 1);
+              }
             }
           }
 
@@ -619,28 +633,37 @@ async function toggleWatchlist(stream: UnifiedStream) {
   await stores.watchlistStreams.set(updatedList);
 }
 
-async function toggleStreak(stream: UnifiedStream) {
+async function toggleStreak(stream: UnifiedStream, skipOpen?: boolean) {
   const settings = await stores.settings.get();
   const list = await stores.autoOpenedStreams.get();
   const exists = list.some(item => item.streamId === stream.id && item.mode === "streak");
   
   if (exists) {
+    if (skipOpen) {
+      return;
+    }
     const updated = list.filter(item => item.streamId !== stream.id);
     await stores.autoOpenedStreams.set(updated);
     console.log(`[VspoDex] Streak: Removed ${stream.id} from streak tracking.`);
+    if (updated.filter(item => item.mode === "streak").length === 0) {
+      await stores.streakCount.set(0);
+    }
   } else {
-    const behavior = settings.general.autoOpenFavoritesBehavior || "background";
-    const active = behavior === "active";
-    
-    browser.tabs.create({ url: stream.url, active }).catch(err => {
-      console.error("[VspoDex] Streak click failed to open tab:", err);
-    });
+    if (!skipOpen) {
+      const behavior = settings.general.autoOpenFavoritesBehavior || "background";
+      const active = behavior === "active";
+      
+      browser.tabs.create({ url: stream.url, active }).catch(err => {
+        console.error("[VspoDex] Streak click failed to open tab:", err);
+      });
+    }
     
     await stores.autoOpenedStreams.set([
       { streamId: stream.id, channelId: stream.channelId, mode: "streak" }
     ]);
     
     await stores.autoOpenFavoritesArmed.set("disarmed");
+    await stores.streakCount.set(1);
     console.log(`[VspoDex] Streak: Overrode tracking with ${stream.id} and opened stream.`);
   }
 }
@@ -648,6 +671,7 @@ async function toggleStreak(stream: UnifiedStream) {
 async function cancelStreakTracking() {
   await stores.autoOpenedStreams.set([]);
   await stores.autoOpenFavoritesArmed.set("disarmed");
+  await stores.streakCount.set(0);
   console.log("[VspoDex] Streak: Cancelled all active streak tracking.");
 }
 
@@ -661,6 +685,14 @@ async function cycleToNextFavorite(endedStreamId: string, endedStreamMode: "arme
 
   const settings = await stores.settings.get();
   if (!settings.general.autoRearmFavorites) {
+    return;
+  }
+
+  const maxStreak = settings.general.maxStreak ?? 3;
+  const currentCount = await stores.streakCount.get();
+  if (maxStreak !== 0 && currentCount >= maxStreak) {
+    console.log(`[VspoDex] Auto-rearm: Streak limit reached (${currentCount}/${maxStreak}). Stopping streak.`);
+    await cancelStreakTracking();
     return;
   }
 
@@ -690,6 +722,7 @@ async function cycleToNextFavorite(endedStreamId: string, endedStreamMode: "arme
       { streamId: nextStream.id, channelId: nextStream.channelId, mode: "streak" }
     ]);
     await stores.autoOpenFavoritesArmed.set("disarmed");
+    await stores.streakCount.set(currentCount + 1);
   }
 }
 

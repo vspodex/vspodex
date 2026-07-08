@@ -224,3 +224,7 @@ export function useWatchlistStreams(options?: UseStoreOptions) {
 export function useAutoOpenedStreams(options?: UseStoreOptions) {
   return useStore(stores.autoOpenedStreams, options);
 }
+
+export function useStreakCount(options?: UseStoreOptions) {
+  return useStore(stores.streakCount, options);
+}

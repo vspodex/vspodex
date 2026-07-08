@@ -3,9 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
-## [0.1.3.5] - 2026-07-08
+## [0.1.3.6] - 2026-07-08
 
 ### Added
+- **Max Stream Streak Option**:
+  - Added a dropdown selector under General Settings to configure the maximum number of streams to auto-open in a single viewing streak sequence (1, 2, 3, 5, 10, or Unlimited). Default is set to 3.
+  - Implemented background counting and limit validation to automatically stop streak tracking once the threshold is met.
 - **Three-State Favorites Trigger**:
   - Implemented a three-state lightning bolt toggle button in the sidebar footer: Disarmed (grey slashed), Armed (yellow transparent outline), and Streak Mode (solid pulsing yellow).
   - Synchronized the sidebar bolt's visual state to glow in Streak Mode when a manual or auto-opened stream is actively being tracked.
@@ -24,6 +27,10 @@ All notable changes to this project will be documented in this file.
   - Conditionally disarms the auto-open trigger on launch of a watchlist scheduled stream if configured.
 
 ### Fixed
+- **Manual Open Respecting Click Behavior**:
+  - Restored click behavior settings for manual opens under streak mode (both card body clicks and card bolt icon clicks), ensuring they respect target window and tab preferences.
+- **Unclickable Cards Fix**:
+  - Fixed a bug where live stream cards became completely unclickable when the experimental auto-rearm setting was toggled off.
 - **Service Worker Suspension (Manifest V3)**:
   - Fixed first-run initialization checks by storing the safety flag in session storage rather than an in-memory variable, ensuring correct live transition detection after service worker restarts.
 - **Twitch Channel ID Mapping**:

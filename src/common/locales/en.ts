@@ -187,4 +187,12 @@ export const en = {
   tooltip_streak_remove: "Stop tracking stream",
   setting_streak_mode_for_manual_open: "Manual Open as Streak Mode",
   setting_streak_mode_for_manual_open_desc: "When clicking a live stream item card to manually open a stream, open it in streak mode so that auto-open re-arms once the stream ends.",
+  setting_max_streak: "Max Stream Streak",
+  setting_max_streak_desc: "The maximum number of streams to open in a single viewing streak sequence.",
+  setting_max_streak_1: "1 stream",
+  setting_max_streak_2: "2 streams",
+  setting_max_streak_3: "3 streams",
+  setting_max_streak_5: "5 streams",
+  setting_max_streak_10: "10 streams",
+  setting_max_streak_unlimited: "Unlimited streams",
 };

@@ -12,7 +12,7 @@ This extension is dedicated to the VSpo community. It provides a clean and effic
 
 ## ⚙️ Features
 
-- **[New] Auto-open Live Favorites**: Quick-toggle lightning bolt on the popup sidebar footer to automatically launch a new tab when an offline favorite member goes live (with support for active/background tab modes and experimental auto-rearming/cycling when streams go offline).
+- **[New] Auto-open Live Favorites**: Quick-toggle lightning bolt on the popup sidebar footer to automatically launch a new tab when an offline favorite member goes live (with support for active/background tab modes, experimental auto-rearming/cycling when streams go offline, and customizable max stream streak limits).
 - **[New] Watchlist Scheduled Streams**: Alarm toggle on upcoming stream cards to schedule a tab to open automatically at start time.
 - **[New] VSPO! Member Themes**: Personalize the extension's entire UI with dedicated color themes modeled after the official VSPO! GEAR mechanical keyboard designs of 15 members (supporting light/dark modes and polka dot corner accents).
 - **[New] Tab Reordering**: Arrange the sequence of popup sidebar tabs (Live, Members, Upcoming, Past) via drag-and-drop on the settings page.

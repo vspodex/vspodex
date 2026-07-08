@@ -166,6 +166,7 @@ export interface GeneralSettings {
   disarmOnWatchlistLaunch?: boolean;
   autoRearmFavorites?: boolean;
   streakModeForManualOpen?: boolean;
+  maxStreak?: number;
 }
 
 export interface BadgeSettings {
