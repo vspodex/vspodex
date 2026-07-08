@@ -1,3 +1,28 @@
+# Last Session Summary (2026-07-08 - Session 8)
+
+### 📋 Overview of the Session
+In this session, we built and finalized version `0.1.3.5` by implementing three major features: Auto-Open Live Favorites, Watchlist Scheduled Streams, and the experimental Auto-Rearm & Cycle (Streak Mode). We refined the quick-action sidebar footer trigger into a three-state toggle button with customized colors and pulsing animations, created a manual streak-tracking trigger button on live stream cards, added an indented manual-to-streak settings sub-option, and introduced a start-time validator to prevent stale tab launches after computer sleep or suspension. We signed the Firefox extension as unlisted, packaged the Chrome extension, organized them in the releases folder, and pushed the code and Git tags to GitHub.
+
+### 🛠️ Key Changes
+- **Three-State Favorites Trigger (`src/browser/components/Sidebar.tsx`):**
+  - Upgraded the footer quick-action toggle button into a three-state cycle: Disarmed (grey slashed), Armed (yellow outlined), and Streak Mode (solid pulsing yellow).
+  - Synchronized the sidebar bolt icon to display as State C (yellow pulsing) when manually or automatically tracking active streak-mode streams.
+  - Linked the click handler on State C to cancel active streak tracking and disarm the trigger.
+- **Manual Streak Tracking (`src/browser/components/cards/StreamCard.tsx`, `src/browser/views/settings/GeneralSettings.tsx`):**
+  - Added a manual streak bolt action button to live stream cards (only visible when the experimental auto-rearm setting is active).
+  - Configured click handlers (`onClick`/`onAuxClick`) on outer card anchors to automatically launch streams in streak mode when the manual-open sub-option is enabled in Settings.
+  - Nest-indented the `streakModeForManualOpen` sub-option underneath the auto-rearm checkbox in General Settings, making it hide and reset to `false` when parent is disabled.
+  - Refined layout padding to ensure card dimensions return to their original layout size when the live card bolt button is disabled in Settings.
+- **Sleep & Suspend Grace Guard (`src/background/index.ts`):**
+  - Checked the stream's start time (`startedAt`) and filtered out any stream that has been live for longer than `refreshInterval` + 2 minutes, preventing stale tab launches after computer sleep/suspension or network offline recovery.
+- **Release Signing & Packaging:**
+  - Built and signed Firefox extension as unlisted on AMO (`vspodex-0.1.3.5.xpi`).
+  - Bundled Chrome extension as ready-to-go zip archive (`vspodex-0.1.3.5.zip`).
+  - Stored files under `releases/0.1.3.5/`.
+  - Pushed release commit and git tag `v0.1.3.5` to GitHub.
+
+---
+
 # Last Session Summary (2026-07-08 - Session 7)
 
 ### 📋 Overview of the Session
