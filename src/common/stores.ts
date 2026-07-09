@@ -222,6 +222,7 @@ export const stores = {
         autoRearmFavorites: false,
         streakModeForManualOpen: false,
         maxStreak: 3,
+        trackMultipleStreams: true,
       },
       badge: {
         enabled: true,

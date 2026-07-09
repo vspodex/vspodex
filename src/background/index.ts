@@ -320,18 +320,35 @@ async function refresh() {
 
     let autoOpened = await stores.autoOpenedStreams.get();
     if (autoOpened.length > 0 && settings.general.autoRearmFavorites) {
-      for (const item of autoOpened) {
-        const isStillLive = allLive.some(s => s.id === item.streamId);
-        if (!isStillLive) {
-          console.log(`[VspoDex] Auto-rearm: Stream ${item.streamId} went offline. Triggering cycle/re-arm...`);
-          // Remove the offline stream from the store first, so cycleToNextFavorite doesn't read a stale state.
-          autoOpened = autoOpened.filter(x => x.streamId !== item.streamId);
-          await stores.autoOpenedStreams.set(autoOpened);
-          
-          await cycleToNextFavorite(item.streamId, item.mode);
-          
-          // Reload the updated autoOpened list from store since cycleToNextFavorite might have added the cycled stream.
-          autoOpened = await stores.autoOpenedStreams.get();
+      const trackMultiple = settings.general.trackMultipleStreams !== false;
+      if (trackMultiple) {
+        const stillLive = autoOpened.filter(item => allLive.some(s => s.id === item.streamId));
+        const ended = autoOpened.filter(item => !allLive.some(s => s.id === item.streamId));
+        
+        if (ended.length > 0) {
+          await stores.autoOpenedStreams.set(stillLive);
+          if (stillLive.length === 0) {
+            console.log(`[VspoDex] Auto-rearm: All tracked streams went offline. Triggering cycle/re-arm...`);
+            const lastEnded = ended[ended.length - 1];
+            await cycleToNextFavorite(lastEnded.streamId, lastEnded.mode);
+          } else {
+            console.log(`[VspoDex] Auto-rearm: Stream(s) ${ended.map(x => x.streamId).join(", ")} ended, but ${stillLive.length} stream(s) still live.`);
+          }
+        }
+      } else {
+        for (const item of autoOpened) {
+          const isStillLive = allLive.some(s => s.id === item.streamId);
+          if (!isStillLive) {
+            console.log(`[VspoDex] Auto-rearm: Stream ${item.streamId} went offline. Triggering cycle/re-arm...`);
+            // Remove the offline stream from the store first, so cycleToNextFavorite doesn't read a stale state.
+            autoOpened = autoOpened.filter(x => x.streamId !== item.streamId);
+            await stores.autoOpenedStreams.set(autoOpened);
+            
+            await cycleToNextFavorite(item.streamId, item.mode);
+            
+            // Reload the updated autoOpened list from store since cycleToNextFavorite might have added the cycled stream.
+            autoOpened = await stores.autoOpenedStreams.get();
+          }
         }
       }
     }
@@ -664,13 +681,28 @@ async function toggleStreak(stream: UnifiedStream, skipOpen?: boolean) {
       });
     }
     
-    await stores.autoOpenedStreams.set([
-      { streamId: stream.id, channelId: stream.channelId, mode: "streak" }
-    ]);
+    const trackMultiple = settings.general.trackMultipleStreams !== false;
+    if (trackMultiple) {
+      const updated: AutoOpenedStream[] = [
+        ...list.filter(item => item.streamId !== stream.id),
+        { streamId: stream.id, channelId: stream.channelId, mode: "streak" }
+      ];
+      await stores.autoOpenedStreams.set(updated);
+      
+      const currentCount = await stores.streakCount.get();
+      if (currentCount === 0) {
+        await stores.streakCount.set(1);
+      }
+      console.log(`[VspoDex] Streak: Appended tracking for ${stream.id} and opened stream.`);
+    } else {
+      await stores.autoOpenedStreams.set([
+        { streamId: stream.id, channelId: stream.channelId, mode: "streak" }
+      ]);
+      await stores.streakCount.set(1);
+      console.log(`[VspoDex] Streak: Overrode tracking with ${stream.id} and opened stream.`);
+    }
     
     await stores.autoOpenFavoritesArmed.set("disarmed");
-    await stores.streakCount.set(1);
-    console.log(`[VspoDex] Streak: Overrode tracking with ${stream.id} and opened stream.`);
   }
 }
 

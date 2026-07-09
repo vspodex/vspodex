@@ -167,6 +167,7 @@ export interface GeneralSettings {
   autoRearmFavorites?: boolean;
   streakModeForManualOpen?: boolean;
   maxStreak?: number;
+  trackMultipleStreams?: boolean;
 }
 
 export interface BadgeSettings {

@@ -44,7 +44,7 @@ const SettingsLink = styled.button`
 `;
 
 const ArmedToggleLink = styled.button<{ mode: "disarmed" | "armed" | "streak" }>`
-  ${tw`flex items-center justify-center w-10 h-10 rounded-lg transition-all cursor-pointer bg-transparent border-none outline-none p-0`}
+  ${tw`relative flex items-center justify-center w-10 h-10 rounded-lg transition-all cursor-pointer bg-transparent border-none outline-none p-0`}
   ${(props) => {
     if (props.mode === "streak") {
       return tw`text-amber-400 bg-amber-500/25 shadow-[0_0_8px_rgba(245,158,11,0.5)]`;
@@ -56,13 +56,17 @@ const ArmedToggleLink = styled.button<{ mode: "disarmed" | "armed" | "streak" }>
   }}
 `;
 
+const StreakBadge = styled.div`
+  ${tw`absolute -top-1.5 -right-1.5 bg-amber-500 text-black text-[9px] font-extrabold rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center shadow-[0_0_6px_rgba(245,158,11,0.8)] pointer-events-none border border-black/10`}
+`;
+
 function Sidebar() {
   const { t } = useTranslation();
   const [sidebarTabOrder] = useSidebarTabOrder({ suspense: true });
   const [armed, armedStore] = useAutoOpenFavoritesArmed({ suspense: true });
   const [autoOpened] = useAutoOpenedStreams({ suspense: true });
   const [settings] = useSettings({ suspense: true });
-  const [, streakCountStore] = useStreakCount({ suspense: true });
+  const [streakCount, streakCountStore] = useStreakCount({ suspense: true });
 
   const hasActiveStreak = autoOpened?.some(x => x.mode === "streak") ?? false;
   const displayMode = hasActiveStreak ? "streak" : armed;
@@ -148,6 +152,9 @@ function Sidebar() {
             <IconBolt size="1.5rem" fill="none" />
           ) : (
             <IconBolt size="1.5rem" fill="currentColor" className="animate-pulse" />
+          )}
+          {streakCount !== undefined && streakCount >= 1 && (
+            <StreakBadge>{streakCount}</StreakBadge>
           )}
         </ArmedToggleLink>
         <SettingsLink onClick={openSettings} title={t("tooltip_settings")}>

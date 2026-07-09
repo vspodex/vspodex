@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.3.10] - 2026-07-09
+
+### Added
+- **Multiple Manually Opened Streams Tracking**:
+  - Implemented support for tracking multiple manually opened live streams in parallel when streak mode is active.
+  - Added a General Setting `Track Multiple Manually Opened Streams` (enabled by default) to toggle this behavior.
+  - The extension now waits until ALL tracked live streams have ended before auto-opening the next live favorite stream.
+  - Adjusted the "Max Stream Streak" setting values to `2`, `3`, `4`, `5`, `10`, `20`, and `Unlimited`.
+  - Ensured that the streak count does not increment on manual openings of multiple streams (only increments when the auto-open cycling trigger is actually fired).
+
 ## [0.1.3.9] - 2026-07-08
 
 ### Fixed

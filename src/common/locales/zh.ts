@@ -189,13 +189,17 @@ export const zh: typeof en = {
   tooltip_streak_remove: "停止追蹤此直播",
   setting_streak_mode_for_manual_open: "手動開啟直播時啟用連續播放模式",
   setting_streak_mode_for_manual_open_desc: "在彈出視窗點擊直播卡片手動開啟直播時，自動以連續播放模式追蹤該直播，並於下播時重新啟用觸發器。",
+  setting_track_multiple_streams: "追蹤多個手動開啟的直播",
+  setting_track_multiple_streams_desc: "當已有直播在追蹤時，也允許追蹤新開啟的直播。僅在所有追蹤的直播都結束時，才自動開啟新的直播。",
   setting_max_streak: "最大連續播放流數量",
   setting_max_streak_desc: "在單次連續播放模式中自動開啟的直播最大數量。",
   setting_max_streak_1: "1 個直播",
   setting_max_streak_2: "2 個直播",
   setting_max_streak_3: "3 個直播",
+  setting_max_streak_4: "4 個直播",
   setting_max_streak_5: "5 個直播",
   setting_max_streak_10: "10 個直播",
+  setting_max_streak_20: "20 個直播",
   setting_max_streak_unlimited: "無限制",
 };
 

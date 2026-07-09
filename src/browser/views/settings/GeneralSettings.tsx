@@ -283,16 +283,29 @@ export function Component() {
             </FormGroup>
 
             <FormGroup style={{ marginLeft: "1.5rem" }}>
+              <CheckboxLabel>
+                <Checkbox
+                  type="checkbox"
+                  checked={register("general.trackMultipleStreams").value !== false}
+                  onChange={(e) => register("general.trackMultipleStreams").onChange(e.target.checked)}
+                />
+                {t("setting_track_multiple_streams")}
+              </CheckboxLabel>
+              <HelpText>{t("setting_track_multiple_streams_desc")}</HelpText>
+            </FormGroup>
+
+            <FormGroup style={{ marginLeft: "1.5rem" }}>
               <Label>{t("setting_max_streak")}</Label>
               <Select
                 value={register("general.maxStreak").value ?? 3}
                 onChange={(e) => register("general.maxStreak").onChange(Number(e.target.value))}
               >
-                <option value={1}>{t("setting_max_streak_1")}</option>
                 <option value={2}>{t("setting_max_streak_2")}</option>
                 <option value={3}>{t("setting_max_streak_3")}</option>
+                <option value={4}>{t("setting_max_streak_4")}</option>
                 <option value={5}>{t("setting_max_streak_5")}</option>
                 <option value={10}>{t("setting_max_streak_10")}</option>
+                <option value={20}>{t("setting_max_streak_20")}</option>
                 <option value={0}>{t("setting_max_streak_unlimited")}</option>
               </Select>
               <HelpText>{t("setting_max_streak_desc")}</HelpText>
