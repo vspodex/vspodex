@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.3.8] - 2026-07-08
+
+### Fixed
+- **Auto-Open Delayed & Gorilla Streams**:
+  - Refined the background Sleep Guard logic. Instead of comparing stream start times directly, we check if the extension was awake and actively refreshing. If awake, we bypass the start-time check for all newly detected live favorite streams, allowing delayed or guerrilla streams to open immediately without being filtered as stale.
+
 ## [0.1.3.7] - 2026-07-08
 
 ### Added

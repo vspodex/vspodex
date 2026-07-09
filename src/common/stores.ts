@@ -185,6 +185,10 @@ export const stores = {
     defaultValue: true,
   }),
 
+  lastRefreshTime: new Store<number>("session", "lastRefreshTime", {
+    defaultValue: 0,
+  }),
+
   // Twitch
   twitchAccessToken: new Store<string | null>("local", "twitchAccessToken", {
     defaultValue: null,

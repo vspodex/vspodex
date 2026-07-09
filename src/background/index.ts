@@ -76,6 +76,7 @@ async function refresh() {
   const previousLive = await stores.liveStreams.get();
   const previousLiveIds = new Set(previousLive.map(s => s.id));
   const isFirstRefresh = await stores.isFirstRefresh.get();
+  const lastRefreshTime = await stores.lastRefreshTime.get();
 
   browser.alarms.create("refresh", {
     periodInMinutes: intervalMinutes,
@@ -226,7 +227,13 @@ async function refresh() {
         
         const gracePeriodMs = (intervalMinutes + 2) * 60 * 1000;
         const now = Date.now();
+        const isRecentRefresh = lastRefreshTime > 0 && (now - lastRefreshTime) <= gracePeriodMs;
+
         const validLiveFavorites = liveFavorites.filter(s => {
+          if (isRecentRefresh) {
+            console.log(`[VspoDex] Auto-open: Stream ${s.id} detected as newly live while awake (bypassing start time check).`);
+            return true;
+          }
           if (!s.startedAt) return true;
           const startTime = new Date(s.startedAt).getTime();
           return (now - startTime) <= gracePeriodMs;
@@ -333,6 +340,7 @@ async function refresh() {
   }
 
   await stores.isFirstRefresh.set(false);
+  await stores.lastRefreshTime.set(Date.now());
 }
 
 // ─── Past Streams Refresh ─────────────────────────────────
