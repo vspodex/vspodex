@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.3.9] - 2026-07-08
+
+### Fixed
+- **Streak Tracking Overwrite on Stream Offline Event**:
+  - Fixed a race condition where the newly cycled stream in streak mode was overwritten and removed from the `autoOpenedStreams` store during the offline check in the background refresh loop.
+
 ## [0.1.3.8] - 2026-07-08
 
 ### Fixed

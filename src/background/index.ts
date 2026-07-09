@@ -318,23 +318,21 @@ async function refresh() {
       }
     }
 
-    const autoOpened = await stores.autoOpenedStreams.get();
+    let autoOpened = await stores.autoOpenedStreams.get();
     if (autoOpened.length > 0 && settings.general.autoRearmFavorites) {
-      let updatedAutoOpened = [...autoOpened];
-      let changed = false;
-      
       for (const item of autoOpened) {
         const isStillLive = allLive.some(s => s.id === item.streamId);
         if (!isStillLive) {
           console.log(`[VspoDex] Auto-rearm: Stream ${item.streamId} went offline. Triggering cycle/re-arm...`);
+          // Remove the offline stream from the store first, so cycleToNextFavorite doesn't read a stale state.
+          autoOpened = autoOpened.filter(x => x.streamId !== item.streamId);
+          await stores.autoOpenedStreams.set(autoOpened);
+          
           await cycleToNextFavorite(item.streamId, item.mode);
-          updatedAutoOpened = updatedAutoOpened.filter(x => x.streamId !== item.streamId);
-          changed = true;
+          
+          // Reload the updated autoOpened list from store since cycleToNextFavorite might have added the cycled stream.
+          autoOpened = await stores.autoOpenedStreams.get();
         }
-      }
-      
-      if (changed) {
-        await stores.autoOpenedStreams.set(updatedAutoOpened);
       }
     }
   }
