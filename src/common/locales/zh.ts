@@ -201,5 +201,20 @@ export const zh: typeof en = {
   setting_max_streak_10: "10 個直播",
   setting_max_streak_20: "20 個直播",
   setting_max_streak_unlimited: "無限制",
+
+  // Settings: Import/Export
+  nav_backup: "💾 匯入/匯出",
+  section_backup: "匯入 / 匯出設定",
+  desc_backup: "匯出您目前的設定、追蹤與最愛頻道、自訂頻道以及側邊欄配置，或是從其他備份 JSON 進行匯入。基於安全性考量，匯出檔案中不包含 Holodex API 金鑰。",
+  btn_export: "匯出設定",
+  btn_copy: "複製 JSON",
+  btn_copied: "已複製！",
+  btn_import: "匯入設定",
+  confirm_import: "您確定要匯入這些設定嗎？這將會覆寫您目前的所有設定、最愛、追蹤以及自訂頻道。",
+  import_success: "設定已成功匯入！",
+  error_invalid_json: "錯誤：無效的 JSON 格式。請檢查 JSON 語法。",
+  error_invalid_custom_channels: "警告：設定已匯入，但以下自訂頻道格式無效已被忽略：{details}",
+  locked_backup_desc: "請先設定並驗證您的 Holodex API 金鑰以存取匯入/匯出頁面。",
 };
+
 

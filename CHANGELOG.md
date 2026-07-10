@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.3.15] - 2026-07-10
+
+### Added
+- **Backup settings (Import/Export)**:
+  - Added a new Import/Export settings page under the options interface, requiring no additional browser permissions.
+  - Features secure JSON serialization that automatically excludes the Holodex API key to prevent leaks.
+  - Implemented a dual-state "Export Settings" button to generate JSON and copy it to the clipboard.
+  - Implemented editable text fields for JSON input with schema and format validation (e.g. valid YouTube channel ID prefix `"UC"` and length 24).
+  - Integrates with the background script to resolve and follow custom channels on-demand from the Holodex API.
+  - Locked access to the Import/Export view until a valid Holodex API key is connected.
+
 ## [0.1.3.10] - 2026-07-09
 
 ### Added

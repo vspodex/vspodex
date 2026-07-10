@@ -4,6 +4,7 @@ import SettingsRoot from "../views/settings/Root";
 import ApiKeySettings from "../views/settings/ApiKeySettings";
 import ChannelSettings from "../views/settings/ChannelSettings";
 import GeneralSettings from "../views/settings/GeneralSettings";
+import ImportExportSettings from "../views/settings/ImportExportSettings";
 
 const router = createHashRouter([
   {
@@ -25,6 +26,10 @@ const router = createHashRouter([
       {
         path: "general",
         Component: GeneralSettings,
+      },
+      {
+        path: "backup",
+        Component: ImportExportSettings,
       },
     ],
   },

@@ -199,4 +199,19 @@ export const en = {
   setting_max_streak_10: "10 streams",
   setting_max_streak_20: "20 streams",
   setting_max_streak_unlimited: "Unlimited streams",
+
+  // Settings: Import/Export
+  nav_backup: "💾 Import/Export",
+  section_backup: "Import / Export Settings",
+  desc_backup: "Export your current settings, followed and favorite channels, custom channels, and sidebar layout, or import them from another backup JSON. Your Holodex API key is not included in the export for security.",
+  btn_export: "Export Settings",
+  btn_copy: "Copy JSON",
+  btn_copied: "Copied!",
+  btn_import: "Import Settings",
+  confirm_import: "Are you sure you want to import these settings? This will overwrite your current settings, favorites, followed channels, and custom channels.",
+  import_success: "Settings imported successfully!",
+  error_invalid_json: "Error: Invalid JSON format. Please check the JSON syntax.",
+  error_invalid_custom_channels: "Warning: Settings imported, but the following custom channels were invalid and skipped: {details}",
+  locked_backup_desc: "Please configure and verify your Holodex API key first to access the Import/Export page.",
 };
+

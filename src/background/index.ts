@@ -742,7 +742,8 @@ async function cycleToNextFavorite(endedStreamId: string, endedStreamMode: "arme
   const candidates = allLive.filter(s => 
     favoriteChannels.includes(s.channelId) && 
     s.id !== endedStreamId && 
-    !activeOpenedIds.has(s.id)
+    !activeOpenedIds.has(s.id) &&
+    s.viewerCount !== 0
   );
 
   if (candidates.length > 0) {

@@ -12,6 +12,7 @@ This extension is dedicated to the VSpo community. It provides a clean and effic
 
 ## ⚙️ Features
 
+- **[New] Backup settings (Import/Export)**: Export settings, favorites, followed channels, custom channels, and sidebar layout to a backup JSON file (automatically excluding Holodex API keys for safety) or import them to restore your settings on another device.
 - **[New] Auto-open Live Favorites**: Quick-toggle lightning bolt on the popup sidebar footer to automatically launch a new tab when an offline favorite member goes live (with support for active/background tab modes, experimental auto-rearming/cycling when streams go offline, and customizable max stream streak limits).
 - **[New] Watchlist Scheduled Streams**: Alarm toggle on upcoming stream cards to schedule a tab to open automatically at start time.
 - **[New] VSPO! Member Themes**: Personalize the extension's entire UI with dedicated color themes modeled after the official VSPO! GEAR mechanical keyboard designs of 15 members (supporting light/dark modes and polka dot corner accents).

@@ -201,4 +201,19 @@ export const ja: typeof en = {
   setting_max_streak_10: "10 配信",
   setting_max_streak_20: "20 配信",
   setting_max_streak_unlimited: "無制限",
+
+  // Settings: Import/Export
+  nav_backup: "💾 インポート/エクスポート",
+  section_backup: "設定のインポート / エクスポート",
+  desc_backup: "現在の設定、フォロー・お気に入りチャンネル、カスタムチャンネル、サイドバーの配置をエクスポートするか、別のバックアップJSONからインポートします。セキュリティのため、Holodex APIキーはエクスポートに含まれません。",
+  btn_export: "設定をエクスポート",
+  btn_copy: "JSONをコピー",
+  btn_copied: "コピーしました！",
+  btn_import: "設定をインポート",
+  confirm_import: "これらの設定をインポートしてもよろしいですか？現在設定されている項目、お気に入り、フォロー、カスタムチャンネルが上書きされます。",
+  import_success: "設定が正常にインポートされました！",
+  error_invalid_json: "エラー: 無効なJSON形式です。JSONの構文を確認してください。",
+  error_invalid_custom_channels: "警告: 設定はインポートされましたが、以下のカスタムチャンネルは無効なためスキップされました: {details}",
+  locked_backup_desc: "インポート/エクスポートページにアクセスするには、まずHolodex APIキーを設定して接続してください。",
 };
+

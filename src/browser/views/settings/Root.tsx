@@ -3,7 +3,7 @@ import { Outlet, NavLink } from "react-router";
 import tw, { styled } from "twin.macro";
 
 import Loader from "~/browser/components/Loader";
-import { useTranslation } from "~/browser/hooks";
+import { useTranslation, useHolodexApiKeyVerified } from "~/browser/hooks";
 
 const Wrapper = styled.div`
   ${tw`flex h-full`}
@@ -31,6 +31,7 @@ const Logo = styled.div`
 
 export function Component() {
   const { t } = useTranslation();
+  const [holodexApiKeyVerified] = useHolodexApiKeyVerified();
 
   return (
     <>
@@ -49,6 +50,7 @@ export function Component() {
           <NavItem to="api-keys">{t("nav_api_keys")}</NavItem>
           <NavItem to="channels">{t("nav_channels")}</NavItem>
           <NavItem to="general">{t("nav_general")}</NavItem>
+          {holodexApiKeyVerified && <NavItem to="backup">{t("nav_backup")}</NavItem>}
         </SideNav>
 
         <Content>
