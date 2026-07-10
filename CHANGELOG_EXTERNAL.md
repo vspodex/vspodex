@@ -1,10 +1,10 @@
 # VspoDex Changelog (External Release)
 
-This external changelog summarizes the user-facing changes, new features, and bug fixes introduced in the current release (**v0.1.3.15**) compared to the last public release (**v0.1.3.4**).
+This external changelog summarizes the user-facing changes, new features, and bug fixes introduced in the current release (**v0.1.3.20**) compared to the last public release (**v0.1.3.4**).
 
 ---
 
-## [0.1.3.15] - 2026-07-10
+## [0.1.3.20] - 2026-07-10
 
 ### ⚙️ Settings Backup & Restore (Import/Export)
 * **Secure Export/Import**: You can now export your extension settings to a JSON format or import them to easily restore your configuration on another device or browser.

@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 
-## [0.1.3.15] - 2026-07-10
+## [0.1.3.20] - 2026-07-10
 
 ### Added
 - **Backup settings (Import/Export)**:
