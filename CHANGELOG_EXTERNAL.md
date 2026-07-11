@@ -1,6 +1,26 @@
 # VspoDex Changelog (External Release)
 
-This external changelog summarizes the user-facing changes, new features, and bug fixes introduced in the current release (**v0.1.3.20**) compared to the last public release (**v0.1.3.4**).
+This external changelog summarizes the user-facing changes, new features, and bug fixes introduced in the current release (**v0.1.4.1**) compared to the last public release (**v0.1.3.20**).
+
+---
+
+## [0.1.4.1] - 2026-07-11
+
+### 🔔 Live Stream Desktop Notifications
+* **Desktop Alerts**: Receive real-time desktop notifications when tracked channels transition to live, displaying the streamer's name and stream title.
+* **Smart Locales Mapping**: Notifications display a localized/formatted combination of Japanese and English names (e.g. `花芽すみれ (Kaga Sumire)`) for clear identification.
+* **One-Click Watch**: Clicking a desktop notification automatically opens the live stream URL in a new browser tab.
+* **Flexible Notification Scope**:
+  - Restrict notifications to either all followed streamers or only your favorited streamers.
+  - Turn notifications on or off completely via the `Enable Desktop Notifications` checkbox under General Settings (disabled by default).
+* **Multi-Language Support**: English, Japanese, and Traditional Chinese localization available.
+
+---
+
+### ⚙️ Settings Backup & Restore Enhancements
+* **Unfollowed Status Preservation**: Settings backup now stores your explicitly unfollowed members list (`unfollowedChannels`), preventing them from being automatically followed again on backup import.
+* **Backward Compatibility**: Automatically reconstructs the unfollowed list when importing older backup JSONs by comparing your followed list against standard VSPO members.
+* **Clean Settings Recovery**: Prevents auto-follow tasks from polluting the customized followed list during settings restoration.
 
 ---
 

@@ -12,6 +12,7 @@ This extension is dedicated to the VSpo community. It provides a clean and effic
 
 ## ⚙️ Features
 
+- **[New] Live Stream Desktop Notifications**: Get real-time desktop alerts when followed or favorited streamers go live (supporting localized Japanese/English name displays, single-click to watch, custom notification scopes, and multi-language translation support).
 - **[New] Auto-open Live Favorites**: Quick-toggle lightning bolt on the popup sidebar footer to automatically launch a new tab when an offline favorite member goes live (with support for active/background tab modes, experimental auto-rearming/cycling when streams go offline, and customizable max stream streak limits).
 - **[New] Watchlist Scheduled Streams**: Alarm toggle on upcoming stream cards to schedule a tab to open automatically at start time.
 - **[New] VSPO! Member Themes**: Personalize the extension's entire UI with dedicated color themes modeled after the official VSPO! GEAR mechanical keyboard designs of 15 members (supporting light/dark modes and polka dot corner accents).
