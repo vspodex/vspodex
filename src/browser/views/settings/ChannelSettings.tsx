@@ -4,7 +4,7 @@ import { IconStar, IconStarFilled, IconGripVertical } from "@tabler/icons-react"
 
 import { sendRuntimeMessage, formatChannelName } from "~/common/helpers";
 import { HolodexChannel, SuggestionChannel } from "~/common/types";
-import { useFollowedChannels, useChannelCache, useHolodexApiKey, useHolodexApiKeyVerified, useSearchChannelsList, useSearchChannelsLastUpdated, useTranslation, useFavoriteChannels } from "~/browser/hooks";
+import { useFollowedChannels, useChannelCache, useHolodexApiKey, useHolodexApiKeyVerified, useSearchChannelsList, useSearchChannelsLastUpdated, useTranslation, useFavoriteChannels, useUnfollowedChannels } from "~/browser/hooks";
 
 const FavoriteButton = styled.button<{ isFavorite: boolean }>`
   ${tw`p-1.5 rounded-lg cursor-pointer transition-colors flex-none ml-2 border-none outline-none`}
@@ -171,6 +171,7 @@ const RemoveButton = styled.button`
 
 export function Component() {
   const [followedChannels, followedStore] = useFollowedChannels();
+  const [unfollowedChannels, unfollowedStore] = useUnfollowedChannels();
   const [channelCache, channelCacheStore] = useChannelCache();
   const [favoriteChannels, favoriteStore] = useFavoriteChannels();
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -346,6 +347,7 @@ export function Component() {
 
       if (!followedSet.has(suggestion.id)) {
         await followedStore.set([...followedChannels, suggestion.id]);
+        await unfollowedStore.set(unfollowedChannels.filter((id) => id !== suggestion.id));
       }
     } catch (error) {
       console.error("Failed to select suggestion:", error);
@@ -403,14 +405,17 @@ export function Component() {
     if (followedSet.has(channelId)) {
       await followedStore.set(followedChannels.filter((id) => id !== channelId));
       await favoriteStore.set(favoriteChannels.filter((id) => id !== channelId));
+      await unfollowedStore.set(Array.from(new Set([...unfollowedChannels, channelId])));
     } else {
       await followedStore.set([...followedChannels, channelId]);
+      await unfollowedStore.set(unfollowedChannels.filter((id) => id !== channelId));
     }
   };
 
   const handleRemoveChannel = async (channelId: string) => {
     if (followedSet.has(channelId)) {
       await followedStore.set(followedChannels.filter((id) => id !== channelId));
+      await unfollowedStore.set(Array.from(new Set([...unfollowedChannels, channelId])));
     }
     await favoriteStore.set(favoriteChannels.filter((id) => id !== channelId));
     await channelCacheStore.set(channelCache.filter((ch) => ch.id !== channelId));
@@ -448,7 +453,7 @@ export function Component() {
   const groupedChannels = useMemo(() => {
     const groups: Record<string, HolodexChannel[]> = {};
     for (const channel of displayChannels) {
-      const isVspo = channel.org === "VSpo" || channel.group === "VSPO";
+      const isVspo = channel.org?.toLowerCase() === "vspo" || channel.group?.toLowerCase() === "vspo";
       const groupName = isVspo ? (channel.group || "VSPO") : "Custom channels";
 
       if (!groups[groupName]) {
@@ -478,6 +483,8 @@ export function Component() {
     const ids = channelsToFollow.map(c => c.id);
     const merged = new Set([...followedChannels, ...ids]);
     await followedStore.set(Array.from(merged));
+    const idsSet = new Set(ids);
+    await unfollowedStore.set(unfollowedChannels.filter(id => !idsSet.has(id)));
   };
 
   const handleUnfollowGroup = async (channelsToUnfollow: HolodexChannel[]) => {
@@ -486,6 +493,7 @@ export function Component() {
     await followedStore.set(newFollowed);
     const newFavorites = favoriteChannels.filter(id => !idsToUnfollow.has(id));
     await favoriteStore.set(newFavorites);
+    await unfollowedStore.set(Array.from(new Set([...unfollowedChannels, ...Array.from(idsToUnfollow)])));
   };
 
   return (

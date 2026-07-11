@@ -149,6 +149,10 @@ export function useFollowedChannels(options?: UseStoreOptions) {
   return useStore(stores.followedChannels, options);
 }
 
+export function useUnfollowedChannels(options?: UseStoreOptions) {
+  return useStore(stores.unfollowedChannels, options);
+}
+
 export function useChannelCache(options?: UseStoreOptions) {
   return useStore(stores.channelCache, options);
 }

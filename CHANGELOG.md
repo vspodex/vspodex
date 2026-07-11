@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.4.0] - 2026-07-11
+
+### Added
+- **Live Stream Desktop Notifications**:
+  - Implemented desktop alerts when followed channels go live, containing the stream title and a localized/formatted combination of Japanese and English names (e.g. `花芽すみれ (Kaga Sumire)`).
+  - Implemented clean and simple notification messages.
+  - Clicking the desktop notification opens the stream URL in a new browser tab.
+  - Added a configuration checkbox `Enable Desktop Notifications` under settings, defaulting to disabled.
+  - Added a configuration dropdown option to restrict notifications to either all followed streamers or favorite streamers only.
+  - Added translation locales support for English, Japanese, and Chinese.
+  - Added `"notifications"` permission to Chrome and Firefox manifest configurations.
+
+## [0.1.3.21] - 2026-07-10
+
+### Fixed
+- **Unfollowed Members Settings Export & Import**:
+  - Implemented a persistent `unfollowedChannels` store to track explicitly unfollowed members.
+  - Included `unfollowedChannels` in settings backup export JSON.
+  - Restored `unfollowedChannels` during import, including case-insensitive matching for VSPO channels.
+  - Implemented reverse-compatibility: derived `unfollowedChannels` dynamically when importing older JSON backups by querying all current VSPO channels (including English, newer JP members, and official channels) from the Holodex API and subtracting the imported `followedChannels`.
+  - Excluded EN, JP, and official VSPO channels from being falsely categorized as "custom channels" in exported backups.
+  - Restored the followed channels list to match the imported list at the end of custom channel import, preventing background auto-follows from polluting settings.
+
 ## [0.1.3.20] - 2026-07-10
 
 ### Added

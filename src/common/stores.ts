@@ -137,6 +137,10 @@ export const stores = {
     defaultValue: DEFAULT_VSPO_CHANNELS.map(c => c.id),
   }),
 
+  unfollowedChannels: new Store<string[]>("local", "unfollowedChannels", {
+    defaultValue: [],
+  }),
+
   channelCache: new Store<HolodexChannel[]>("local", "channelCache", {
     defaultValue: DEFAULT_VSPO_CHANNELS.map(c => ({
       id: c.id,
@@ -223,6 +227,8 @@ export const stores = {
         streakModeForManualOpen: false,
         maxStreak: 3,
         trackMultipleStreams: true,
+        enableLiveNotifications: false,
+        liveNotificationScope: "all",
       },
       badge: {
         enabled: true,

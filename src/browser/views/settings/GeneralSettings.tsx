@@ -314,6 +314,32 @@ export function Component() {
         )}
 
         <FormGroup>
+          <CheckboxLabel>
+            <Checkbox
+              type="checkbox"
+              checked={register("general.enableLiveNotifications").value || false}
+              onChange={(e) => register("general.enableLiveNotifications").onChange(e.target.checked)}
+            />
+            {t("setting_enable_live_notifications")}
+          </CheckboxLabel>
+          <HelpText>{t("setting_enable_live_notifications_desc")}</HelpText>
+        </FormGroup>
+
+        {register("general.enableLiveNotifications").value && (
+          <FormGroup style={{ marginLeft: "1.5rem" }}>
+            <Label>{t("setting_live_notification_scope")}</Label>
+            <Select
+              value={register("general.liveNotificationScope").value ?? "all"}
+              onChange={(e) => register("general.liveNotificationScope").onChange(e.target.value)}
+            >
+              <option value="all">{t("setting_live_notification_scope_all")}</option>
+              <option value="favorites">{t("setting_live_notification_scope_favorites")}</option>
+            </Select>
+            <HelpText>{t("setting_live_notification_scope_desc")}</HelpText>
+          </FormGroup>
+        )}
+
+        <FormGroup>
           <Label>{t("setting_refresh_interval")}</Label>
           <Select
             value={refreshIntervalProps.value}

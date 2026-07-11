@@ -168,6 +168,8 @@ export interface GeneralSettings {
   streakModeForManualOpen?: boolean;
   maxStreak?: number;
   trackMultipleStreams?: boolean;
+  enableLiveNotifications?: boolean;
+  liveNotificationScope?: "all" | "favorites";
 }
 
 export interface BadgeSettings {

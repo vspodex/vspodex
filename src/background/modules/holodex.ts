@@ -193,7 +193,7 @@ export async function refreshVspoChannels(): Promise<HolodexChannel[]> {
     // Keep custom channels in the cache (channels not belonging to VSpo)
     const currentCache = await stores.channelCache.get();
     for (const cachedCh of currentCache) {
-      const isVspo = cachedCh.org === "VSpo" || cachedCh.group === "VSPO";
+      const isVspo = cachedCh.org?.toLowerCase() === "vspo" || cachedCh.group?.toLowerCase() === "vspo";
       if (!vspoIdSet.has(cachedCh.id) && !isVspo) {
         newCache.push(cachedCh);
       }
@@ -212,12 +212,15 @@ export async function refreshVspoChannels(): Promise<HolodexChannel[]> {
     const isFirstInit = currentCache.length === 0;
     const previousVspoIds = new Set(
       currentCache
-        .filter(ch => ch.org === "VSpo" || ch.group === "VSPO")
+        .filter(ch => ch.org?.toLowerCase() === "vspo" || ch.group?.toLowerCase() === "vspo")
         .map(ch => ch.id)
     );
 
+    const unfollowed = await stores.unfollowedChannels.get();
+    const unfollowedSet = new Set(unfollowed);
+
     for (const id of vspoIdSet) {
-      if (!newFollowed.includes(id)) {
+      if (!newFollowed.includes(id) && !unfollowedSet.has(id)) {
         if (isFirstInit || !previousVspoIds.has(id)) {
           newFollowed.push(id);
         }
@@ -225,6 +228,12 @@ export async function refreshVspoChannels(): Promise<HolodexChannel[]> {
     }
 
     await stores.followedChannels.set(newFollowed);
+
+    // Keep unfollowedChannels clean of any followed channels
+    const newUnfollowed = unfollowed.filter(id => !newFollowed.includes(id));
+    if (newUnfollowed.length !== unfollowed.length) {
+      await stores.unfollowedChannels.set(newUnfollowed);
+    }
   }
 
   return channels;
@@ -278,6 +287,12 @@ export async function addCustomChannel(channelId: string): Promise<boolean> {
       if (!currentFollowed.includes(channel.id)) {
         currentFollowed.push(channel.id);
         await stores.followedChannels.set(currentFollowed);
+
+        // Also remove from unfollowed
+        const currentUnfollowed = await stores.unfollowedChannels.get();
+        if (currentUnfollowed.includes(channel.id)) {
+          await stores.unfollowedChannels.set(currentUnfollowed.filter(id => id !== channel.id));
+        }
       }
       return true;
     }

@@ -244,7 +244,7 @@ function ChildComponent() {
     for (const ch of members) {
       if (favoritesSet.has(ch.id)) continue;
 
-      const isVspo = ch.org === "VSpo" || ch.group === "VSPO";
+      const isVspo = ch.org?.toLowerCase() === "vspo" || ch.group?.toLowerCase() === "vspo";
       if (isVspo) {
         if (ch.group === "Official" || ch.english_name === "VSPO! Official" || ch.english_name === "VSPO! English") {
           vspoOfficial.push(ch);

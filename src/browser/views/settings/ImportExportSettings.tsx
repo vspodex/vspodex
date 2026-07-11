@@ -89,6 +89,7 @@ export function Component() {
       const currentSettings = await stores.settings.get();
       const currentFavoriteChannels = await stores.favoriteChannels.get();
       const currentFollowedChannels = await stores.followedChannels.get();
+      const currentUnfollowedChannels = await stores.unfollowedChannels.get();
       const currentSidebarTabOrder = await stores.sidebarTabOrder.get();
       const currentChannelCache = await stores.channelCache.get();
 
@@ -97,16 +98,20 @@ export function Component() {
       if ("holodexApiKey" in cleanedSettings) delete (cleanedSettings as any).holodexApiKey;
       if ("holodexApiKeyVerified" in cleanedSettings) delete (cleanedSettings as any).holodexApiKeyVerified;
 
-      // Extract custom channels from the cache (channels not present in default VSPO channels)
+      // Extract custom channels from the cache (channels not present in default VSPO channels and not part of VSPO organization)
       const defaultIds = new Set(DEFAULT_VSPO_CHANNELS.map((c) => c.id));
       const customChannelIds = currentChannelCache
-        .filter((ch) => !defaultIds.has(ch.id))
+        .filter((ch) => {
+          const isVspo = ch.org?.toLowerCase() === "vspo" || ch.group?.toLowerCase() === "vspo";
+          return !defaultIds.has(ch.id) && !isVspo;
+        })
         .map((ch) => ch.id);
 
       const exportData = {
         settings: cleanedSettings,
         favoriteChannels: currentFavoriteChannels,
         followedChannels: currentFollowedChannels,
+        unfollowedChannels: currentUnfollowedChannels,
         sidebarTabOrder: currentSidebarTabOrder,
         customChannels: customChannelIds,
       };
@@ -159,6 +164,43 @@ export function Component() {
         await stores.followedChannels.set(validFollowed);
       }
 
+      // Process Unfollowed Channels
+      if (Array.isArray(data.unfollowedChannels)) {
+        const validUnfollowed = data.unfollowedChannels.filter((id: any) => typeof id === "string");
+        await stores.unfollowedChannels.set(validUnfollowed);
+      } else if (Array.isArray(data.followedChannels)) {
+        // Reverse-compatibility with old JSONs:
+        // If unfollowedChannels is not in the imported JSON but followedChannels is,
+        // we derive unfollowedChannels by finding all known VSPO / cached channels that are NOT in the followed list.
+        const validFollowed = data.followedChannels.filter((id: any) => typeof id === "string");
+
+        // Fetch all current VSPO channels (including EN/JP/Official) from the Holodex API
+        // to populate the cache before derivation, ensuring that any unfollowed members among them are correctly derived.
+        let fetchedIds: string[] = [];
+        try {
+          const vspoChannels = await sendRuntimeMessage("getChannelsByOrg", "VSpo") as any[];
+          if (Array.isArray(vspoChannels) && vspoChannels.length > 0) {
+            const currentCache = await stores.channelCache.get();
+            const cacheMap = new Map(currentCache.map(ch => [ch.id, ch]));
+            for (const ch of vspoChannels) {
+              cacheMap.set(ch.id, ch);
+            }
+            await stores.channelCache.set(Array.from(cacheMap.values()));
+            fetchedIds = vspoChannels.map(ch => ch.id);
+          }
+        } catch (err) {
+          console.error("Failed to fetch VSPO channels during import derivation:", err);
+        }
+
+        const defaultVspoIds = DEFAULT_VSPO_CHANNELS.map((c) => c.id);
+        const currentCache = await stores.channelCache.get();
+        const cacheIds = currentCache.map((c) => c.id);
+        const allKnownIds = Array.from(new Set([...defaultVspoIds, ...cacheIds, ...fetchedIds]));
+        const followedSet = new Set(validFollowed);
+        const derivedUnfollowed = allKnownIds.filter((id) => !followedSet.has(id));
+        await stores.unfollowedChannels.set(derivedUnfollowed);
+      }
+
       // 6. Process Sidebar Tab Order
       if (Array.isArray(data.sidebarTabOrder)) {
         const validTabs = data.sidebarTabOrder.filter((tab: any) => typeof tab === "string");
@@ -191,14 +233,7 @@ export function Component() {
         const cacheIds = new Set(currentCache.map((ch) => ch.id));
 
         for (const id of validCustomChannelIds) {
-          if (cacheIds.has(id)) {
-            // Already cached, verify it's also followed
-            const currentFollowed = await stores.followedChannels.get();
-            if (!currentFollowed.includes(id)) {
-              currentFollowed.push(id);
-              await stores.followedChannels.set(currentFollowed);
-            }
-          } else {
+          if (!cacheIds.has(id)) {
             // Not in cache, request background script to fetch and cache details
             try {
               const success = await sendRuntimeMessage("addCustomChannel", id);
@@ -211,6 +246,13 @@ export function Component() {
             }
           }
         }
+      }
+
+      // Restore followedChannels back to imported validFollowed list
+      // (to undo any auto-follows triggered by addCustomChannel background fetches)
+      if (Array.isArray(data.followedChannels)) {
+        const validFollowed = data.followedChannels.filter((id: any) => typeof id === "string");
+        await stores.followedChannels.set(validFollowed);
       }
 
       // 8. Result feedback

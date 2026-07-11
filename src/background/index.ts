@@ -214,11 +214,42 @@ async function refresh() {
   refreshActionBadge(allLive.length);
 
   if (!isFirstRefresh) {
+    const newlyLive = allLive.filter(s => !previousLiveIds.has(s.id));
+
+    if (settings.general.enableLiveNotifications && newlyLive.length > 0) {
+      const scope = settings.general.liveNotificationScope || "all";
+      const favoriteChannels = await stores.favoriteChannels.get();
+      const filteredLive = scope === "favorites"
+        ? newlyLive.filter(s => favoriteChannels.includes(s.channelId))
+        : newlyLive;
+
+      if (filteredLive.length > 0) {
+        const cachedChannels = await stores.channelCache.get();
+        for (const stream of filteredLive) {
+        const ch = cachedChannels.find(c => c.id === stream.channelId);
+        const name = ch 
+          ? (ch.english_name && ch.name !== ch.english_name ? `${ch.name} (${ch.english_name})` : ch.name)
+          : stream.channelName;
+        
+        const title = `${name} is now live!`;
+        const message = stream.title;
+        
+        browser.notifications.create(stream.url, {
+          type: "basic",
+          iconUrl: browser.runtime.getURL("icon-96.png"),
+          title,
+          message,
+        }).catch(err => {
+          console.error("[VspoDex] Failed to create notification:", err);
+        });
+      }
+    }
+  }
+
     const favoriteChannels = await stores.favoriteChannels.get();
     const autoOpenArmed = await stores.autoOpenFavoritesArmed.get();
     
     if (autoOpenArmed !== "disarmed") {
-      const newlyLive = allLive.filter(s => !previousLiveIds.has(s.id));
       const liveFavorites = newlyLive.filter(s => favoriteChannels.includes(s.channelId));
       
       if (liveFavorites.length > 0) {
@@ -841,6 +872,22 @@ browser.runtime.onInstalled.addListener(async (details) => {
         console.log("[VspoDex] Migration: patched followedChannels IDs.");
       }
 
+      // 1b. Migrate unfollowedChannels IDs
+      const unfollowed = await stores.unfollowedChannels.get();
+      let unfollowedPatched = false;
+      const newUnfollowed = unfollowed.map(id => {
+        if (ID_MIGRATION_MAP[id]) {
+          unfollowedPatched = true;
+          return ID_MIGRATION_MAP[id];
+        }
+        return id;
+      });
+      const uniqueUnfollowed = Array.from(new Set(newUnfollowed));
+      if (unfollowedPatched || uniqueUnfollowed.length !== unfollowed.length) {
+        await stores.unfollowedChannels.set(uniqueUnfollowed);
+        console.log("[VspoDex] Migration: patched unfollowedChannels IDs.");
+      }
+
       // 2. Migrate channelCache IDs and twitch logins
       const cached = await stores.channelCache.get();
       let cachePatched = false;
@@ -888,6 +935,15 @@ browser.runtime.onStartup.addListener(() => {
   refresh();
   refreshPastStreams();
   restoreWatchlistAlarms().catch(err => console.error("[VspoDex] Restore watchlist alarms failed:", err));
+});
+
+browser.notifications.onClicked.addListener((notificationId) => {
+  if (notificationId && notificationId.startsWith("https://")) {
+    browser.tabs.create({ url: notificationId }).catch((err) => {
+      console.error("[VspoDex] Failed to open tab from notification:", err);
+    });
+    browser.notifications.clear(notificationId).catch(() => {});
+  }
 });
 
 // ─── Commands Handler ──────────────────────────────────────
