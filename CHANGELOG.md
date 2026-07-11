@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 
-## [0.1.4.0] - 2026-07-11
+## [0.1.4.1] - 2026-07-11
 
 ### Added
 - **Live Stream Desktop Notifications**:

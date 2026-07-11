@@ -1,6 +1,6 @@
 {
   "name": "vspodex",
-  "version": "0.1.4.0",
+  "version": "0.1.4.1",
   "license": "MIT",
   "private": true,
   "packageManager": "yarn@1.22.22",

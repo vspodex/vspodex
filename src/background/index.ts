@@ -216,6 +216,8 @@ async function refresh() {
   if (!isFirstRefresh) {
     const newlyLive = allLive.filter(s => !previousLiveIds.has(s.id));
 
+    console.log(`[VspoDex] Notification check: ${newlyLive.length} newly live stream(s). enableLiveNotifications: ${settings.general.enableLiveNotifications}`);
+
     if (settings.general.enableLiveNotifications && newlyLive.length > 0) {
       const scope = settings.general.liveNotificationScope || "all";
       const favoriteChannels = await stores.favoriteChannels.get();
@@ -223,28 +225,43 @@ async function refresh() {
         ? newlyLive.filter(s => favoriteChannels.includes(s.channelId))
         : newlyLive;
 
+      console.log(`[VspoDex] Notification scope: ${scope}. Total favorite channels: ${favoriteChannels.length}. Newly live channels matching scope: ${filteredLive.length}`);
+
       if (filteredLive.length > 0) {
         const cachedChannels = await stores.channelCache.get();
         for (const stream of filteredLive) {
-        const ch = cachedChannels.find(c => c.id === stream.channelId);
-        const name = ch 
-          ? (ch.english_name && ch.name !== ch.english_name ? `${ch.name} (${ch.english_name})` : ch.name)
-          : stream.channelName;
-        
-        const title = `${name} is now live!`;
-        const message = stream.title;
-        
-        browser.notifications.create(stream.url, {
-          type: "basic",
-          iconUrl: browser.runtime.getURL("icon-96.png"),
-          title,
-          message,
-        }).catch(err => {
-          console.error("[VspoDex] Failed to create notification:", err);
-        });
+          const ch = cachedChannels.find(c => c.id === stream.channelId);
+          const name = ch 
+            ? (ch.english_name && ch.name !== ch.english_name ? `${ch.name} (${ch.english_name})` : ch.name)
+            : stream.channelName;
+          
+          const title = `${name} is now live!`;
+          const message = stream.title;
+          const iconUrl = browser.runtime.getURL("icon-96.png");
+          
+          console.log(`[VspoDex] Attempting to create desktop notification:`, {
+            streamId: stream.id,
+            channelId: stream.channelId,
+            channelName: stream.channelName,
+            url: stream.url,
+            title,
+            message,
+            iconUrl
+          });
+          
+          browser.notifications.create(stream.url, {
+            type: "basic",
+            iconUrl,
+            title,
+            message,
+          }).then((notificationId) => {
+            console.log(`[VspoDex] Notification successfully created. ID: ${notificationId}`);
+          }).catch(err => {
+            console.error(`[VspoDex] Failed to create notification for ${stream.url}:`, err);
+          });
+        }
       }
     }
-  }
 
     const favoriteChannels = await stores.favoriteChannels.get();
     const autoOpenArmed = await stores.autoOpenFavoritesArmed.get();
