@@ -1,6 +1,15 @@
 # VspoDex Changelog (External Release)
 
-This external changelog summarizes the user-facing changes, new features, and bug fixes introduced in the current release (**v0.1.4.1**) compared to the last public release (**v0.1.3.20**).
+This external changelog summarizes the user-facing changes, new features, and bug fixes introduced in the current release (**v0.1.4.2**) compared to the last public release (**v0.1.4.1**).
+
+---
+
+## [0.1.4.2] - 2026-07-17
+
+### ⚡ Naming Consistency & Bolt Button Enhancements (Streak Mode)
+* **Naming Consistency**: Appended `(Streak Mode)` / `（ストリークモード）` / `（連續播放模式）` to the `Auto-Rearm Live Favorites` setting label under General Settings for UI-wide naming consistency.
+* **Untracked Stream Action**: When both `Manual Open as Streak Mode` and `Track Multiple Manually Opened Streams` options are enabled, clicking the bolt button on an untracked stream card will now open that stream untracked. This enables users to easily bypass streak-tracking for specific streams.
+* **Dynamic Tooltips**: The bolt button now updates its tooltip dynamically to `"Open stream untracked"` (or equivalent locale translation) to clearly signal this new behavior.
 
 ---
 

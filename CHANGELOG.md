@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.4.2] - 2026-07-17
+
+### Added
+- **Streak Mode Naming Consistency**:
+  - Appended `(Streak Mode)` / `（ストリークモード）` / `（連續播放模式）` to the `Auto-Rearm Live Favorites` setting label across all translation locales.
+- **Untracked Stream Card Bolt Actions**:
+  - Implemented bypass check on the stream card bolt button: when both `Manual Open as Streak Mode` and `Track Multiple Manually Opened Streams` settings are active, clicking the bolt button opens the stream untracked rather than tracking it.
+  - Added new locale translations for the untracked open tooltip (`tooltip_streak_untracked`).
+
 ## [0.1.4.1] - 2026-07-11
 
 ### Added
