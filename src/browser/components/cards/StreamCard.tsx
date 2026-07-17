@@ -108,6 +108,15 @@ function StreamCard(props: StreamCardProps) {
     return autoOpened?.some((item) => item.streamId === stream.id && item.mode === "streak") ?? false;
   }, [autoOpened, stream.id]);
 
+  const shouldOpenUntracked = useMemo(() => {
+    return (
+      !isCurrentStreak &&
+      !!settings.general.autoRearmFavorites &&
+      !!settings.general.streakModeForManualOpen &&
+      !!settings.general.trackMultipleStreams
+    );
+  }, [isCurrentStreak, settings.general.autoRearmFavorites, settings.general.streakModeForManualOpen, settings.general.trackMultipleStreams]);
+
   const handleWatchlistClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -122,7 +131,9 @@ function StreamCard(props: StreamCardProps) {
     e.preventDefault();
     e.stopPropagation();
     try {
-      if (!isCurrentStreak) {
+      if (shouldOpenUntracked) {
+        await openUrl(stream.url, e);
+      } else if (!isCurrentStreak) {
         await sendRuntimeMessage("toggleStreak", stream, true);
         await openUrl(stream.url, e);
       } else {
@@ -282,7 +293,13 @@ function StreamCard(props: StreamCardProps) {
           <StreakButton
             active={isCurrentStreak}
             onClick={handleStreakClick}
-            title={isCurrentStreak ? t("tooltip_streak_remove") : t("tooltip_streak_add")}
+            title={
+              isCurrentStreak
+                ? t("tooltip_streak_remove")
+                : shouldOpenUntracked
+                ? t("tooltip_streak_untracked")
+                : t("tooltip_streak_add")
+            }
           >
             <IconBolt size="1.1rem" fill={isCurrentStreak ? "currentColor" : "none"} />
           </StreakButton>
