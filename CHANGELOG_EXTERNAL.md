@@ -1,6 +1,14 @@
 # VspoDex Changelog (External Release)
 
-This external changelog summarizes the user-facing changes, new features, and bug fixes introduced in the current release (**v0.1.4.2**) compared to the last public release (**v0.1.4.1**).
+This external changelog summarizes the user-facing changes, new features, and bug fixes introduced in the current release (**v0.1.4.3**) compared to the last public release (**v0.1.4.2**).
+
+---
+
+## [0.1.4.3] - 2026-07-17
+
+### 📅 Date Display on Upcoming Stream Cards
+* **Flexible Date/Time Formatting**: Stream cards in the upcoming tab now display both the date and time of the stream if it's scheduled over 24 hours in the future.
+* **Reduced Ambiguity**: Displaying both the localized date and time prevents confusion when streams are scheduled multiple days in advance.
 
 ---
 

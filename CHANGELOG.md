@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## [0.1.4.3] - 2026-07-17
+
+### Added
+- **Date Display on Upcoming Stream Cards**:
+  - Configured the upcoming stream card's `scheduledTime` display to show the localized date and time when the stream's scheduled start time is over 24 hours in the future.
+
 ## [0.1.4.2] - 2026-07-17
 
 ### Added

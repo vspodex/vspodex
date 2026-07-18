@@ -187,8 +187,18 @@ function StreamCard(props: StreamCardProps) {
     if (!stream.scheduledAt) return null;
 
     const date = new Date(stream.scheduledAt);
+    const diff = date.getTime() - currentTime.getTime();
+    if (diff > 86400000) {
+      return date.toLocaleString([], {
+        month: "numeric",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  }, [stream.scheduledAt]);
+  }, [stream.scheduledAt, currentTime]);
 
   // Duration formatted for past streams (e.g. "1:32:05" → "1:32")
   const formattedDuration = useMemo(() => {
